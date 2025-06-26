@@ -23,6 +23,7 @@ const values = [
     icon: <QrCode className="w-8 h-8 text-amber-500 mb-2" />, title: "Innovation",
     desc: "We leverage technology to deliver seamless, impactful solutions."
   },
+
 ];
 
 export default function AboutPage() {
