@@ -16,22 +16,13 @@ import {
   Play,
   CheckCircle,
   Star,
-  Menu,
-  X,
   ChevronUp,
 } from "lucide-react";
 
 export default function ClubSyncLanding() {
+  const [isVisible, setIsVisible] = useState<Record<string, boolean>>({});
+  const [hoveredStat, setHoveredStat] = useState<number | null>(null);
   const [scrollY, setScrollY] = useState(0);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isVisible, setIsVisible] = useState({});
-  const [hoveredStat, setHoveredStat] = useState(null);
-
-  useEffect(() => {
-    const handleScroll = () => setScrollY(window.scrollY);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -43,13 +34,19 @@ export default function ClubSyncLanding() {
           }));
         });
       },
-      { threshold: 0.1, rootMargin: "50px" }
+      { threshold: 0.1, rootMargin: "50px" },
     );
 
     const elements = document.querySelectorAll("[data-animate]");
     elements.forEach((el) => observer.observe(el));
 
     return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = () => setScrollY(window.scrollY);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const features = [
@@ -135,83 +132,6 @@ export default function ClubSyncLanding() {
         />
       </div>
 
-      <nav
-        className={`fixed top-0 w-full z-40 transition-all duration-500 ${
-          scrollY > 50
-            ? "bg-white/95 backdrop-blur-lg shadow-lg border-b border-gray-200 transform"
-            : "bg-white transform"
-        }`}
-      >
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3 group cursor-pointer">
-              <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg flex items-center justify-center transform group-hover:rotate-12 transition-transform duration-300">
-                <Zap className="w-6 h-6 text-white" />
-              </div>
-              <span className="text-2xl font-bold text-black group-hover:text-orange-500 transition-colors duration-300">
-                <Link href="/">ClubSync</Link>
-              </span>
-            </div>
-
-            <div className="hidden md:flex items-center space-x-8">
-              {["Home", "About", "Contact"].map((item, index) => (
-                <a
-                  key={item}
-                  href={`#${item.toLowerCase()}`}
-                  className="text-gray-700 hover:text-orange-500 transition-all duration-300 font-medium relative group"
-                  style={{ animationDelay: `${index * 0.1}s` }}
-                >
-                  {item}
-                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-orange-500 group-hover:w-full transition-all duration-300" />
-                </a>
-              ))}
-              <button className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-6 py-2 rounded-lg hover:from-orange-600 hover:to-red-600 transition-all duration-300 font-medium transform hover:scale-105 hover:shadow-lg">
-                Get Started
-              </button>
-            </div>
-
-            <button
-              className="md:hidden transform transition-transform duration-200 hover:scale-110"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            >
-              {mobileMenuOpen ? (
-                <X className="w-6 h-6" />
-              ) : (
-                <Menu className="w-6 h-6" />
-              )}
-            </button>
-          </div>
-
-          <div
-            className={`md:hidden overflow-hidden transition-all duration-500 ${
-              mobileMenuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
-            }`}
-          >
-            <div className="flex flex-col space-y-4 pt-4 pb-4 border-t border-gray-200">
-              {["Features", "Demo", "Community"].map((item, index) => (
-                <a
-                  key={item}
-                  href={`#${item.toLowerCase()}`}
-                  className="text-gray-700 hover:text-orange-500 transition-all duration-300 font-medium transform hover:translate-x-2"
-                  onClick={() => setMobileMenuOpen(false)}
-                  style={{
-                    animationDelay: `${index * 0.1}s`,
-                    transform: mobileMenuOpen
-                      ? "translateX(0)"
-                      : "translateX(-20px)",
-                  }}
-                >
-                  {item}
-                </a>
-              ))}
-              <button className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-6 py-2 rounded-lg hover:from-orange-600 hover:to-red-600 transition-all duration-300 font-medium w-fit transform hover:scale-105">
-                Get Started
-              </button>
-            </div>
-          </div>
-        </div>
-      </nav>
-
       <section className="pt-32 pb-20 px-6 relative">
         <div className="max-w-6xl mx-auto text-center">
           <div className="animate-fade-in-up">
@@ -252,10 +172,12 @@ export default function ClubSyncLanding() {
             className="animate-fade-in-up flex flex-col sm:flex-row gap-4 justify-center mb-16"
             style={{ animationDelay: "0.6s" }}
           >
-            <button className="group bg-gradient-to-r from-orange-500 to-red-500 text-white px-8 py-4 rounded-lg font-medium hover:from-orange-600 hover:to-red-600 transition-all duration-300 transform hover:scale-105 hover:shadow-xl flex items-center justify-center space-x-2">
-              <span>Start Your Journey</span>
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
-            </button>
+            <Link href="/register">
+              <button className="group bg-gradient-to-r from-orange-500 to-red-500 text-white px-8 py-4 rounded-lg font-medium hover:from-orange-600 hover:to-red-600 transition-all duration-300 transform hover:scale-105 hover:shadow-xl flex items-center justify-center space-x-2">
+                <span>Start Your Journey</span>
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
+              </button>
+            </Link>
             <button className="group border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-lg font-medium hover:border-orange-500 hover:text-orange-500 transition-all duration-300 transform hover:scale-105 flex items-center justify-center space-x-2">
               <Play className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
               <span>Watch Demo</span>
@@ -541,16 +463,18 @@ export default function ClubSyncLanding() {
             ))}
           </div>
 
-          <button
-            className={`bg-gradient-to-r from-orange-500 to-red-500 text-white px-12 py-4 rounded-xl font-medium hover:from-orange-600 hover:to-red-600 transition-all duration-300 transform hover:scale-105 hover:shadow-xl ${
-              isVisible.community
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-5"
-            }`}
-            style={{ transitionDelay: "0.8s" }}
-          >
-            Get Started Today
-          </button>
+          <Link href="/register">
+            <button
+              className={`bg-gradient-to-r from-orange-500 to-red-500 text-white px-12 py-4 rounded-xl font-medium hover:from-orange-600 hover:to-red-600 transition-all duration-300 transform hover:scale-105 hover:shadow-xl ${
+                isVisible.community
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 translate-y-5"
+              }`}
+              style={{ transitionDelay: "0.8s" }}
+            >
+              Get Started Today
+            </button>
+          </Link>
         </div>
       </section>
 
