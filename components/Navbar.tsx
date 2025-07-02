@@ -2,11 +2,13 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Zap, Menu, X } from "lucide-react";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
+import Image from "next/image";
 
 export default function Navbar() {
   const [scrollY, setScrollY] = useState(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showSignOutModal, setShowSignOutModal] = useState(false);
 
   const { status, data: session } = useSession();
 
@@ -15,6 +17,11 @@ export default function Navbar() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const handleSignOut = () => {
+    signOut({ callbackUrl: "/" });
+    setShowSignOutModal(false);
+  };
 
   return (
     <nav
@@ -56,11 +63,21 @@ export default function Navbar() {
             )}
             {status === "authenticated" && (
               <div className="flex items-center space-x-3">
-                <img
-                  src={session.user?.image || "/default-avatar.png"}
-                  alt={session.user?.name || "User"}
-                  className="w-8 h-8 rounded-full object-cover border-2 border-gray-200"
-                />
+                {session.user?.image?.includes("dicebear.com") ? (
+                  <img
+                    src={session.user.image}
+                    alt={session.user?.name || "User"}
+                    className="w-8 h-8 rounded-full object-cover border-2 border-gray-200"
+                  />
+                ) : (
+                  <Image
+                    src={session.user?.image || "/default-avatar.png"}
+                    alt={session.user?.name || "User"}
+                    width={32}
+                    height={32}
+                    className="rounded-full object-cover border-2 border-gray-200"
+                  />
+                )}
                 <span className="text-gray-700 font-medium">
                   {session.user?.name || "User"}
                 </span>
@@ -69,11 +86,41 @@ export default function Navbar() {
           </div>
           {/*logout*/}
           {status === "authenticated" && (
-            <Link href="/api/auth/signout">
-              <button className="hidden md:block ml-4 bg-red-500 text-white px-3 py-1.5 rounded-md hover:bg-red-600 transition-all duration-300 font-medium text-sm">
-                Logout
-              </button>
-            </Link>
+            <button
+              onClick={() => setShowSignOutModal(true)}
+              className="hidden md:block bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors duration-300 font-medium"
+            >
+              Sign Out
+            </button>
+          )}
+
+          {/* Sign Out Modal */}
+          {/* Sign Out Modal */}
+          {showSignOutModal && (
+            <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
+              <div className="bg-white/95 backdrop-blur-lg rounded-xl p-6 max-w-sm mx-4 shadow-2xl border border-white/20">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  Sign Out
+                </h3>
+                <p className="text-gray-600 mb-6">
+                  Are you sure you want to sign out of your account?
+                </p>
+                <div className="flex space-x-3">
+                  <button
+                    onClick={() => setShowSignOutModal(false)}
+                    className="flex-1 px-4 py-2 border border-gray-300/50 rounded-lg text-gray-700 hover:bg-gray-100/80 backdrop-blur-sm transition-all duration-200"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSignOut}
+                    className="flex-1 px-4 py-2 bg-red-500/90 text-white rounded-lg hover:bg-red-600/90 backdrop-blur-sm transition-all duration-200 shadow-lg"
+                  >
+                    Sign Out
+                  </button>
+                </div>
+              </div>
+            </div>
           )}
 
           {/* Mobile Menu Button */}
