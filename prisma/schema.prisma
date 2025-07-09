@@ -25,7 +25,7 @@ model User {
   firstName     String
   lastName      String
   email         String    @unique
-  phone         String
+  phone         String    @unique
   password      String    @default("")
   image         String    @default("")
   role          Role      @default(volunteer)
