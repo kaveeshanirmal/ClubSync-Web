@@ -4,23 +4,20 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "@/prisma/client";
 import { randomAvatar } from "@/utils/randomAvatar";
 import bcrypt from "bcryptjs";
+import {
+  SessionUser,
+  GoogleProfile,
+  UserDbResult,
+  AuthUser,
+} from "@/app/types/user";
 
 // Extend the built-in session type
 declare module "next-auth" {
   interface Session {
-    user: {
-      id: string;
-      name?: string | null;
-      email?: string | null;
-      image?: string | null;
-      needsProfileCompletion?: boolean;
-    };
+    user: SessionUser;
   }
-
-  interface Profile {
-    given_name?: string;
-    family_name?: string;
-  }
+  interface Profile extends GoogleProfile {}
+  interface User extends AuthUser {}
 }
 
 const handler = NextAuth({
@@ -35,7 +32,7 @@ const handler = NextAuth({
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials) {
+      async authorize(credentials): Promise<AuthUser | null> {
         try {
           if (!credentials?.email || !credentials?.password) {
             throw new Error("Email and password are required");
@@ -59,6 +56,7 @@ const handler = NextAuth({
             credentials.password,
             user.password,
           );
+
           if (!isValid) {
             throw new Error("Invalid password");
           }
@@ -68,17 +66,17 @@ const handler = NextAuth({
             email: user.email,
             name: `${user.firstName} ${user.lastName}`,
             image: user.image,
+            role: user.role,
           };
         } catch (error) {
           console.error("Authentication error:", error);
-          throw error; // NextAuth will handle this and show error to user
+          throw error;
         }
       },
     }),
   ],
   callbacks: {
     async signIn({ user, account, profile }) {
-      // Your existing Google OAuth logic
       if (account?.provider === "google") {
         const existingUser = await prisma.user.findUnique({
           where: { email: user.email! },
@@ -88,12 +86,11 @@ const handler = NextAuth({
           await prisma.user.create({
             data: {
               email: user.email!,
-              firstName: (profile as { given_name?: string })?.given_name || "",
-              lastName:
-                (profile as { family_name?: string })?.family_name || "",
+              firstName: profile?.given_name || "",
+              lastName: profile?.family_name || "",
               phone: "",
               password: "",
-              image: (user.image as string) || (randomAvatar() as string) || "",
+              image: user.image || randomAvatar() || "",
               emailVerified: true,
             },
           });
@@ -103,13 +100,31 @@ const handler = NextAuth({
     },
     async session({ session }) {
       if (session.user?.email) {
-        const user = await prisma.user.findUnique({
+        const user = (await prisma.user.findUnique({
           where: { email: session.user.email },
-        });
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+            image: true,
+            phone: true,
+            role: true,
+          },
+        })) as UserDbResult | null;
 
         if (user) {
-          session.user.id = user.id;
-          session.user.needsProfileCompletion = !user.phone;
+          session.user = {
+            id: user.id,
+            email: user.email,
+            name: `${user.firstName} ${user.lastName}`.trim(),
+            image: user.image,
+            role: user.role,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            phone: user.phone,
+            needsProfileCompletion: !user.phone,
+          };
         }
       }
       return session;
