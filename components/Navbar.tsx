@@ -55,7 +55,7 @@ export default function Navbar() {
               </a>
             ))}
             {status === "unauthenticated" && (
-              <Link href="/register">
+              <Link href="/login">
                 <button className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-6 py-2 rounded-lg hover:from-orange-600 hover:to-red-600 transition-all duration-300 font-medium transform hover:scale-105 hover:shadow-lg">
                   Get Started
                 </button>

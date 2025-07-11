@@ -172,7 +172,7 @@ export default function ClubSyncLanding() {
             className="animate-fade-in-up flex flex-col sm:flex-row gap-4 justify-center mb-16"
             style={{ animationDelay: "0.6s" }}
           >
-            <Link href="/register">
+            <Link href="/login">
               <button className="group bg-gradient-to-r from-orange-500 to-red-500 text-white px-8 py-4 rounded-lg font-medium hover:from-orange-600 hover:to-red-600 transition-all duration-300 transform hover:scale-105 hover:shadow-xl flex items-center justify-center space-x-2">
                 <span>Start Your Journey</span>
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
@@ -463,7 +463,7 @@ export default function ClubSyncLanding() {
             ))}
           </div>
 
-          <Link href="/register">
+          <Link href="/login">
             <button
               className={`bg-gradient-to-r from-orange-500 to-red-500 text-white px-12 py-4 rounded-xl font-medium hover:from-orange-600 hover:to-red-600 transition-all duration-300 transform hover:scale-105 hover:shadow-xl ${
                 isVisible.community
