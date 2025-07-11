@@ -63,9 +63,11 @@ export default function LoginPage() {
         const session = await getSession();
         if (session?.user?.needsProfileCompletion) {
           // router.push("/profile/complete");
-          router.push("/");
+          router.push("/welcome");
+        } else if (session?.user?.role === "clubAdmin") {
+          router.push("/admin/dashboard");
         } else {
-          router.push("/");
+          router.push("/welcome");
         }
       }
     } catch (error) {
