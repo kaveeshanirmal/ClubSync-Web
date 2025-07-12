@@ -43,21 +43,27 @@ model Club {
 }
 
 model Election {
-  id        String        @id @default(uuid())
-  clubId    String
-  club      Club          @relation(fields: [clubId], references: [id])
-  year      Int
-  positions Position[]
-  tokens    VotingToken[]
-  createdAt DateTime      @default(now())
+  id          String        @id @default(uuid())
+  clubId      String
+  club        Club          @relation(fields: [clubId], references: [id])
+  title       String
+  subtitle    String?
+  description String?
+  year        Int
+  votingStart DateTime
+  votingEnd   DateTime
+  positions   Position[]
+  tokens      VotingToken[]
+  createdAt   DateTime      @default(now())
 }
 
 model Position {
-  id         String      @id @default(uuid())
-  name       String
-  electionId String
-  election   Election    @relation(fields: [electionId], references: [id])
-  candidates Candidate[]
+  id          String      @id @default(uuid())
+  name        String
+  description String?
+  electionId  String
+  election    Election    @relation(fields: [electionId], references: [id])
+  candidates  Candidate[]
 }
 
 model Candidate {
@@ -65,6 +71,7 @@ model Candidate {
   name       String
   image      String   @default("")
   vision     String?
+  experience String?
   positionId String
   position   Position @relation(fields: [positionId], references: [id])
 }
