@@ -16,6 +16,7 @@ export async function GET(
         id: true,
         firstName: true,
         lastName: true,
+        image: true,
         email: true,
         phone: true,
         createdAt: true,
@@ -44,8 +45,8 @@ export async function PUT(
 ) {
   try {
     const body: UpdateUserRequest = await request.json();
-    validatedData = updateUserSchema.parse(body);
-    const { firstName, lastName, email, phone, password } = validatedData;
+    const { firstName, lastName, email, phone, password } =
+      updateUserSchema.parse(body);
 
     // Check if user exists
     const existingUser = await prisma.user.findUnique({
