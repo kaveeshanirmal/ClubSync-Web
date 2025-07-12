@@ -217,42 +217,42 @@ export default function RegisterPage() {
         </div>
 
         {/* Right side - Registration form */}
-        <div className="w-full max-w-2xl mx-auto lg:mx-0 mt-12">
-          <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 p-8 lg:p-12 relative overflow-hidden">
+        <div className="w-full max-w-lg mx-auto lg:mx-0 mt-8">
+          <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 lg:p-8 relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-orange-50/50 to-red-50/50 opacity-50" />
 
             <div className="relative z-10">
-              <div className="lg:hidden text-center mb-8">
+              <div className="lg:hidden text-center mb-6">
                 <div className="inline-flex items-center space-x-3 group cursor-pointer">
-                  <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center group-hover:rotate-12 transition-transform duration-300">
-                    <Zap className="w-6 h-6 text-white" />
+                  <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center group-hover:rotate-12 transition-transform duration-300">
+                    <Zap className="w-5 h-5 text-white" />
                   </div>
-                  <span className="text-2xl font-bold text-black group-hover:text-orange-500 transition-colors duration-300">
+                  <span className="text-xl font-bold text-black group-hover:text-orange-500 transition-colors duration-300">
                     ClubSync
                   </span>
                 </div>
               </div>
 
-              <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold text-black mb-2">
+              <div className="text-center mb-6">
+                <h2 className="text-2xl font-bold text-black mb-2">
                   Create Account
                 </h2>
-                <p className="text-gray-600">
+                <p className="text-gray-600 text-sm">
                   Join ClubSync and start your journey
                 </p>
               </div>
 
               {/* API Error Message */}
               {apiError && (
-                <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl">
+                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl">
                   <ErrorMessage message={apiError} />
                 </div>
               )}
 
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-4">
                 {/* Name fields */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1">
                     <label
                       htmlFor="firstName"
                       className="block text-sm font-medium text-gray-700"
@@ -261,7 +261,7 @@ export default function RegisterPage() {
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <User className="w-5 h-5 text-gray-400" />
+                        <User className="w-4 h-4 text-gray-400" />
                       </div>
                       <input
                         type="text"
@@ -269,7 +269,7 @@ export default function RegisterPage() {
                         name="firstName"
                         value={formData.firstName}
                         onChange={handleInputChange}
-                        className={`block w-full pl-10 pr-3 py-3 border rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 bg-gray-50 focus:bg-white ${
+                        className={`block w-full pl-9 pr-3 py-2.5 border rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 bg-gray-50 focus:bg-white text-sm ${
                           errors.firstName
                             ? "border-red-300"
                             : "border-gray-300"
@@ -283,7 +283,7 @@ export default function RegisterPage() {
                     )}
                   </div>
 
-                  <div className="space-y-2">
+                  <div className="space-y-1">
                     <label
                       htmlFor="lastName"
                       className="block text-sm font-medium text-gray-700"
@@ -292,7 +292,7 @@ export default function RegisterPage() {
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <User className="w-5 h-5 text-gray-400" />
+                        <User className="w-4 h-4 text-gray-400" />
                       </div>
                       <input
                         type="text"
@@ -300,7 +300,7 @@ export default function RegisterPage() {
                         name="lastName"
                         value={formData.lastName}
                         onChange={handleInputChange}
-                        className={`block w-full pl-10 pr-3 py-3 border rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 bg-gray-50 focus:bg-white ${
+                        className={`block w-full pl-9 pr-3 py-2.5 border rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 bg-gray-50 focus:bg-white text-sm ${
                           errors.lastName ? "border-red-300" : "border-gray-300"
                         }`}
                         placeholder="Doe"
@@ -314,8 +314,8 @@ export default function RegisterPage() {
                 </div>
 
                 {/* Email and Phone fields */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1">
                     <label
                       htmlFor="email"
                       className="block text-sm font-medium text-gray-700"
@@ -324,7 +324,7 @@ export default function RegisterPage() {
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <Mail className="w-5 h-5 text-gray-400" />
+                        <Mail className="w-4 h-4 text-gray-400" />
                       </div>
                       <input
                         type="email"
@@ -332,7 +332,7 @@ export default function RegisterPage() {
                         name="email"
                         value={formData.email}
                         onChange={handleInputChange}
-                        className={`block w-full pl-10 pr-3 py-3 border rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 bg-gray-50 focus:bg-white ${
+                        className={`block w-full pl-9 pr-3 py-2.5 border rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 bg-gray-50 focus:bg-white text-sm ${
                           errors.email ? "border-red-300" : "border-gray-300"
                         }`}
                         placeholder="john@example.com"
@@ -342,7 +342,7 @@ export default function RegisterPage() {
                     {errors.email && <ErrorMessage message={errors.email} />}
                   </div>
 
-                  <div className="space-y-2">
+                  <div className="space-y-1">
                     <label
                       htmlFor="phone"
                       className="block text-sm font-medium text-gray-700"
@@ -351,7 +351,7 @@ export default function RegisterPage() {
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <Phone className="w-5 h-5 text-gray-400" />
+                        <Phone className="w-4 h-4 text-gray-400" />
                       </div>
                       <input
                         type="tel"
@@ -359,7 +359,7 @@ export default function RegisterPage() {
                         name="phone"
                         value={formData.phone}
                         onChange={handleInputChange}
-                        className={`block w-full pl-10 pr-3 py-3 border rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 bg-gray-50 focus:bg-white ${
+                        className={`block w-full pl-9 pr-3 py-2.5 border rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 bg-gray-50 focus:bg-white text-sm ${
                           errors.phone ? "border-red-300" : "border-gray-300"
                         }`}
                         placeholder="+1 (555) 123-4567"
@@ -371,7 +371,7 @@ export default function RegisterPage() {
                 </div>
 
                 {/* Password field */}
-                <div className="space-y-2">
+                <div className="space-y-1">
                   <label
                     htmlFor="password"
                     className="block text-sm font-medium text-gray-700"
@@ -380,7 +380,7 @@ export default function RegisterPage() {
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Lock className="w-5 h-5 text-gray-400" />
+                      <Lock className="w-4 h-4 text-gray-400" />
                     </div>
                     <input
                       type={showPassword ? "text" : "password"}
@@ -388,7 +388,7 @@ export default function RegisterPage() {
                       name="password"
                       value={formData.password}
                       onChange={handleInputChange}
-                      className={`block w-full pl-10 pr-12 py-3 border rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 bg-gray-50 focus:bg-white ${
+                      className={`block w-full pl-9 pr-10 py-2.5 border rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 bg-gray-50 focus:bg-white text-sm ${
                         errors.password ? "border-red-300" : "border-gray-300"
                       }`}
                       placeholder="Create a strong password"
@@ -400,9 +400,9 @@ export default function RegisterPage() {
                       className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors duration-200"
                     >
                       {showPassword ? (
-                        <EyeOff className="w-5 h-5" />
+                        <EyeOff className="w-4 h-4" />
                       ) : (
-                        <Eye className="w-5 h-5" />
+                        <Eye className="w-4 h-4" />
                       )}
                     </button>
                   </div>
@@ -412,7 +412,7 @@ export default function RegisterPage() {
                 </div>
 
                 {/* Confirm Password field */}
-                <div className="space-y-2">
+                <div className="space-y-1">
                   <label
                     htmlFor="confirmPassword"
                     className="block text-sm font-medium text-gray-700"
@@ -421,7 +421,7 @@ export default function RegisterPage() {
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Lock className="w-5 h-5 text-gray-400" />
+                      <Lock className="w-4 h-4 text-gray-400" />
                     </div>
                     <input
                       type={showConfirmPassword ? "text" : "password"}
@@ -429,7 +429,7 @@ export default function RegisterPage() {
                       name="confirmPassword"
                       value={formData.confirmPassword}
                       onChange={handleInputChange}
-                      className={`block w-full pl-10 pr-12 py-3 border rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 bg-gray-50 focus:bg-white ${
+                      className={`block w-full pl-9 pr-10 py-2.5 border rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 bg-gray-50 focus:bg-white text-sm ${
                         errors.confirmPassword
                           ? "border-red-300"
                           : "border-gray-300"
@@ -445,9 +445,9 @@ export default function RegisterPage() {
                       className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors duration-200"
                     >
                       {showConfirmPassword ? (
-                        <EyeOff className="w-5 h-5" />
+                        <EyeOff className="w-4 h-4" />
                       ) : (
-                        <Eye className="w-5 h-5" />
+                        <Eye className="w-4 h-4" />
                       )}
                     </button>
                   </div>
@@ -456,14 +456,14 @@ export default function RegisterPage() {
                   )}
                 </div>
 
-                <div className="flex items-start mb-6">
+                <div className="flex items-start mb-4">
                   <input
                     type="checkbox"
                     id="agreeToTerms"
                     name="agreeToTerms"
                     checked={formData.agreeToTerms}
                     onChange={handleInputChange}
-                    className="h-4 w-4 text-orange-500 focus:ring-orange-500 border-gray-300 rounded transition-colors duration-200 mt-1"
+                    className="h-4 w-4 text-orange-500 focus:ring-orange-500 border-gray-300 rounded transition-colors duration-200 mt-0.5"
                   />
                   <div className="ml-3">
                     <label
@@ -488,23 +488,23 @@ export default function RegisterPage() {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="group w-full bg-gradient-to-r from-orange-500 to-red-500 text-white py-3 px-4 rounded-xl font-medium hover:from-orange-600 hover:to-red-600 focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center space-x-2"
+                  className="group w-full bg-gradient-to-r from-orange-500 to-red-500 text-white py-2.5 px-4 rounded-xl font-medium hover:from-orange-600 hover:to-red-600 focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center space-x-2"
                 >
                   {isLoading ? (
                     <>
-                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                       <span>Creating account...</span>
                     </>
                   ) : (
                     <>
                       <span>Create Account</span>
-                      <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
+                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
                     </>
                   )}
                 </button>
 
                 {/* Divider */}
-                <div className="relative">
+                <div className="relative my-4">
                   <div className="absolute inset-0 flex items-center">
                     <div className="w-full border-t border-gray-300" />
                   </div>
@@ -515,7 +515,7 @@ export default function RegisterPage() {
                   </div>
                 </div>
                 <Link href="/login">
-                  <div className="w-full border-2 border-gray-300 text-gray-700 py-3 px-4 rounded-xl font-medium hover:border-orange-500 hover:text-orange-500 transition-all duration-300 transform hover:scale-[1.02] flex items-center justify-center cursor-pointer">
+                  <div className="w-full border-2 border-gray-300 text-gray-700 py-2.5 px-4 rounded-xl font-medium hover:border-orange-500 hover:text-orange-500 transition-all duration-300 transform hover:scale-[1.02] flex items-center justify-center cursor-pointer text-sm">
                     Sign in to existing account
                   </div>
                 </Link>
@@ -523,9 +523,9 @@ export default function RegisterPage() {
             </div>
           </div>
 
-          <div className="text-center mt-6">
+          <div className="text-center mt-4">
             <Link href="/">
-              <div className="text-gray-600 hover:text-orange-500 transition-colors duration-300 flex items-center justify-center space-x-2 cursor-pointer mb-5">
+              <div className="text-gray-600 hover:text-orange-500 transition-colors duration-300 flex items-center justify-center space-x-2 cursor-pointer text-sm">
                 <span>← Back to home</span>
               </div>
             </Link>

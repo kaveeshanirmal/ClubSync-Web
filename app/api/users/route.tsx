@@ -51,6 +51,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Check if phone number is already registered
+    const existingPhoneUser = await prisma.user.findUnique({
+      where: { phone },
+    });
+
+    if (existingPhoneUser) {
+      return NextResponse.json(
+        { error: "User with this phone number already exists" },
+        { status: 409 },
+      );
+    }
+
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 12);
 

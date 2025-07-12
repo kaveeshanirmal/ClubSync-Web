@@ -25,7 +25,7 @@ model User {
   firstName     String
   lastName      String
   email         String    @unique
-  phone         String
+  phone         String?
   password      String    @default("")
   image         String    @default("")
   role          Role      @default(volunteer)
@@ -34,4 +34,54 @@ model User {
   lastLogin     DateTime? @default(now())
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+}
+
+model Club {
+  id        String     @id @default(uuid())
+  name      String
+  elections Election[]
+}
+
+model Election {
+  id        String        @id @default(uuid())
+  clubId    String
+  club      Club          @relation(fields: [clubId], references: [id])
+  year      Int
+  positions Position[]
+  tokens    VotingToken[]
+  createdAt DateTime      @default(now())
+}
+
+model Position {
+  id         String      @id @default(uuid())
+  name       String
+  electionId String
+  election   Election    @relation(fields: [electionId], references: [id])
+  candidates Candidate[]
+}
+
+model Candidate {
+  id         String   @id @default(uuid())
+  name       String
+  image      String   @default("")
+  vision     String?
+  positionId String
+  position   Position @relation(fields: [positionId], references: [id])
+}
+
+model VotingToken {
+  id         String   @id @default(uuid())
+  electionId String
+  election   Election @relation(fields: [electionId], references: [id])
+  used       Boolean  @default(false)
+  issuedTo   String // User ID (only during pre-voting)
+  issuedAt   DateTime @default(now())
+}
+
+model Vote {
+  id          String   @id @default(uuid())
+  electionId  String
+  positionId  String
+  candidateId String
+  createdAt   DateTime @default(now())
 }
