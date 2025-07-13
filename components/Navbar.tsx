@@ -43,21 +43,24 @@ export default function Navbar() {
           </div>
 
           <div className="hidden md:flex items-center space-x-8">
-            {["Home", "About", "Contact"].map((item, index) => (
-              <a
-                key={item}
-                href={`#${item.toLowerCase()}`}
-                className="text-gray-700 hover:text-orange-500 transition-all duration-300 font-medium relative group"
-                style={{ animationDelay: `${index * 0.1}s` }}
-              >
-                {item}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-orange-500 group-hover:w-full transition-all duration-300" />
-              </a>
-            ))}
+            {["Home", "About", "Contact", "Clubs"].map((item, index) => {
+              const href = item === "Home" ? "/" : `/${item.toLowerCase()}`;
+              return (
+                <Link
+                  key={item}
+                  href={href}
+                  className="text-gray-700 hover:text-orange-500 transition-all duration-300 font-medium relative group"
+                  style={{ animationDelay: `${index * 0.1}s` }}
+                >
+                  {item}
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-orange-500 group-hover:w-full transition-all duration-300" />
+                </Link>
+              );
+            })}
             {status === "unauthenticated" && (
               <Link href="/login">
                 <button className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-6 py-2 rounded-lg hover:from-orange-600 hover:to-red-600 transition-all duration-300 font-medium transform hover:scale-105 hover:shadow-lg">
-                  Get Started
+                  Sign In
                 </button>
               </Link>
             )}

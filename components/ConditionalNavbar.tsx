@@ -6,7 +6,7 @@ export default function ConditionalNavbar() {
   const pathname = usePathname();
 
   // Define routes where navbar should be hidden
-  const hideNavbarRoutes = ["/login", "/register", "/auth"];
+  const hideNavbarRoutes = ["/login", "/register", "/auth", "/admin"];
 
   // Check if current route should hide navbar
   const shouldHideNavbar = hideNavbarRoutes.some((route) =>

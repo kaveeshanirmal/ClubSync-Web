@@ -62,41 +62,74 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Check if user already has a voting token for this election
-    let existing;
-    try {
-      existing = await prisma.votingToken.findFirst({
-        where: { electionId, issuedTo: userId },
-      });
-    } catch (dbError) {
-      console.error("Database query error (findFirst):", dbError);
+    // Check election timing and token generation eligibility
+    const election = await prisma.election.findUnique({
+      where: { id: electionId },
+    });
+
+    if (!election) {
       return NextResponse.json(
-        { error: "Database connection error" },
-        { status: 500 },
+        { error: "Election not found" },
+        { status: 404 },
       );
     }
 
+    const now = new Date();
+
+    // Check if voting period is active
+    if (!election.votingStart || !election.votingEnd) {
+      return NextResponse.json(
+        { error: "Election voting period not configured" },
+        { status: 400 },
+      );
+    }
+
+    if (now < election.votingStart) {
+      return NextResponse.json(
+        { error: "Voting has not started yet" },
+        { status: 403 },
+      );
+    }
+
+    if (now > election.votingEnd) {
+      return NextResponse.json(
+        { error: "Voting period has ended" },
+        { status: 403 },
+      );
+    }
+
+    // Check if user already has a voting token for this election
+    const existing = await prisma.votingToken.findFirst({
+      where: { electionId, issuedTo: userId },
+    });
+
     if (existing) {
-      return NextResponse.json({ token: existing.id });
+      // Check if the existing token is still valid (not used and not expired)
+      if (existing.used) {
+        return NextResponse.json(
+          { error: "Voting token already used" },
+          { status: 403 },
+        );
+      }
+
+      if (existing.expiresAt < now) {
+        // Token expired - only allow renewal if voting period is still active
+        // (which we already checked above)
+        await prisma.votingToken.delete({ where: { id: existing.id } });
+      } else {
+        // Token is still valid
+        return NextResponse.json({ token: existing.id });
+      }
     }
 
     // Create new voting token
-    let newToken;
-    try {
-      newToken = await prisma.votingToken.create({
-        data: {
-          electionId,
-          issuedTo: userId,
-        },
-      });
-    } catch (dbError) {
-      console.error("Database creation error:", dbError);
 
-      return NextResponse.json(
-        { error: "Failed to create voting token" },
-        { status: 500 },
-      );
-    }
+    const newToken = await prisma.votingToken.create({
+      data: {
+        electionId,
+        issuedTo: userId,
+      },
+    });
 
     return NextResponse.json({ token: newToken.id });
   } catch (err) {
