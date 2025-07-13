@@ -1,5 +1,6 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { 
   Users, 
   Calendar, 
@@ -8,26 +9,38 @@ import {
   Bell, 
   Settings, 
   Search,
-  Filter,
-  Download,
-  Plus,
-  Eye,
-  Edit,
-  Trash2,
   Activity,
-  DollarSign,
   UserCheck,
-  ArrowUpRight,
-  ArrowDownRight,
-  Zap,
   BarChart3,
-  PieChart
+  PieChart,
+  Globe,
+  Sparkles
 } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
+
+// Import tab components
+import OverviewTab from './components/OverviewTab';
+import ClubsTab from './components/ClubsTab';
+import EventsTab from './components/EventsTab';
+import UsersTab from './components/UsersTab';
+import AnalyticsTab from './components/AnalyticsTab';
 
 const AdminDashboard = () => {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [selectedTab, setSelectedTab] = useState('overview');
   const [notifications] = useState(1);
+
+  // Get tab from URL on mount and when URL changes
+  useEffect(() => {
+    const tab = searchParams.get('tab') || 'overview';
+    setSelectedTab(tab);
+  }, [searchParams]);
+
+  // Update URL when tab changes
+  const handleTabChange = (tab: string) => {
+    setSelectedTab(tab);
+    router.push(`/admin?tab=${tab}`, { scroll: false });
+  };
 
   // Sample data
   const dashboardStats = [
@@ -35,33 +48,33 @@ const AdminDashboard = () => {
       title: "Total Clubs",
       value: "524",
       change: "+12%",
-      trend: "up",
+      trend: 'up' as const,
       icon: <Users className="w-6 h-6" />,
       color: "from-orange-500 to-red-500"
     },
     {
       title: "Active Events",
       value: "89",
-      change: "+24%",
-      trend: "up",
+      change: "+8%",
+      trend: 'up' as const,
       icon: <Calendar className="w-6 h-6" />,
-      color: "from-blue-500 to-purple-500"
+      color: "from-red-500 to-orange-500"
     },
     {
       title: "Certificates Issued",
       value: "1,247",
-      change: "+8%",
-      trend: "up",
+      change: "+23%",
+      trend: 'up' as const,
       icon: <Award className="w-6 h-6" />,
-      color: "from-green-500 to-emerald-500"
+      color: "from-orange-600 to-red-600"
     },
     {
-      title: "Revenue",
-      value: "$12,450",
-      change: "-3%",
-      trend: "down",
-      icon: <DollarSign className="w-6 h-6" />,
-      color: "from-purple-500 to-pink-500"
+      title: "Growth Rate",
+      value: "15.8%",
+      change: "+2.1%",
+      trend: 'up' as const,
+      icon: <TrendingUp className="w-6 h-6" />,
+      color: "from-red-600 to-orange-500"
     }
   ];
 
@@ -76,18 +89,36 @@ const AdminDashboard = () => {
 
   const pieData = [
     { name: 'Education', value: 35, color: '#f97316' },
-    { name: 'Sports', value: 25, color: '#ef4444' },
-    { name: 'Technology', value: 20, color: '#3b82f6' },
-    { name: 'Arts', value: 12, color: '#10b981' },
-    { name: 'Others', value: 8, color: '#8b5cf6' }
+    { name: 'Technology', value: 28, color: '#ef4444' },
+    { name: 'Arts', value: 15, color: '#fb923c' },
+    { name: 'Sports', value: 12, color: '#f87171' },
+    { name: 'Other', value: 10, color: '#fbbf24' }
   ];
 
   const recentClubs = [
-    { id: 1, name: "Tech Innovators Club", members: 45, status: "Active", joined: "2 days ago", category: "Technology" },
-    { id: 2, name: "Green Earth Society", members: 28, status: "Pending", joined: "1 week ago", category: "Environment" },
-    { id: 3, name: "Creative Arts Hub", members: 67, status: "Active", joined: "3 days ago", category: "Arts" },
-    { id: 4, name: "Future Leaders", members: 34, status: "Active", joined: "5 days ago", category: "Leadership" }
+    { id: 1, name: "Tech Innovators Club", members: 45, status: "Active" as const, joined: "2 days ago", category: "Technology" },
+    { id: 2, name: "Green Earth Society", members: 28, status: "Pending" as const, joined: "1 week ago", category: "Environment" },
+    { id: 3, name: "Creative Arts Hub", members: 67, status: "Active" as const, joined: "3 days ago", category: "Arts" },
+    { id: 4, name: "Future Leaders", members: 34, status: "Active" as const, joined: "5 days ago", category: "Leadership" }
   ];
+
+  // Render current tab content
+  const renderTabContent = () => {
+    switch (selectedTab) {
+      case 'overview':
+        return <OverviewTab dashboardStats={dashboardStats} chartData={chartData} pieData={pieData} />;
+      case 'clubs':
+        return <ClubsTab recentClubs={recentClubs} />;
+      case 'events':
+        return <EventsTab />;
+      case 'users':
+        return <UsersTab />;
+      case 'analytics':
+        return <AnalyticsTab />;
+      default:
+        return <OverviewTab dashboardStats={dashboardStats} chartData={chartData} pieData={pieData} />;
+    }
+  };
 
   const SidebarButton = ({ id, label, icon, active, onClick }: {
     id: string;
@@ -110,358 +141,125 @@ const AdminDashboard = () => {
   );
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-50 overflow-hidden">
       {/* Sidebar */}
-      <aside className="w-64 bg-white border-r border-gray-200 flex flex-col">
+      <aside className="w-64 bg-white border-r border-gray-200 flex flex-col h-full">
         {/* Sidebar Header */}
-        <div className="p-6 border-b border-gray-200">
+        <div className="px-6 py-5 border-b border-gray-200">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg flex items-center justify-center">
-              <Zap className="w-6 h-6 text-white" />
+            <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center">
+              <Sparkles className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-gray-900">ClubSync</h1>
-              <p className="text-sm text-gray-500">Admin Panel</p>
+              <h1 className="text-xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
+                ClubSync
+              </h1>
+              <p className="text-xs text-gray-500 font-medium">Admin Portal</p>
             </div>
           </div>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 p-4 space-y-2">
-          <SidebarButton 
-            id="overview" 
-            label="Overview" 
+        <nav className="flex-1 px-4 py-6 space-y-2">
+          <SidebarButton
+            id="overview"
+            label="Overview"
             icon={<BarChart3 className="w-5 h-5" />}
-            active={selectedTab === 'overview'} 
-            onClick={setSelectedTab} 
+            active={selectedTab === 'overview'}
+            onClick={handleTabChange}
           />
-          <SidebarButton 
-            id="clubs" 
-            label="Clubs" 
+          <SidebarButton
+            id="clubs"
+            label="Clubs"
             icon={<Users className="w-5 h-5" />}
-            active={selectedTab === 'clubs'} 
-            onClick={setSelectedTab} 
+            active={selectedTab === 'clubs'}
+            onClick={handleTabChange}
           />
-          <SidebarButton 
-            id="events" 
-            label="Events" 
+          <SidebarButton
+            id="events"
+            label="Events"
             icon={<Calendar className="w-5 h-5" />}
-            active={selectedTab === 'events'} 
-            onClick={setSelectedTab} 
+            active={selectedTab === 'events'}
+            onClick={handleTabChange}
           />
-          <SidebarButton 
-            id="users" 
-            label="Users" 
+          <SidebarButton
+            id="users"
+            label="Users"
             icon={<UserCheck className="w-5 h-5" />}
-            active={selectedTab === 'users'} 
-            onClick={setSelectedTab} 
+            active={selectedTab === 'users'}
+            onClick={handleTabChange}
           />
-          <SidebarButton 
-            id="analytics" 
-            label="Analytics" 
+          <SidebarButton
+            id="analytics"
+            label="Analytics"
             icon={<PieChart className="w-5 h-5" />}
-            active={selectedTab === 'analytics'} 
-            onClick={setSelectedTab} 
+            active={selectedTab === 'analytics'}
+            onClick={handleTabChange}
           />
         </nav>
 
         {/* Sidebar Footer */}
         <div className="p-4 border-t border-gray-200">
-          <button className="w-full flex items-center space-x-3 px-4 py-3 text-gray-600 hover:text-orange-500 hover:bg-orange-50 rounded-lg transition-all duration-300">
-            <Settings className="w-5 h-5" />
-            <span>Settings</span>
-          </button>
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
+            <div className="flex-1">
+              <p className="text-sm font-medium text-gray-900">Admin User</p>
+              <p className="text-xs text-gray-500">admin@clubsync.com</p>
+            </div>
+            <Settings className="w-5 h-5 text-gray-400" />
+          </div>
         </div>
       </aside>
 
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col">
-        {/* Top Header */}
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col h-full overflow-hidden">
+        {/* Top Bar */}
         <header className="bg-white border-b border-gray-200 px-6 py-4">
           <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900">
-                {selectedTab === 'overview' && 'Dashboard Overview'}
-                {selectedTab === 'clubs' && 'Club Management'}
-                {selectedTab === 'events' && 'Event Management'}
-                {selectedTab === 'users' && 'User Management'}
-                {selectedTab === 'analytics' && 'Analytics Dashboard'}
-              </h2>
-              <p className="text-sm text-gray-500 mt-1">
-                {selectedTab === 'overview' && 'Monitor your platform performance'}
-                {selectedTab === 'clubs' && 'Manage and oversee all clubs'}
-                {selectedTab === 'events' && 'Organize and track events'}
-                {selectedTab === 'users' && 'Manage user accounts and permissions'}
-                {selectedTab === 'analytics' && 'View detailed analytics and insights'}
-              </p>
-            </div>
-            
-            <div className="flex items-center space-x-4">
+            {/* Search Bar */}
+            <div className="flex-1 max-w-2xl">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="Search..."
-                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent w-64"
+                  placeholder="Search clubs, events, users..."
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 bg-gray-50 hover:bg-white"
                 />
               </div>
-              
-              <button className="relative p-2 text-gray-600 hover:text-orange-500 transition-colors">
-                <Bell className="w-6 h-6" />
+            </div>
+
+            {/* Live Stats Pills */}
+            <div className="flex items-center space-x-4 ml-6">
+              <div className="flex items-center space-x-2 bg-green-50 px-3 py-2 rounded-lg border border-green-200">
+                <Activity className="w-4 h-4 text-green-600" />
+                <span className="text-sm font-medium text-green-700">524 Active</span>
+              </div>
+              <div className="flex items-center space-x-2 bg-blue-50 px-3 py-2 rounded-lg border border-blue-200">
+                <Globe className="w-4 h-4 text-blue-600" />
+                <span className="text-sm font-medium text-blue-700">Online</span>
+              </div>
+            </div>
+
+            {/* User Controls */}
+            <div className="flex items-center space-x-4 ml-4">
+              <button className="relative p-2 text-gray-400 hover:text-gray-600 transition-colors duration-200">
+                <Bell className="w-5 h-5" />
                 {notifications > 0 && (
-                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full text-xs text-white flex items-center justify-center">
                     {notifications}
                   </span>
                 )}
               </button>
-              
-              <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center">
-                <span className="text-white text-sm font-bold">A</span>
-              </div>
+              <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded-full"></div>
             </div>
           </div>
         </header>
 
-        {/* Main Content */}
-        <main className="flex-1 p-6 overflow-auto">
-        {selectedTab === 'overview' && (
-          <div className="space-y-6">
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {dashboardStats.map((stat, index) => (
-                <div key={index} className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-300">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-gray-600 mb-1">{stat.title}</p>
-                      <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-                      <div className="flex items-center space-x-1 mt-2">
-                        {stat.trend === 'up' ? (
-                          <ArrowUpRight className="w-4 h-4 text-green-500" />
-                        ) : (
-                          <ArrowDownRight className="w-4 h-4 text-red-500" />
-                        )}
-                        <span className={`text-sm ${stat.trend === 'up' ? 'text-green-500' : 'text-red-500'}`}>
-                          {stat.change}
-                        </span>
-                        <span className="text-sm text-gray-500">vs last period</span>
-                      </div>
-                    </div>
-                    <div className={`w-12 h-12 bg-gradient-to-r ${stat.color} rounded-lg flex items-center justify-center text-white`}>
-                      {stat.icon}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Charts Section */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Growth Chart */}
-              <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900">Growth Overview</h3>
-                  <select className="text-sm border border-gray-300 rounded-lg px-3 py-2">
-                    <option>Last 6 months</option>
-                    <option>Last year</option>
-                  </select>
-                </div>
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={chartData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
-                    <Line type="monotone" dataKey="clubs" stroke="#f97316" strokeWidth={2} />
-                    <Line type="monotone" dataKey="events" stroke="#ef4444" strokeWidth={2} />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-
-              {/* Club Categories */}
-              <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900 mb-6">Club Categories</h3>
-                <div className="space-y-4">
-                  {pieData.map((item, index) => (
-                    <div key={index} className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <div 
-                          className="w-4 h-4 rounded-full" 
-                          style={{ backgroundColor: item.color }}
-                        />
-                        <span className="text-sm font-medium text-gray-900">{item.name}</span>
-                      </div>
-                      <div className="flex items-center space-x-3">
-                        <div className="w-32 bg-gray-200 rounded-full h-2">
-                          <div 
-                            className="h-2 rounded-full transition-all duration-300"
-                            style={{ 
-                              width: `${item.value}%`, 
-                              backgroundColor: item.color 
-                            }}
-                          />
-                        </div>
-                        <span className="text-sm text-gray-600 font-medium">{item.value}%</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <div className="mt-6 p-4 bg-gradient-to-r from-orange-50 to-red-50 rounded-lg">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600">Most Popular:</span>
-                    <span className="font-semibold text-orange-600">Education (35%)</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            
+        {/* Main Content Area */}
+        <main className="flex-1 overflow-auto">
+          <div className="p-6">
+            {renderTabContent()}
           </div>
-        )}
-
-        {selectedTab === 'clubs' && (
-          <div className="space-y-6">
-            {/* Clubs Header */}
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-gray-900">Club Management</h2>
-              <button className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-4 py-2 rounded-lg hover:from-orange-600 hover:to-red-600 transition-all duration-300 flex items-center space-x-2">
-                <Plus className="w-4 h-4" />
-                <span>Add Club</span>
-              </button>
-            </div>
-
-            {/* Filters */}
-            <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
-              <div className="flex flex-wrap items-center gap-4">
-                <div className="flex items-center space-x-2">
-                  <Filter className="w-5 h-5 text-gray-500" />
-                  <span className="text-sm text-gray-600">Filter by:</span>
-                </div>
-                <select className="border border-gray-300 rounded-lg px-3 py-2 text-sm">
-                  <option>All Status</option>
-                  <option>Active</option>
-                  <option>Pending</option>
-                  <option>Suspended</option>
-                </select>
-                <select className="border border-gray-300 rounded-lg px-3 py-2 text-sm">
-                  <option>All Categories</option>
-                  <option>Technology</option>
-                  <option>Sports</option>
-                  <option>Arts</option>
-                </select>
-                <button className="bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded-lg text-sm transition-colors">
-                  <Download className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-
-            {/* Clubs Table */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-gray-50 border-b border-gray-200">
-                    <tr>
-                      <th className="text-left p-4 font-medium text-gray-900">Club Name</th>
-                      <th className="text-left p-4 font-medium text-gray-900">Category</th>
-                      <th className="text-left p-4 font-medium text-gray-900">Members</th>
-                      <th className="text-left p-4 font-medium text-gray-900">Status</th>
-                      <th className="text-left p-4 font-medium text-gray-900">Created</th>
-                      <th className="text-left p-4 font-medium text-gray-900">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {recentClubs.map((club) => (
-                      <tr key={club.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                        <td className="p-4">
-                          <div className="flex items-center space-x-3">
-                            <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg flex items-center justify-center">
-                              <Users className="w-4 h-4 text-white" />
-                            </div>
-                            <span className="font-medium text-gray-900">{club.name}</span>
-                          </div>
-                        </td>
-                        <td className="p-4 text-gray-600">{club.category}</td>
-                        <td className="p-4 text-gray-600">{club.members}</td>
-                        <td className="p-4">
-                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                            club.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                          }`}>
-                            {club.status}
-                          </span>
-                        </td>
-                        <td className="p-4 text-gray-600">{club.joined}</td>
-                        <td className="p-4">
-                          <div className="flex items-center space-x-2">
-                            <button className="p-2 text-gray-500 hover:text-orange-500 transition-colors">
-                              <Eye className="w-4 h-4" />
-                            </button>
-                            <button className="p-2 text-gray-500 hover:text-orange-500 transition-colors">
-                              <Edit className="w-4 h-4" />
-                            </button>
-                            <button className="p-2 text-gray-500 hover:text-red-500 transition-colors">
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {selectedTab === 'analytics' && (
-          <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">Analytics Dashboard</h2>
-            
-            {/* Analytics Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-sm font-medium text-gray-600">Engagement Rate</h3>
-                  <TrendingUp className="w-5 h-5 text-green-500" />
-                </div>
-                <p className="text-2xl font-bold text-gray-900">78.5%</p>
-                <p className="text-sm text-green-600">+5.2% from last month</p>
-              </div>
-              
-              <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-sm font-medium text-gray-600">Avg. Event Attendance</h3>
-                  <UserCheck className="w-5 h-5 text-blue-500" />
-                </div>
-                <p className="text-2xl font-bold text-gray-900">65</p>
-                <p className="text-sm text-blue-600">+8 from last month</p>
-              </div>
-              
-              <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-sm font-medium text-gray-600">Platform Usage</h3>
-                  <Activity className="w-5 h-5 text-purple-500" />
-                </div>
-                <p className="text-2xl font-bold text-gray-900">92%</p>
-                <p className="text-sm text-purple-600">+3.1% from last month</p>
-              </div>
-            </div>
-
-            {/* Detailed Analytics Chart */}
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900 mb-6">Platform Activity</h3>
-              <ResponsiveContainer width="100%" height={400}>
-                <BarChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="clubs" fill="#f97316" />
-                  <Bar dataKey="events" fill="#ef4444" />
-                  <Bar dataKey="certificates" fill="#10b981" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-        )}
         </main>
       </div>
     </div>
