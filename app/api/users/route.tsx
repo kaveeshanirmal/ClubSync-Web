@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if phone number is already registered
-    const existingPhoneUser = await prisma.user.findUnique({
+    const existingPhoneUser = await prisma.user.findFirst({
       where: { phone },
     });
 
