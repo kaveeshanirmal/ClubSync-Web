@@ -156,13 +156,13 @@ export default function AboutPage() {
 							</span>
 						</h1>
 
-						<p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto mb-8 leading-relaxed relative">
+						<div className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto mb-8 leading-relaxed relative">
 							ClubSync is a unified platform for managing clubs, events, and
 							volunteers—designed to streamline operations, enhance engagement, and
 							recognize achievement.
 							<div className="absolute -top-2 -left-2 w-4 h-4 border-l-2 border-t-2 border-orange-300 opacity-50"></div>
 							<div className="absolute -bottom-2 -right-2 w-4 h-4 border-r-2 border-b-2 border-red-300 opacity-50"></div>
-						</p>
+						</div>
 					</div>
 				</section>
 				{/* Our Story */}
