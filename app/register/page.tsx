@@ -150,7 +150,15 @@ export default function RegisterPage() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 flex items-center justify-center px-4 relative overflow-hidden">
+    <div className="h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 flex items-center justify-center px-4 py-4 relative overflow-hidden">
+      {/* Back to home button in top left */}
+      <Link
+        href="/"
+        className="fixed top-6 left-6 z-50 text-gray-600 hover:text-orange-500 transition-colors duration-300 flex items-center space-x-2 bg-white/80 backdrop-blur-sm px-3 py-2 rounded-lg shadow-sm hover:shadow-md"
+      >
+        <span>← Back to home</span>
+      </Link>
+
       {/* Animated background elements */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-10 left-10 w-20 h-20 bg-orange-200 rounded-full animate-pulse opacity-30" />
@@ -159,7 +167,7 @@ export default function RegisterPage() {
         <div className="absolute bottom-20 right-10 w-16 h-16 bg-red-200 rotate-45 animate-bounce opacity-40" />
       </div>
 
-      <div className="w-full max-w-6xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
+      <div className="w-full max-w-6xl mx-auto grid lg:grid-cols-2 gap-8 items-center h-full">
         {/* Left side - Brand and features */}
         <div className="hidden lg:block relative">
           <div className="relative z-10">
@@ -217,8 +225,8 @@ export default function RegisterPage() {
         </div>
 
         {/* Right side - Registration form */}
-        <div className="w-full max-w-lg mx-auto lg:mx-0 mt-8">
-          <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 lg:p-8 relative overflow-hidden">
+        <div className="w-full max-w-lg mx-auto lg:mx-0 flex items-center justify-center">
+          <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-4 lg:p-6 relative overflow-hidden w-full">
             <div className="absolute inset-0 bg-gradient-to-br from-orange-50/50 to-red-50/50 opacity-50" />
 
             <div className="relative z-10">
@@ -463,7 +471,7 @@ export default function RegisterPage() {
                     name="agreeToTerms"
                     checked={formData.agreeToTerms}
                     onChange={handleInputChange}
-                    className="h-4 w-4 text-orange-500 focus:ring-orange-500 border-gray-300 rounded transition-colors duration-200 mt-0.5"
+                    className="h-4 w-4 text-orange-500 focus:ring-orange-500 border-gray-300 rounded transition-colors duration-200 mt-1.5"
                   />
                   <div className="ml-3">
                     <label
@@ -521,14 +529,6 @@ export default function RegisterPage() {
                 </Link>
               </form>
             </div>
-          </div>
-
-          <div className="text-center mt-4">
-            <Link href="/">
-              <div className="text-gray-600 hover:text-orange-500 transition-colors duration-300 flex items-center justify-center space-x-2 cursor-pointer text-sm">
-                <span>← Back to home</span>
-              </div>
-            </Link>
           </div>
         </div>
       </div>

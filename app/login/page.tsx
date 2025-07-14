@@ -79,7 +79,15 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 flex items-center justify-center px-4 relative overflow-hidden">
+    <div className="h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 flex items-center justify-center px-4 py-4 relative overflow-hidden">
+      {/* Back to home button in top left */}
+      <Link
+        href="/"
+        className="fixed top-6 left-6 z-50 text-gray-600 hover:text-orange-500 transition-colors duration-300 flex items-center space-x-2 bg-white/80 backdrop-blur-sm px-3 py-2 rounded-lg shadow-sm hover:shadow-md"
+      >
+        <span>← Back to home</span>
+      </Link>
+
       {/* ... existing background elements ... */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-10 left-10 w-20 h-20 bg-orange-200 rounded-full animate-pulse opacity-30" />
@@ -88,7 +96,7 @@ export default function LoginPage() {
         <div className="absolute bottom-20 right-10 w-16 h-16 bg-red-200 rotate-45 animate-bounce opacity-40" />
       </div>
 
-      <div className="w-full max-w-6xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
+      <div className="w-full max-w-6xl mx-auto grid lg:grid-cols-2 gap-8 items-center h-full">
         {/* ... existing left side content ... */}
         <div className="hidden lg:block relative">
           <div className="relative z-10">
@@ -147,8 +155,8 @@ export default function LoginPage() {
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-orange-100 to-red-100 rounded-full opacity-20 animate-pulse" />
         </div>
 
-        <div className="w-full max-w-md mx-auto lg:mx-0 mt-4">
-          <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 p-6 lg:p-8 relative overflow-hidden">
+        <div className="w-full max-w-md mx-auto lg:mx-0 flex items-center justify-center">
+          <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 p-4 lg:p-6 relative overflow-hidden w-full">
             <div className="absolute inset-0 bg-gradient-to-br from-orange-50/50 to-red-50/50 opacity-50" />
 
             <div className="relative z-10">
@@ -167,9 +175,9 @@ export default function LoginPage() {
                 </Link>
               </div>
 
-              <div className="text-center mb-6">
-                <h2 className="text-3xl font-bold text-black mb-2">Sign In</h2>
-                <p className="text-gray-600">Access your ClubSync Dashboard</p>
+              <div className="text-center mb-4">
+                <h2 className="text-2xl lg:text-3xl font-bold text-black mb-2">Sign In</h2>
+                <p className="text-gray-600 text-sm">Access your ClubSync Dashboard</p>
               </div>
 
               {/* Error Display */}
@@ -180,7 +188,7 @@ export default function LoginPage() {
                 </div>
               )}
 
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-3">
                 {/* ... existing form fields ... */}
                 <div className="space-y-2">
                   <label
@@ -199,7 +207,7 @@ export default function LoginPage() {
                       name="email"
                       value={formData.email}
                       onChange={handleInputChange}
-                      className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 bg-gray-50 focus:bg-white"
+                      className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 bg-gray-50 focus:bg-white"
                       placeholder="your@email.com"
                       required
                     />
@@ -223,7 +231,7 @@ export default function LoginPage() {
                       name="password"
                       value={formData.password}
                       onChange={handleInputChange}
-                      className="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 bg-gray-50 focus:bg-white"
+                      className="block w-full pl-10 pr-12 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 bg-gray-50 focus:bg-white"
                       placeholder="Enter your password"
                       required
                     />
@@ -265,7 +273,7 @@ export default function LoginPage() {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="group w-full bg-gradient-to-r from-orange-500 to-red-500 text-white py-3 px-4 rounded-xl font-medium hover:from-orange-600 hover:to-red-600 focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center space-x-2"
+                  className="group w-full bg-gradient-to-r from-orange-500 to-red-500 text-white py-2.5 px-4 rounded-xl font-medium hover:from-orange-600 hover:to-red-600 focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center space-x-2"
                 >
                   {isLoading ? (
                     <>
@@ -293,7 +301,7 @@ export default function LoginPage() {
                 </div>
                 <button
                   type="button"
-                  className="w-full border-2 border-gray-300 text-gray-700 py-3 px-4 rounded-xl font-medium hover:border-orange-500 hover:text-orange-500 hover:bg-orange-50 transition-all duration-300 transform hover:scale-[1.02] flex items-center justify-center space-x-3"
+                  className="w-full border-2 border-gray-300 text-gray-700 py-2.5 px-4 rounded-xl font-medium hover:border-orange-500 hover:text-orange-500 hover:bg-orange-50 transition-all duration-300 transform hover:scale-[1.02] flex items-center justify-center space-x-3"
                   onClick={() => signIn("google", { callbackUrl: "/" })}
                 >
                   <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -330,21 +338,12 @@ export default function LoginPage() {
 
                 <Link
                   href="/register"
-                  className="w-full border-2 border-gray-300 text-gray-700 py-3 px-4 rounded-xl font-medium hover:border-orange-500 hover:text-orange-500 transition-all duration-300 transform hover:scale-[1.02] flex items-center justify-center"
+                  className="w-full border-2 border-gray-300 text-gray-700 py-2.5 px-4 rounded-xl font-medium hover:border-orange-500 hover:text-orange-500 transition-all duration-300 transform hover:scale-[1.02] flex items-center justify-center"
                 >
                   Create new account
                 </Link>
               </form>
             </div>
-          </div>
-
-          <div className="text-center mt-6">
-            <Link
-              href="/"
-              className="text-gray-600 hover:text-orange-500 transition-colors duration-300 flex items-center justify-center space-x-2"
-            >
-              <span>← Back to home</span>
-            </Link>
           </div>
         </div>
       </div>
