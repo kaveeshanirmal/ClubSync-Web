@@ -366,7 +366,7 @@ export default function RotaractClubPage() {
                   placeholder="Club description..."
                 />
               ) : (
-                <p className="text-gray-600 leading-relaxed text-lg">{clubData.description}</p>
+                <p className="text-gray-600 leading-relaxed">{clubData.description}</p>
               )}
             </div>
 
