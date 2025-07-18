@@ -10,7 +10,6 @@ import {
   Trophy,
   Smartphone,
   Shield,
-  Zap,
   Globe,
   ArrowRight,
   Play,
@@ -113,7 +112,7 @@ export default function ClubSyncLanding() {
 
   return (
     <div className="min-h-screen bg-white text-black overflow-hidden relative">
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
         <div
           className="absolute top-20 left-10 w-2 h-2 bg-orange-300 rotate-45 animate-bounce"
           style={{ animationDelay: "0s", animationDuration: "3s" }}
@@ -132,8 +131,8 @@ export default function ClubSyncLanding() {
         />
       </div>
 
-      <section className="pt-32 pb-20 px-6 relative">
-        <div className="max-w-6xl mx-auto text-center">
+      <section className="pt-32 pb-20 px-6 relative z-10">
+        <div className="max-w-6xl mx-auto text-center relative z-10">
           <div className="animate-fade-in-up">
             <h1 className="text-4xl md:text-7xl font-bold mb-6 text-black leading-tight">
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-500">
@@ -487,44 +486,7 @@ export default function ClubSyncLanding() {
         </button>
       )}
 
-      <footer className="py-16 px-6 border-t border-gray-200 bg-black text-white relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-orange-900/10 to-red-900/10" />
-        <div className="max-w-7xl mx-auto relative z-10">
-          <div className="flex flex-col md:flex-row items-center justify-between mb-8">
-            <div className="flex items-center space-x-3 mb-4 md:mb-0 group">
-              <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg flex items-center justify-center group-hover:rotate-12 transition-transform duration-300">
-                <Zap className="w-7 h-7 text-white" />
-              </div>
-              <span className="text-3xl font-bold text-white group-hover:text-orange-400 transition-colors duration-300">
-                ClubSync
-              </span>
-            </div>
-            <div className="flex space-x-8 text-sm text-gray-400">
-              <a
-                href="#"
-                className="hover:text-orange-400 transition-colors duration-300 transform hover:scale-110"
-              >
-                Privacy
-              </a>
-              <a
-                href="#"
-                className="hover:text-orange-400 transition-colors duration-300 transform hover:scale-110"
-              >
-                Terms
-              </a>
-              <a
-                href="#"
-                className="hover:text-orange-400 transition-colors duration-300 transform hover:scale-110"
-              >
-                Support
-              </a>
-            </div>
-          </div>
-          <div className="text-center text-gray-400 text-sm">
-            © 2025 ClubSync. Empowering communities worldwide.
-          </div>
-        </div>
-      </footer>
+      
 
       <style jsx>{`
         @keyframes fade-in-up {
