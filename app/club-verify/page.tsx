@@ -21,6 +21,11 @@ import {
   ArrowRight
 } from 'lucide-react';
 import { uploadToCloudinary } from '@/utils/uploadToCloudinary';
+import { useRef, useEffect } from 'react';
+
+import { useRouter } from 'next/navigation';
+
+
 
 // Interface for form values
 interface ClubVerificationFormValues {
@@ -116,6 +121,8 @@ const formSteps = [
     description: 'Confirm and agree to terms'
   }
 ];
+
+
 
 // Tooltip component
 const Tooltip = ({ children, content }: { children: React.ReactNode; content: string }) => {
@@ -410,6 +417,10 @@ const stepFields: { [key: number]: string[] } = {
 
 export default function ClubRequestForm() {
   const [currentStep, setCurrentStep] = useState(1);
+  const formRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
+
+
   const wordCount = (text: string) => text ? text.trim().split(/\s+/).filter(Boolean).length : 0;
 
   const renderStepContent = (values: any, errors: any, touched: any, setFieldValue: any) => {
@@ -765,7 +776,7 @@ export default function ClubRequestForm() {
         <div className="absolute top-1/3 right-[-40px] w-40 h-40 bg-orange-200 rounded-full filter blur-xl opacity-30" />
         <div className="absolute bottom-1/4 left-[-40px] w-32 h-32 bg-purple-200 rounded-full filter blur-xl opacity-20" />
       </div>
-      <div className="relative z-10 max-w-4xl mx-auto">
+      <div ref={formRef} className="relative z-10 max-w-4xl mx-auto">
         <div className="text-center mb-8">
           <div className="flex items-center justify-center space-x-3 mb-4 group">
             <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center group-hover:rotate-12 transition-transform duration-300">
@@ -801,6 +812,7 @@ export default function ClubRequestForm() {
                 if (!res.ok) throw new Error('Failed to submit club verification');
                 alert('Club verification submitted!');
                 resetForm();
+                router.push('/club-admin');
               } catch (e) {
                 alert('Submission failed. Please try again.');
               }
@@ -831,7 +843,15 @@ export default function ClubRequestForm() {
                   <div className="flex justify-between pt-6 border-t border-gray-200">
                     <button
                       type="button"
-                      onClick={() => setCurrentStep(s => Math.max(1, s - 1))}
+                      onClick={() => {
+                        setCurrentStep(s => {
+                          const newStep = Math.max(1, s - 1);
+                          setTimeout(() => {
+                            window.scrollTo({ top: 0, behavior: 'smooth' }); // or top: 64 for offset
+}, 0);
+                          return newStep;
+                        });
+                      }}
                       disabled={currentStep === 1}
                       className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
                         currentStep === 1
@@ -848,7 +868,15 @@ export default function ClubRequestForm() {
                         type="button"
                         onClick={async () => {
                           const valid = await validateCurrentStep();
-                          if (valid) setCurrentStep(s => s + 1);
+                          if (valid) {
+                            setCurrentStep(s => {
+                              const newStep = s + 1;
+                              setTimeout(() => {
+                                window.scrollTo({ top: 0, behavior: 'smooth' }); // or top: 64 for offset
+                              }, 0);
+                              return newStep;
+                            });
+                          }
                         }}
                         className="flex items-center space-x-2 bg-gradient-to-r from-orange-500 to-red-500 text-white px-6 py-3 rounded-lg font-medium hover:from-orange-600 hover:to-red-600 transition-all duration-200 transform hover:scale-105"
                       >

@@ -34,6 +34,10 @@ export async function POST(req: NextRequest) {
         // requestStatus, adminComments, approvedClubId, userId are optional/managed by admin
       },
     });
+    await prisma.user.update({
+      where: { id: userId },
+      data: { role: 'clubAdmin' }, // Make sure 'clubAdmin' matches your Role enum
+    });
 
     return NextResponse.json({ success: true, clubRequest }, { status: 201 });
   } catch (e) {
