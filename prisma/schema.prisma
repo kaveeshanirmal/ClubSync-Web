@@ -91,16 +91,16 @@ model User {
 }
 
 model Club {
-  id           String    @id @default(uuid())
+  id           String   @id @default(uuid())
   name         String
   motto        String?
-  founded      DateTime?
+  founded      String?
   headquarters String?
   coverImage   String? // URL to cover image
   profileImage String? // URL to profile image
   constitution String? // URL to constitution document
-  about        String?   @db.Text
-  mission      String?   @db.Text
+  about        String?  @db.Text
+  mission      String?  @db.Text
   values       String[] // Array of values
   avenues      String[] // Array of avenues
   email        String?
@@ -111,12 +111,12 @@ model Club {
   facebook     String?
   linkedIn     String?
   twitter      String?
-  isActive     Boolean   @default(true)
-  isDeleted    Boolean   @default(false)
+  isActive     Boolean  @default(true)
+  isDeleted    Boolean  @default(false)
   createdById  String
-  createdBy    User?     @relation("ClubCreator", fields: [createdById], references: [id])
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  createdBy    User?    @relation("ClubCreator", fields: [createdById], references: [id])
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   // Relations
   events       Event[]
