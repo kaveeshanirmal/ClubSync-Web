@@ -4,7 +4,7 @@ import { prisma } from "@/prisma/client";
 import { UpdateUserRequest } from "@/app/types/user";
 import { updateUserSchema } from "@/lib/validations/user";
 
-// GET /api/users/[id] - Get specific user
+// GET /api/users/[electionId] - Get specific user
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } },
@@ -38,7 +38,7 @@ export async function GET(
   }
 }
 
-// PUT /api/users/[id] - Update user
+// PUT /api/users/[electionId] - Update user
 export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string } },
@@ -90,7 +90,7 @@ export async function PUT(
   }
 }
 
-// DELETE /api/users/[id] - Delete user
+// DELETE /api/users/[electionId] - Delete user
 export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string } },
