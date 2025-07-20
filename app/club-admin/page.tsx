@@ -2,18 +2,18 @@
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useState } from "react";
-import { 
-  Users, 
-  Calendar, 
-  FileText, 
-  CheckCircle, 
-  MessageSquare, 
-  Plus, 
+import {
+  Users,
+  Calendar,
+  FileText,
+  CheckCircle,
+  MessageSquare,
+  Plus,
   Star,
   TrendingUp,
   Award,
   Clock,
-  AlertCircle
+  AlertCircle,
 } from "lucide-react";
 
 export default function ClubAdminDashboard() {
@@ -25,13 +25,14 @@ export default function ClubAdminDashboard() {
   const clubs = [
     {
       id: "1",
-      name: "Robotics Club",
-      description: "Innovate and build robots for competitions and research.",
+      name: "Rotaract Club of UCSC",
+      description:
+        "create positive change through community service, professional development, and international understanding",
       image: "/robotics.jpg",
       memberCount: 45,
       upcomingEvents: 3,
       pendingRequests: 2,
-      status: "active"
+      status: "active",
     },
     {
       id: "2",
@@ -41,7 +42,7 @@ export default function ClubAdminDashboard() {
       memberCount: 32,
       upcomingEvents: 2,
       pendingRequests: 1,
-      status: "active"
+      status: "active",
     },
     {
       id: "3",
@@ -51,8 +52,8 @@ export default function ClubAdminDashboard() {
       memberCount: 28,
       upcomingEvents: 1,
       pendingRequests: 0,
-      status: "active"
-    }
+      status: "active",
+    },
   ];
 
   // Mocked feedback data
@@ -62,16 +63,18 @@ export default function ClubAdminDashboard() {
       volunteerName: "Sarah Johnson",
       club: "Robotics Club",
       rating: 5,
-      comment: "Amazing experience! The club activities are well-organized and engaging.",
-      date: "2024-01-15"
+      comment:
+        "Amazing experience! The club activities are well-organized and engaging.",
+      date: "2024-01-15",
     },
     {
       id: 2,
       volunteerName: "Mike Chen",
       club: "Drama Club",
       rating: 4,
-      comment: "Great leadership and communication. Would love to see more events.",
-      date: "2024-01-14"
+      comment:
+        "Great leadership and communication. Would love to see more events.",
+      date: "2024-01-14",
     },
     {
       id: 3,
@@ -79,8 +82,8 @@ export default function ClubAdminDashboard() {
       club: "Environmental Club",
       rating: 5,
       comment: "Excellent initiative and dedication to environmental causes.",
-      date: "2024-01-13"
-    }
+      date: "2024-01-13",
+    },
   ];
 
   const getStatusColor = (status: string) => {
@@ -109,14 +112,14 @@ export default function ClubAdminDashboard() {
 
   return (
     <div className="min-h-screen bg-white pt-20">
-
       {/* Header */}
       <div className="bg-gradient-to-r from-orange-50 to-red-50 shadow-sm border-b border-orange-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex justify-center items-center min-h-[150px]">
             <div className="flex flex-col justify-center">
               <h1 className="text-3xl font-bold text-black">
-                Welcome back, <span className="text-orange-600">{userName}</span>!
+                Welcome back,{" "}
+                <span className="text-orange-600">{userName}</span>!
               </h1>
               <p className="text-gray-600 mt-1">
                 Manage your clubs and oversee all administrative activities
@@ -141,7 +144,9 @@ export default function ClubAdminDashboard() {
                 <Users className="w-6 h-6 text-orange-600" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total Members</p>
+                <p className="text-sm font-medium text-gray-600">
+                  Total Members
+                </p>
                 <p className="text-2xl font-bold text-black">
                   {clubs.reduce((sum, club) => sum + club.memberCount, 0)}
                 </p>
@@ -155,7 +160,9 @@ export default function ClubAdminDashboard() {
                 <Calendar className="w-6 h-6 text-orange-600" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Upcoming Events</p>
+                <p className="text-sm font-medium text-gray-600">
+                  Upcoming Events
+                </p>
                 <p className="text-2xl font-bold text-black">
                   {clubs.reduce((sum, club) => sum + club.upcomingEvents, 0)}
                 </p>
@@ -169,7 +176,9 @@ export default function ClubAdminDashboard() {
                 <AlertCircle className="w-6 h-6 text-orange-600" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Pending Requests</p>
+                <p className="text-sm font-medium text-gray-600">
+                  Pending Requests
+                </p>
                 <p className="text-2xl font-bold text-black">
                   {clubs.reduce((sum, club) => sum + club.pendingRequests, 0)}
                 </p>
@@ -208,15 +217,19 @@ export default function ClubAdminDashboard() {
               <div className="space-y-4">
                 {clubs.map((club) => (
                   <Link key={club.id} href={`/club-admin/clubs/${club.id}`}>
-                                         <div className="bg-gray-50 rounded-xl p-6 hover:bg-orange-50 transition-all duration-200 cursor-pointer border border-gray-200 hover:border-orange-300">
-                       <div className="flex items-center justify-between">
-                         <div className="flex items-center space-x-4">
-                           <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-500 rounded-xl flex items-center justify-center text-white font-bold text-lg">
-                             {club.name.charAt(0)}
-                           </div>
-                           <div>
-                             <h3 className="text-lg font-semibold text-black">{club.name}</h3>
-                             <p className="text-gray-600 text-sm">{club.description}</p>
+                    <div className="bg-gray-50 rounded-xl p-6 hover:bg-orange-50 transition-all duration-200 cursor-pointer border border-gray-200 hover:border-orange-300">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-4">
+                          <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-500 rounded-xl flex items-center justify-center text-white font-bold text-lg">
+                            {club.name.charAt(0)}
+                          </div>
+                          <div>
+                            <h3 className="text-lg font-semibold text-black">
+                              {club.name}
+                            </h3>
+                            <p className="text-gray-600 text-sm">
+                              {club.description}
+                            </p>
                             <div className="flex items-center space-x-4 mt-2">
                               <span className="text-xs text-gray-500 flex items-center">
                                 <Users className="w-3 h-3 mr-1" />
@@ -236,7 +249,9 @@ export default function ClubAdminDashboard() {
                           </div>
                         </div>
                         <div className="text-right">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(club.status)}`}>
+                          <span
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(club.status)}`}
+                          >
                             {club.status}
                           </span>
                         </div>
@@ -251,26 +266,35 @@ export default function ClubAdminDashboard() {
           {/* Feedback Section */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                             <div className="flex items-center justify-between mb-6">
-                 <h2 className="text-xl font-bold text-black">Recent Feedback</h2>
-                 <Link href="/club-admin/feedback" className="text-orange-600 hover:text-orange-700 text-sm font-medium">
-                   View All
-                 </Link>
-               </div>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-bold text-black">
+                  Recent Feedback
+                </h2>
+                <Link
+                  href="/club-admin/feedback"
+                  className="text-orange-600 hover:text-orange-700 text-sm font-medium"
+                >
+                  View All
+                </Link>
+              </div>
 
               <div className="space-y-4">
                 {recentFeedback.map((feedback) => (
                   <div key={feedback.id} className="bg-gray-50 rounded-lg p-4">
                     <div className="flex items-start justify-between mb-2">
                       <div>
-                        <h4 className="font-medium text-gray-900">{feedback.volunteerName}</h4>
+                        <h4 className="font-medium text-gray-900">
+                          {feedback.volunteerName}
+                        </h4>
                         <p className="text-sm text-gray-600">{feedback.club}</p>
                       </div>
                       <div className="flex items-center">
                         {renderStars(feedback.rating)}
                       </div>
                     </div>
-                    <p className="text-sm text-gray-700 mb-2">{feedback.comment}</p>
+                    <p className="text-sm text-gray-700 mb-2">
+                      {feedback.comment}
+                    </p>
                     <p className="text-xs text-gray-500">{feedback.date}</p>
                   </div>
                 ))}
@@ -278,7 +302,9 @@ export default function ClubAdminDashboard() {
 
               <div className="mt-6 pt-4 border-t border-gray-200">
                 <div className="text-center">
-                  <p className="text-sm text-gray-600 mb-2">Overall Satisfaction</p>
+                  <p className="text-sm text-gray-600 mb-2">
+                    Overall Satisfaction
+                  </p>
                   <div className="flex items-center justify-center space-x-1 mb-2">
                     {renderStars(4.8)}
                   </div>
@@ -289,67 +315,71 @@ export default function ClubAdminDashboard() {
           </div>
         </div>
 
-                 {/* Quick Actions */}
-         <div className="mt-8 bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-           <h2 className="text-xl font-bold text-black mb-6">Quick Actions</h2>
-           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-             <Link href="/club-admin/interviews" className="group">
-               <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg p-4 hover:from-orange-100 hover:to-orange-200 transition-all duration-200 border border-orange-200">
-                 <div className="flex items-center space-x-3">
-                   <div className="p-2 bg-orange-600 rounded-lg group-hover:bg-orange-700 transition-colors">
-                     <Users className="w-5 h-5 text-white" />
-                   </div>
-                   <div>
-                     <h3 className="font-medium text-black">Manage Interviews</h3>
-                     <p className="text-sm text-gray-600">Schedule & conduct</p>
-                   </div>
-                 </div>
-               </div>
-             </Link>
+        {/* Quick Actions */}
+        <div className="mt-8 bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <h2 className="text-xl font-bold text-black mb-6">Quick Actions</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <Link href="/club-admin/interviews" className="group">
+              <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg p-4 hover:from-orange-100 hover:to-orange-200 transition-all duration-200 border border-orange-200">
+                <div className="flex items-center space-x-3">
+                  <div className="p-2 bg-orange-600 rounded-lg group-hover:bg-orange-700 transition-colors">
+                    <Users className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-medium text-black">
+                      Manage Interviews
+                    </h3>
+                    <p className="text-sm text-gray-600">Schedule & conduct</p>
+                  </div>
+                </div>
+              </div>
+            </Link>
 
-             <Link href="/club-admin/elections" className="group">
-               <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg p-4 hover:from-orange-100 hover:to-orange-200 transition-all duration-200 border border-orange-200">
-                 <div className="flex items-center space-x-3">
-                   <div className="p-2 bg-orange-600 rounded-lg group-hover:bg-orange-700 transition-colors">
-                     <Award className="w-5 h-5 text-white" />
-                   </div>
-                   <div>
-                     <h3 className="font-medium text-black">Approve Elections</h3>
-                     <p className="text-sm text-gray-600">Office bearer list</p>
-                   </div>
-                 </div>
-               </div>
-             </Link>
+            <Link href="/club-admin/elections" className="group">
+              <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg p-4 hover:from-orange-100 hover:to-orange-200 transition-all duration-200 border border-orange-200">
+                <div className="flex items-center space-x-3">
+                  <div className="p-2 bg-orange-600 rounded-lg group-hover:bg-orange-700 transition-colors">
+                    <Award className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-medium text-black">
+                      Approve Elections
+                    </h3>
+                    <p className="text-sm text-gray-600">Office bearer list</p>
+                  </div>
+                </div>
+              </div>
+            </Link>
 
-             <Link href="/club-admin/events" className="group">
-               <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg p-4 hover:from-orange-100 hover:to-orange-200 transition-all duration-200 border border-orange-200">
-                 <div className="flex items-center space-x-3">
-                   <div className="p-2 bg-orange-600 rounded-lg group-hover:bg-orange-700 transition-colors">
-                     <Calendar className="w-5 h-5 text-white" />
-                   </div>
-                   <div>
-                     <h3 className="font-medium text-black">Manage Events</h3>
-                     <p className="text-sm text-gray-600">Add, update, remove</p>
-                   </div>
-                 </div>
-               </div>
-             </Link>
+            <Link href="/club-admin/events" className="group">
+              <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg p-4 hover:from-orange-100 hover:to-orange-200 transition-all duration-200 border border-orange-200">
+                <div className="flex items-center space-x-3">
+                  <div className="p-2 bg-orange-600 rounded-lg group-hover:bg-orange-700 transition-colors">
+                    <Calendar className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-medium text-black">Manage Events</h3>
+                    <p className="text-sm text-gray-600">Add, update, remove</p>
+                  </div>
+                </div>
+              </div>
+            </Link>
 
-             <Link href="/club-admin/minutes" className="group">
-               <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg p-4 hover:from-orange-100 hover:to-orange-200 transition-all duration-200 border border-orange-200">
-                 <div className="flex items-center space-x-3">
-                   <div className="p-2 bg-orange-600 rounded-lg group-hover:bg-orange-700 transition-colors">
-                     <FileText className="w-5 h-5 text-white" />
-                   </div>
-                   <div>
-                     <h3 className="font-medium text-black">Meeting Minutes</h3>
-                     <p className="text-sm text-gray-600">Record & manage</p>
-                   </div>
-                 </div>
-               </div>
-             </Link>
-           </div>
-         </div>
+            <Link href="/club-admin/minutes" className="group">
+              <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg p-4 hover:from-orange-100 hover:to-orange-200 transition-all duration-200 border border-orange-200">
+                <div className="flex items-center space-x-3">
+                  <div className="p-2 bg-orange-600 rounded-lg group-hover:bg-orange-700 transition-colors">
+                    <FileText className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-medium text-black">Meeting Minutes</h3>
+                    <p className="text-sm text-gray-600">Record & manage</p>
+                  </div>
+                </div>
+              </div>
+            </Link>
+          </div>
+        </div>
       </div>
 
       {/* Add Club Modal */}
@@ -357,29 +387,30 @@ export default function ClubAdminDashboard() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl max-w-md w-full p-6">
             <div className="text-center">
-                             <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-orange-100 mb-4">
-                 <Plus className="h-6 w-6 text-orange-600" />
-               </div>
-               <h3 className="text-lg font-medium text-black mb-2">
-                 Add New Club
-               </h3>
-               <p className="text-sm text-gray-600 mb-6">
-                 Are you sure you want to add a new club? You'll need to complete the verification process to get your club approved.
-               </p>
-               
-               <div className="flex space-x-3">
-                 <button
-                   onClick={() => setShowAddClubModal(false)}
-                   className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-                 >
-                   Cancel
-                 </button>
-                 <Link href="/club-verify" className="flex-1">
-                   <button className="w-full px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-orange-500 to-red-500 rounded-lg hover:from-orange-600 hover:to-red-600 transition-all duration-200">
-                     Continue
-                   </button>
-                 </Link>
-               </div>
+              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-orange-100 mb-4">
+                <Plus className="h-6 w-6 text-orange-600" />
+              </div>
+              <h3 className="text-lg font-medium text-black mb-2">
+                Add New Club
+              </h3>
+              <p className="text-sm text-gray-600 mb-6">
+                Are you sure you want to add a new club? You'll need to complete
+                the verification process to get your club approved.
+              </p>
+
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => setShowAddClubModal(false)}
+                  className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                >
+                  Cancel
+                </button>
+                <Link href="/club-verify" className="flex-1">
+                  <button className="w-full px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-orange-500 to-red-500 rounded-lg hover:from-orange-600 hover:to-red-600 transition-all duration-200">
+                    Continue
+                  </button>
+                </Link>
+              </div>
             </div>
           </div>
         </div>

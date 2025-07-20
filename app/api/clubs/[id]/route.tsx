@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/prisma/client";
 
-// GET /api/clubs/[id] - Get specific club by ID
+// GET /api/clubs/[electionId] - Get specific club by ID
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } },
@@ -113,7 +113,7 @@ export async function GET(
   }
 }
 
-// PUT /api/clubs/[id] - Update specific club
+// PUT /api/clubs/[electionId] - Update specific club
 export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string } },
@@ -175,7 +175,7 @@ export async function PUT(
   }
 }
 
-// DELETE /api/clubs/[id] - Soft delete club
+// DELETE /api/clubs/[electionId] - Soft delete club
 export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string } },
