@@ -133,8 +133,9 @@ model ExcomMember {
   club           Club     @relation(fields: [clubId], references: [id], onDelete: Cascade)
   name           String
   position       String
+  image          String?  @default("")
   about          String?  @db.Text
-  memberSince    DateTime
+  memberSince    String? // Date when the member joined
   businessEmail  String?
   businessMobile String?
   isDeleted      Boolean  @default(false)
