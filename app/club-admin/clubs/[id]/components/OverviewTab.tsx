@@ -9,92 +9,99 @@ const OverviewTab: React.FC<{
   };
 }> = ({ club }) => (
   <div className="space-y-6">
-    {/* Stats Cards */}
+    {/* Enhanced Stats Cards with Admin Dashboard Theme */}
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       {/* Members Card */}
-      <div className="relative overflow-hidden bg-white rounded-2xl border-2 border-gray-100 p-6 hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1">
-        <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full -mr-8 -mt-8 opacity-30" />
-        <div className="flex items-center">
-          <div className="p-3 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border border-blue-200">
-            <Users className="w-6 h-6 text-blue-600" />
+      <div className="relative overflow-hidden bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-all duration-300">
+        <div className="absolute top-0 right-0 w-20 h-20 bg-orange-100 rounded-full -mr-10 -mt-10 opacity-50"></div>
+        <div className="relative flex items-center">
+          <div className="p-3 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl shadow-lg">
+            <Users className="w-6 h-6 text-white" />
           </div>
           <div className="ml-4">
             <p className="text-sm font-medium text-gray-600">Total Members</p>
-            <p className="text-2xl font-bold text-gray-900">
-              {club.memberCount}
-            </p>
+            <p className="text-2xl font-bold text-black">{club.memberCount}</p>
+            <p className="text-xs text-green-600 mt-1">+5% this month</p>
           </div>
         </div>
       </div>
 
       {/* Events Card */}
-      <div className="relative overflow-hidden bg-white rounded-2xl border-2 border-gray-100 p-6 hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1">
-        <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-green-100 to-emerald-100 rounded-full -mr-8 -mt-8 opacity-30" />
-        <div className="flex items-center">
-          <div className="p-3 bg-gradient-to-br from-green-50 to-green-100 rounded-xl border border-green-200">
-            <Calendar className="w-6 h-6 text-green-600" />
+      <div className="relative overflow-hidden bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-all duration-300">
+        <div className="absolute top-0 right-0 w-20 h-20 bg-blue-100 rounded-full -mr-10 -mt-10 opacity-50"></div>
+        <div className="relative flex items-center">
+          <div className="p-3 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-xl shadow-lg">
+            <Calendar className="w-6 h-6 text-white" />
           </div>
           <div className="ml-4">
             <p className="text-sm font-medium text-gray-600">Upcoming Events</p>
-            <p className="text-2xl font-bold text-gray-900">
-              {club.upcomingEvents}
-            </p>
+            <p className="text-2xl font-bold text-black">{club.upcomingEvents}</p>
+            <p className="text-xs text-blue-600 mt-1">+2 this week</p>
           </div>
         </div>
       </div>
 
       {/* Requests Card */}
-      <div className="relative overflow-hidden bg-white rounded-2xl border-2 border-gray-100 p-6 hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1">
-        <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-yellow-100 to-orange-100 rounded-full -mr-8 -mt-8 opacity-30" />
-        <div className="flex items-center">
-          <div className="p-3 bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl border border-yellow-200">
-            <AlertCircle className="w-6 h-6 text-yellow-600" />
+      <div className="relative overflow-hidden bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-all duration-300">
+        <div className="absolute top-0 right-0 w-20 h-20 bg-amber-100 rounded-full -mr-10 -mt-10 opacity-50"></div>
+        <div className="relative flex items-center">
+          <div className="p-3 bg-gradient-to-r from-amber-500 to-orange-500 rounded-xl shadow-lg">
+            <AlertCircle className="w-6 h-6 text-white" />
           </div>
           <div className="ml-4">
-            <p className="text-sm font-medium text-gray-600">
-              Pending Requests
-            </p>
-            <p className="text-2xl font-bold text-gray-900">
-              {club.pendingRequests}
-            </p>
+            <p className="text-sm font-medium text-gray-600">Pending Requests</p>
+            <p className="text-2xl font-bold text-black">{club.pendingRequests}</p>
+            <p className="text-xs text-amber-600 mt-1">Needs attention</p>
           </div>
         </div>
       </div>
     </div>
 
-    {/* Recent Activity */}
-    <div className="relative overflow-hidden bg-white rounded-2xl border-2 border-gray-100 p-6">
-      <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full -mr-8 -mt-8 opacity-30" />
-
-      <div className="flex items-center space-x-3 mb-4">
-        <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center transform hover:rotate-12 transition-transform duration-300">
-          <span className="text-white text-sm">📝</span>
+    {/* Enhanced Recent Activity */}
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h3 className="text-xl font-bold text-black">Recent Activity</h3>
+          <p className="text-sm text-gray-600">Latest club updates and actions</p>
         </div>
-        <h3 className="text-lg font-bold text-gray-900">Recent Activity</h3>
-        <div className="h-px bg-gradient-to-r from-purple-500 to-indigo-600 flex-1 opacity-30" />
+        <div className="flex items-center space-x-2 bg-green-50 px-3 py-2 rounded-lg border border-green-200">
+          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+          <span className="text-sm font-medium text-green-700">Live Updates</span>
+        </div>
       </div>
 
       <div className="space-y-4">
-        <div className="flex items-center space-x-3 p-3 hover:bg-gray-50/50 rounded-lg transition-colors duration-200">
-          <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0"></div>
-          <span className="text-sm text-gray-700 flex-1">
-            New member joined - Alex Turner
-          </span>
-          <span className="text-xs text-gray-500">2 hours ago</span>
+        <div className="flex items-center space-x-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200 hover:shadow-md transition-all duration-200">
+          <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full flex items-center justify-center">
+            <Users className="w-5 h-5 text-white" />
+          </div>
+          <div className="flex-1">
+            <span className="text-sm font-medium text-gray-900">New member joined - Alex Turner</span>
+            <p className="text-xs text-gray-600">Member count increased to {club.memberCount}</p>
+          </div>
+          <span className="text-xs text-gray-500 bg-white px-2 py-1 rounded-full">2 hours ago</span>
         </div>
-        <div className="flex items-center space-x-3 p-3 hover:bg-gray-50/50 rounded-lg transition-colors duration-200">
-          <div className="w-2 h-2 bg-green-500 rounded-full flex-shrink-0"></div>
-          <span className="text-sm text-gray-700 flex-1">
-            Event "Robotics Workshop" scheduled
-          </span>
-          <span className="text-xs text-gray-500">1 day ago</span>
+        
+        <div className="flex items-center space-x-4 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200 hover:shadow-md transition-all duration-200">
+          <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center">
+            <Calendar className="w-5 h-5 text-white" />
+          </div>
+          <div className="flex-1">
+            <span className="text-sm font-medium text-gray-900">Event "Robotics Workshop" scheduled</span>
+            <p className="text-xs text-gray-600">Scheduled for next Friday at 2:00 PM</p>
+          </div>
+          <span className="text-xs text-gray-500 bg-white px-2 py-1 rounded-full">1 day ago</span>
         </div>
-        <div className="flex items-center space-x-3 p-3 hover:bg-gray-50/50 rounded-lg transition-colors duration-200">
-          <div className="w-2 h-2 bg-yellow-500 rounded-full flex-shrink-0"></div>
-          <span className="text-sm text-gray-700 flex-1">
-            Service letter request from Sarah Johnson
-          </span>
-          <span className="text-xs text-gray-500">2 days ago</span>
+        
+        <div className="flex items-center space-x-4 p-4 bg-gradient-to-r from-amber-50 to-yellow-50 rounded-xl border border-amber-200 hover:shadow-md transition-all duration-200">
+          <div className="w-10 h-10 bg-gradient-to-r from-amber-500 to-yellow-500 rounded-full flex items-center justify-center">
+            <AlertCircle className="w-5 h-5 text-white" />
+          </div>
+          <div className="flex-1">
+            <span className="text-sm font-medium text-gray-900">Service letter request from Sarah Johnson</span>
+            <p className="text-xs text-gray-600">Pending review and approval</p>
+          </div>
+          <span className="text-xs text-gray-500 bg-white px-2 py-1 rounded-full">2 days ago</span>
         </div>
       </div>
     </div>

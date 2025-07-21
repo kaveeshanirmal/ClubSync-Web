@@ -20,17 +20,19 @@ const getStatusColor = (status: string) => {
 
 const EventsTab: React.FC = () => (
   <div className="space-y-6">
-    <div className="flex items-center space-x-3 mb-4">
-      <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center transform hover:rotate-12 transition-transform duration-300">
+    <div className="flex items-center space-x-3 mb-6">
+      <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center">
         <Calendar className="w-4 h-4 text-white" />
       </div>
-      <h3 className="text-lg font-bold text-gray-900">Event Management</h3>
-      <div className="h-px bg-gradient-to-r from-purple-500 to-indigo-600 flex-1 opacity-30" />
+      <div>
+        <h3 className="text-lg font-bold text-gray-900">Event Management</h3>
+        <p className="text-sm text-gray-600">Manage club events and activities</p>
+      </div>
     </div>
 
-    <div className="flex justify-end">
-      <button className="group flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-xl hover:from-purple-600 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 hover:shadow-lg font-semibold text-sm">
-        <Plus className="w-4 h-4 group-hover:rotate-90 transition-transform duration-300" />
+    <div className="flex justify-end mb-6">
+      <button className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl hover:from-orange-600 hover:to-red-600 transition-all duration-300 shadow-lg font-medium text-sm">
+        <Plus className="w-4 h-4" />
         <span>Add Event</span>
       </button>
     </div>

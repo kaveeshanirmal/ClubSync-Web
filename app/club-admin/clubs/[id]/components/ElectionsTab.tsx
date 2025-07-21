@@ -205,30 +205,32 @@ const ElectionsTab: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center space-x-3 mb-4">
-        <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center transform hover:rotate-12 transition-transform duration-300">
+      <div className="flex items-center space-x-3 mb-6">
+        <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center">
           <Award className="w-4 h-4 text-white" />
         </div>
-        <h3 className="text-lg font-bold text-gray-900">Election Management</h3>
-        <div className="h-px bg-gradient-to-r from-orange-500 to-red-500 flex-1 opacity-30" />
+        <div>
+          <h3 className="text-lg font-bold text-gray-900">Election Management</h3>
+          <p className="text-sm text-gray-600">Manage club elections and voting</p>
+        </div>
       </div>
 
       {/* Create Button */}
-      <div className="flex justify-end">
+      <div className="flex justify-end mb-6">
         <button
           onClick={handleCreateElection}
-          className="group flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl hover:from-orange-600 hover:to-red-600 transition-all duration-300 transform hover:scale-105 hover:shadow-lg font-semibold text-sm"
+          className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl hover:from-orange-600 hover:to-red-600 transition-all duration-300 shadow-lg font-medium text-sm"
         >
-          <Plus className="w-4 h-4 group-hover:rotate-90 transition-transform duration-300" />
+          <Plus className="w-4 h-4" />
           <span>Create Election</span>
         </button>
       </div>
 
       {/* Elections Grid */}
       {elections.length === 0 ? (
-        <div className="relative overflow-hidden text-center py-12 bg-gradient-to-br from-gray-50 to-orange-50/30 rounded-2xl border-2 border-dashed border-gray-300">
-          <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-4 animate-pulse" />
-          <h4 className="text-lg font-bold text-gray-700 mb-2">
+        <div className="text-center py-12 bg-white rounded-xl border border-gray-200">
+          <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+          <h4 className="text-lg font-semibold text-gray-900 mb-2">
             No Elections Yet
           </h4>
           <p className="text-gray-600 mb-4 max-w-md mx-auto">
@@ -236,9 +238,9 @@ const ElectionsTab: React.FC = () => {
           </p>
           <button
             onClick={handleCreateElection}
-            className="group flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl hover:from-orange-600 hover:to-red-600 transition-all duration-300 transform hover:scale-105 hover:shadow-lg font-semibold text-sm"
+            className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl hover:from-orange-600 hover:to-red-600 transition-all duration-300 shadow-lg font-medium text-sm mx-auto"
           >
-            <Plus className="w-4 h-4 group-hover:rotate-90 transition-transform duration-300" />
+            <Plus className="w-4 h-4" />
             <span>Create Your First Election</span>
           </button>
         </div>
@@ -257,9 +259,8 @@ const ElectionsTab: React.FC = () => {
             return (
               <div
                 key={election.id}
-                className="relative overflow-hidden bg-white rounded-2xl border-2 border-gray-100 p-6 hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1"
+                className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-all duration-300"
               >
-                <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-orange-100 to-red-100 rounded-full -mr-10 -mt-10 opacity-30" />
 
                 {/* Election Header */}
                 <div className="flex justify-between items-start mb-4">
@@ -293,7 +294,7 @@ const ElectionsTab: React.FC = () => {
                 </div>
 
                 {/* Election Stats */}
-                <div className="grid grid-cols-3 gap-4 mb-4 p-3 bg-gradient-to-br from-gray-50 to-white rounded-lg border border-gray-200">
+                <div className="grid grid-cols-3 gap-4 mb-4 p-3 bg-gray-50 rounded-lg">
                   <div className="text-center">
                     <div className="text-lg font-bold text-gray-900">
                       {election.positions.length}
@@ -318,24 +319,24 @@ const ElectionsTab: React.FC = () => {
                 <div className="flex justify-end space-x-2">
                   <button
                     onClick={() => handleViewElection(election)}
-                    className="group p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-300 hover:scale-110"
+                    className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200"
                     title="View Election"
                   >
-                    <Eye className="w-4 h-4 group-hover:scale-110 transition-transform duration-300" />
+                    <Eye className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => handleEditElection(election)}
-                    className="group p-2 text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-xl transition-all duration-300 hover:scale-110"
+                    className="p-2 text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-lg transition-all duration-200"
                     title="Edit Election"
                   >
-                    <Edit className="w-4 h-4 group-hover:scale-110 transition-transform duration-300" />
+                    <Edit className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => handleDeleteElection(election)}
-                    className="group p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all duration-300 hover:scale-110"
+                    className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200"
                     title="Delete Election"
                   >
-                    <Trash2 className="w-4 h-4 group-hover:scale-110 transition-transform duration-300" />
+                    <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
               </div>

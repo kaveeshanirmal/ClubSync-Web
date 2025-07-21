@@ -159,10 +159,10 @@ export default function ClubDetailPage() {
     return (
       <button
         onClick={() => onClick(id)}
-        className={`group flex items-center space-x-2 py-4 px-4 border-b-2 font-medium text-sm transition-all duration-300 ${
+        className={`group flex items-center space-x-3 py-3 px-4 font-medium text-sm transition-all duration-300 border-b-2 ${
           active
-            ? "border-orange-500 text-orange-600 bg-gradient-to-b from-orange-50/50 to-white"
-            : "border-transparent text-gray-500 hover:text-orange-600 hover:border-orange-300 hover:bg-orange-50/30"
+            ? "border-orange-500 text-orange-600 bg-orange-50"
+            : "border-transparent text-gray-500 hover:text-orange-600 hover:border-orange-300 hover:bg-gray-50"
         }`}
       >
         <Icon
@@ -178,27 +178,37 @@ export default function ClubDetailPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50/50 to-white pt-20">
-      {/* Header */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-orange-50 to-red-50 shadow-sm border-b border-orange-200/50">
-        <div className="absolute inset-0 bg-gradient-to-r from-orange-100/20 to-red-100/20" />
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div className="min-h-screen bg-gray-50 pt-16">
+      {/* Header - Aligned with Admin Dashboard Style */}
+      <div className="bg-white shadow-sm border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <button
                 onClick={() => router.push("/club-admin")}
-                className="group p-2 text-gray-600 hover:text-gray-900 hover:bg-white/50 rounded-xl transition-all duration-300 hover:shadow-md"
+                className="p-2 text-gray-600 hover:text-orange-600 hover:bg-gray-50 rounded-lg transition-all duration-200"
               >
-                <ArrowLeft className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
+                <ArrowLeft className="w-5 h-5" />
               </button>
-              <div className="space-y-1">
-                <h1 className="text-2xl font-bold text-gray-900">
-                  {club.name}
-                </h1>
-                <p className="text-gray-600">{club.description}</p>
+              <div className="flex items-center space-x-4">
+                <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center shadow-lg">
+                  <span className="text-lg font-bold text-white">{club.name.charAt(0)}</span>
+                </div>
+                <div>
+                  <h1 className="text-xl font-bold text-gray-900">{club.name}</h1>
+                  <p className="text-gray-600 text-sm">{club.description}</p>
+                  <div className="flex items-center mt-1 space-x-3">
+                    <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                      {club.memberCount} members
+                    </span>
+                    <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                      {club.upcomingEvents} events
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-3">
               <span
                 className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(
                   club.status,
@@ -211,15 +221,11 @@ export default function ClubDetailPage() {
         </div>
       </div>
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Tabs */}
-        <div className="relative overflow-hidden bg-white rounded-2xl shadow-sm border border-gray-100 mb-8">
-          <div className="absolute inset-0 bg-gradient-to-r from-white to-orange-50/30" />
-          <div className="relative border-b border-gray-200">
-            <nav
-              className="flex space-x-0 px-2 overflow-x-auto"
-              aria-label="Tabs"
-            >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Enhanced Navigation Tabs */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 mb-8">
+          <div className="border-b border-gray-200">
+            <nav className="flex space-x-0 overflow-x-auto" aria-label="Tabs">
               {tabs.map((tab) => (
                 <TabButton
                   key={tab.id}
@@ -234,10 +240,9 @@ export default function ClubDetailPage() {
           </div>
         </div>
 
-        {/* Tab Content */}
-        <div className="relative overflow-hidden bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-          <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-orange-100 to-red-100 rounded-full -mr-8 -mt-8 opacity-30" />
-          <div className="relative">{renderTabContent()}</div>
+        {/* Enhanced Tab Content */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          {renderTabContent()}
         </div>
       </div>
     </div>
