@@ -303,10 +303,12 @@ export default function UserOnboarding() {
           isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
         }`}
       >
-        <button onClick={() => router.push("/club-admin")}
-        className="group bg-gradient-to-r from-orange-500 to-red-500 text-white px-12 py-4 rounded-lg font-medium hover:from-orange-600 hover:to-red-600 transition-all duration-300 transform hover:scale-105 hover:shadow-xl flex items-center justify-center space-x-2 mx-auto">
+        <button
+          onClick={() => router.push("/club-verify")}
+          className="group bg-gradient-to-r from-orange-500 to-red-500 text-white px-12 py-4 rounded-lg font-medium hover:from-orange-600 hover:to-red-600 transition-all duration-300 transform hover:scale-105 hover:shadow-xl flex items-center justify-center space-x-2 mx-auto"
+        >
           <Settings className="w-5 h-5" />
-          <span>Go to Admin Dashboard</span>
+          <span>Create Your First Club</span>
           <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
         </button>
 
