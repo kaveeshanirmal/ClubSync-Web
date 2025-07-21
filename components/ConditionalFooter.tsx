@@ -6,7 +6,13 @@ export default function ConditionalFooter() {
   const pathname = usePathname();
 
   // Define routes where footer should be hidden
-  const hideFooterRoutes = ["/login", "/register", "/auth", "/admin"];
+  const hideFooterRoutes = [
+    "/login",
+    "/register",
+    "/auth",
+    "/admin",
+    "/unauthorized",
+  ];
 
   // Check if current route should hide footer
   const shouldHideFooter = hideFooterRoutes.some((route) =>
