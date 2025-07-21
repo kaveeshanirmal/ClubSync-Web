@@ -65,7 +65,9 @@ export default function LoginPage() {
           // router.push("/profile/complete");
           router.push("/welcome");
         } else if (session?.user?.role === "clubAdmin") {
-          router.push("/admin/dashboard");
+          router.push("/club-admin");
+        } else if (session?.user?.role === "systemAdmin") {
+          router.push("/admin");
         } else {
           router.push("/welcome");
         }
@@ -176,8 +178,12 @@ export default function LoginPage() {
               </div>
 
               <div className="text-center mb-4">
-                <h2 className="text-2xl lg:text-3xl font-bold text-black mb-2">Sign In</h2>
-                <p className="text-gray-600 text-sm">Access your ClubSync Dashboard</p>
+                <h2 className="text-2xl lg:text-3xl font-bold text-black mb-2">
+                  Sign In
+                </h2>
+                <p className="text-gray-600 text-sm">
+                  Access your ClubSync Dashboard
+                </p>
               </div>
 
               {/* Error Display */}

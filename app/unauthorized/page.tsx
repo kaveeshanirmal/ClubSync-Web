@@ -22,17 +22,17 @@ export default function UnauthorizedPage() {
     setIsVisible(true);
 
     const countdownInterval = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 1) {
-          router.push("/");
-          return 0;
-        }
-        return prev - 1;
-      });
+      setCountdown((prev) => Math.max(prev - 1, 0));
     }, 1000);
 
     return () => clearInterval(countdownInterval);
-  }, [router]);
+  }, []);
+
+  useEffect(() => {
+    if (countdown === 0) {
+      router.push("/");
+    }
+  }, [countdown, router]);
 
   const goBack = () => {
     if (window.history.length > 1) {
