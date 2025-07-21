@@ -20,6 +20,14 @@ export default function ClubAdminDashboard() {
   const { data: session } = useSession();
   const userName = session?.user?.firstName || session?.user?.name || "Admin";
   const [showAddClubModal, setShowAddClubModal] = useState(false);
+   const [showInquiryModal, setShowInquiryModal] = useState(false);
+const [inquiry, setInquiry] = useState({
+  subject: "",
+  type: "general",
+  message: ""
+});
+const [inquiryNotice, setInquiryNotice] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+
 
   // Mocked clubs data with more details
   const clubs = [
@@ -380,6 +388,15 @@ export default function ClubAdminDashboard() {
             </Link>
           </div>
         </div>
+        <div className="mt-8 flex justify-end">
+  <button
+    onClick={() => setShowInquiryModal(true)}
+    className="flex items-center px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg hover:from-orange-600 hover:to-red-600 transition-all duration-200 shadow-sm"
+  >
+    <MessageSquare className="w-4 h-4 mr-2" />
+    Send Inquiry
+  </button>
+</div>
       </div>
 
       {/* Add Club Modal */}
@@ -415,6 +432,106 @@ export default function ClubAdminDashboard() {
           </div>
         </div>
       )}
+       {showInquiryModal && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 relative animate-fadeIn">
+      <button
+        className="absolute top-4 right-4 text-gray-400 hover:text-orange-500 transition-colors text-xl font-bold"
+        onClick={() => setShowInquiryModal(false)}
+        aria-label="Close"
+      >
+        ×
+      </button>
+      <div className="text-center mb-6">
+        <div className="mx-auto flex items-center justify-center h-14 w-14 rounded-full bg-gradient-to-br from-orange-100 to-red-100 mb-4 shadow">
+          <MessageSquare className="h-7 w-7 text-orange-600" />
+        </div>
+        <h3 className="text-2xl font-semibold text-black mb-1">Send an Inquiry</h3>
+        <p className="text-sm text-gray-500">Let us know your concern or question.</p>
+      </div>
+      {inquiryNotice && (
+        <div className={`mb-4 px-4 py-3 rounded-lg text-sm font-medium flex items-center gap-2 transition-all duration-300 ${inquiryNotice.type === 'success' ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'}`}>
+          {inquiryNotice.type === 'success' ? (
+            <CheckCircle className="w-5 h-5 text-green-500" />
+          ) : (
+            <AlertCircle className="w-5 h-5 text-red-500" />
+          )}
+          {inquiryNotice.message}
+        </div>
+      )}
+      <form
+        className="space-y-5"
+        onSubmit={async (e) => {
+          e.preventDefault();
+          setInquiryNotice(null);
+          const res = await fetch("/api/inquiries", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              subject: inquiry.subject,
+              type: inquiry.type,
+              message: inquiry.message,
+              userId: session?.user?.id
+            })
+          });
+          if (res.ok) {
+            setInquiryNotice({ type: 'success', message: 'Inquiry submitted successfully!' });
+            setInquiry({ subject: '', type: 'general', message: '' });
+            setTimeout(() => {
+              setShowInquiryModal(false);
+              setInquiryNotice(null);
+            }, 1800);
+          } else {
+            setInquiryNotice({ type: 'error', message: 'Failed to submit inquiry. Please try again.' });
+          }
+        }}
+      >
+        <input
+          type="text"
+          className="w-full px-4 py-3 border border-orange-200 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-orange-400 transition placeholder-gray-400 bg-orange-50"
+          placeholder="Subject"
+          value={inquiry.subject}
+          onChange={(e) => setInquiry({ ...inquiry, subject: e.target.value })}
+          required
+        />
+        <select
+          className="w-full px-4 py-3 border border-orange-200 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-orange-400 transition bg-orange-50 text-gray-700"
+          value={inquiry.type}
+          onChange={(e) => setInquiry({ ...inquiry, type: e.target.value })}
+        >
+          <option value="general">General</option>
+          <option value="technicalSupport">Technical Support</option>
+          <option value="partnership">Partnership</option>
+          <option value="feedback">Feedback</option>
+          <option value="other">Other</option>
+        </select>
+        <textarea
+          rows={4}
+          className="w-full px-4 py-3 border border-orange-200 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-orange-400 transition placeholder-gray-400 bg-orange-50 resize-none"
+          placeholder="Your message..."
+          value={inquiry.message}
+          onChange={(e) => setInquiry({ ...inquiry, message: e.target.value })}
+          required
+        />
+        <div className="flex space-x-3 mt-2">
+          <button
+            type="button"
+            onClick={() => setShowInquiryModal(false)}
+            className="flex-1 px-4 py-2 text-base font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            className="flex-1 px-4 py-2 text-base font-medium text-white bg-gradient-to-r from-orange-500 to-red-500 rounded-lg hover:from-orange-600 hover:to-red-600 transition-all duration-200 shadow-sm"
+          >
+            Submit
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+)}
     </div>
   );
 }
