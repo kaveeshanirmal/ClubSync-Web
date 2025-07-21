@@ -199,6 +199,7 @@ model Vote {
 model Event {
   id              String        @id @default(cuid())
   title           String
+  subtitle        String?
   clubId          String
   club            Club          @relation(fields: [clubId], references: [id], onDelete: Cascade)
   category        EventCategory @default(other)
@@ -212,9 +213,52 @@ model Event {
   updatedAt       DateTime      @updatedAt
 
   // Relations
-  registrations EventRegistration[]
+  registrations   EventRegistration[]
+  addons          EventAddon[]
+  agenda          EventAgenda[]
+  resourcePersons EventResourcePerson[]
 
   @@map("events")
+}
+
+model EventAddon {
+  id           String   @id @default(cuid())
+  eventId      String
+  event        Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  receivables  String[] // Array of receivables
+  requirements String[] // Array of requirements
+  tags         String[] // Array of tags
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("event_addons")
+}
+
+model EventAgenda {
+  id                String   @id @default(cuid())
+  eventId           String
+  event             Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  startTime         DateTime
+  endTime           DateTime
+  agendaTitle       String
+  agendaDescription String?  @db.Text
+  createdAt         DateTime @default(now())
+
+  @@map("event_agenda")
+}
+
+model EventResourcePerson {
+  id          String   @id @default(cuid())
+  eventId     String
+  event       Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  name        String
+  designation String?
+  about       String?  @db.Text
+  profileImg  String? // URL to profile image
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("event_resource_persons")
 }
 
 model EventRegistration {
