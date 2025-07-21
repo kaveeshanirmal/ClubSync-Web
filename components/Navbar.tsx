@@ -43,7 +43,7 @@ export default function Navbar() {
           </div>
 
           <div className="hidden md:flex items-center space-x-8">
-            {["Home", "About", "Contact", "Clubs"].map((item, index) => {
+            {["Home", "About", "Contact", "Clubs", "Events"].map((item, index) => {
               const href = item === "Home" ? "/" : `/${item.toLowerCase()}`;
               return (
                 <Link
