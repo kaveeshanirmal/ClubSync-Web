@@ -12,25 +12,40 @@ export default function ContactPage() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    setIsSubmitting(false);
-    setIsSubmitted(true);
-    
-    // Reset form after 3 seconds
-    setTimeout(() => {
-      setIsSubmitted(false);
+    setError(null);
+
+    console.log("Form data submitted:", formData);
+    try {
+      const res = await fetch("/api/guest-inquiries", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Failed to send inquiry");
+      }
+
+      console.log("Inquiry sent successfully");
+
+      setIsSubmitted(true);
       setFormData({ name: "", email: "", subject: "", message: "", type: "general" });
-    }, 3000);
+    } catch (error) {
+      console.error("Submission error:", error);
+      setError(error instanceof Error ? error.message : "Something went wrong. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    if (error) setError(null); // Clear error when user starts typing
     setFormData(prev => ({
       ...prev,
       [e.target.name]: e.target.value
@@ -169,10 +184,30 @@ export default function ContactPage() {
                     <CheckCircle className="w-8 h-8 text-green-500" />
                   </div>
                   <h3 className="text-xl font-bold text-black mb-2">Message Sent!</h3>
-                  <p className="text-gray-600">Thank you for reaching out. We&apos;ll get back to you soon!</p>
+                  <p className="text-gray-600 mb-6">Thank you for reaching out. We&apos;ll get back to you soon!</p>
+                  <button
+                    onClick={() => setIsSubmitted(false)}
+                    className="bg-gradient-to-r from-orange-500 to-red-500 text-white font-semibold py-3 px-6 rounded-lg hover:from-orange-600 hover:to-red-600 transition-all duration-300 transform hover:scale-105"
+                  >
+                    Send Another Message
+                  </button>
                 </div>
               ) : (
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <>
+                  {error && (
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                      <div className="flex items-center">
+                        <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center mr-3">
+                          <span className="text-red-500 font-bold text-sm">!</span>
+                        </div>
+                        <div>
+                          <h3 className="text-red-800 font-semibold">Error</h3>
+                          <p className="text-red-600 text-sm">{error}</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid md:grid-cols-2 gap-6">
                     <div>
                       <label className="block text-sm font-semibold text-black mb-3">Name *</label>
@@ -260,6 +295,7 @@ export default function ContactPage() {
                     )}
                   </button>
                 </form>
+                </>
               )}
             </div>
           </div>
