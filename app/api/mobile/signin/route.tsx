@@ -80,6 +80,7 @@ export async function POST(req: Request) {
     const payload = {
       id: user.id,
       email: user.email,
+      role:user.role,
       name: `${user.firstName} ${user.lastName}`,
     };
     const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "7d" });
