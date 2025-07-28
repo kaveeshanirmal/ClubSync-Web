@@ -98,7 +98,30 @@ const handler = NextAuth({
       }
       return true;
     },
-    async session({ session }) {
+
+    async jwt({ token, user }) {
+      // Add user id and role to token on sign in
+      if (user && user.id) {
+        token.id = user.id;
+        token.role = user.role;
+      }
+
+      // If token doesn't have role but has email, fetch it from database
+      if (!token.role && token.email) {
+        const dbUser = await prisma.user.findUnique({
+          where: { email: token.email },
+          select: { id: true, role: true },
+        });
+        if (dbUser) {
+          token.id = dbUser.id;
+          token.role = dbUser.role;
+        }
+      }
+
+      return token;
+    },
+    async session({ session, token }) {
+      // Existing logic
       if (session.user?.email) {
         const user = (await prisma.user.findUnique({
           where: { email: session.user.email },
@@ -127,9 +150,14 @@ const handler = NextAuth({
           };
         }
       }
+      // Also add id from token if present (for direct access)
+      if (session.user && token?.id) {
+        session.user.id = token.id as string;
+      }
       return session;
     },
   },
 });
 
 export { handler as GET, handler as POST };
+export const authOptions = handler.options;

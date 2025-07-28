@@ -1,734 +1,468 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
+import BeautifulLoader from "../../components/Loader";
 import {
-  Calendar,
-  MapPin,
   Users,
-  Mail,
-  Phone,
-  Globe,
-  Edit3,
-  Save,
-  Plus,
-  Trash2,
-  Star,
+  Search,
+  Filter,
+  Building,
+  ChevronRight,
+  Sparkles,
   Award,
-  Clock,
-  Camera,
-  Settings,
-  Heart,
   Target,
   Zap,
-  Shield,
-  ChevronRight,
-  Instagram,
-  Facebook,
-  Linkedin,
-  Twitter,
+  Heart,
+  ArrowRight,
 } from "lucide-react";
 
-export default function RotaractClubPage() {
-  const [isEditing, setIsEditing] = useState(false);
-  const [activeTab, setActiveTab] = useState("overview");
-  const [isAdmin, setIsAdmin] = useState(false); // Toggle this to test admin view
-  const [hoveredMember, setHoveredMember] = useState<number | null>(null);
-
-  // Club data state
-  const [clubData, setClubData] = useState({
-    name: "Rotaract Club of UCSC",
-    tagline: "Service Above Self",
-    description: "Rotaract Club of UCSC is a vibrant community of young professionals and students at the University of Colombo School of Computing, dedicated to creating positive change in Sri Lanka and beyond. We focus on community service, professional development, and international understanding through technology and innovation.",
-    founded: "2018",
-    meetingLocation: "UCSC Auditorium, Reid Avenue",
-    memberCount: 38,
-    projectsCompleted: 85,
-    volunteersEngaged: 1200,
-    contact: {
-      email: "rotaract@ucsc.cmb.ac.lk",
-      phone: "+94 11 2 158 158",
-      website: "www.rotaractucsc.lk"
-    },
-    social: {
-      instagram: "@rotaractucsc",
-      facebook: "RotaractUCSC",
-      linkedin: "rotaract-ucsc",
-      twitter: "@rotaractucsc"
-    }
-  });
-
-  const [excoMembers] = useState([
-    {
-      id: 1,
-      name: "Priya Sharma",
-      position: "President",
-      bio: "Leading the club with passion for community service and technological innovation in Sri Lanka.",
-      image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop&crop=face",
-      email: "president@rotaractucsc.lk",
-      phone: "+94 77 123 4567",
-      joinDate: "2022"
-    },
-    {
-      id: 2,
-      name: "Arjun Patel",
-      position: "Vice President",
-      bio: "Focused on membership development and international service projects across South Asia.",
-      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
-      email: "vp@rotaractucsc.lk",
-      phone: "+94 77 234 5678",
-      joinDate: "2022"
-    },
-    {
-      id: 3,
-      name: "Meera Krishnan",
-      position: "Secretary",
-      bio: "Ensuring smooth operations and effective communication within the UCSC community.",
-      image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
-      email: "secretary@rotaractucsc.lk",
-      phone: "+94 77 345 6789",
-      joinDate: "2023"
-    },
-    {
-      id: 4,
-      name: "Vikram Raj",
-      position: "Treasurer",
-      bio: "Managing club finances and fundraising initiatives with transparency and innovation.",
-      image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
-      email: "treasurer@rotaractucsc.lk",
-      phone: "+94 77 456 7890",
-      joinDate: "2023"
-    },
-    {
-      id: 5,
-      name: "Ananya Gupta",
-      position: "Community Service Director",
-      bio: "Organizing impactful community service projects leveraging technology for social good.",
-      image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop&crop=face",
-      email: "community@rotaractucsc.lk",
-      phone: "+94 77 567 8901",
-      joinDate: "2023"
-    },
-    {
-      id: 6,
-      name: "Rahul Menon",
-      position: "Professional Development Chair",
-      bio: "Facilitating career growth and skill development opportunities in the tech industry.",
-      image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face",
-      email: "professional@rotaractucsc.lk",
-      phone: "+94 77 678 9012",
-      joinDate: "2024"
-    }
-  ]);
-
-  const [upcomingEvents, setUpcomingEvents] = useState([
-    {
-      id: 1,
-      title: "Clean Colombo Initiative",
-      date: "2025-07-20",
-      time: "6:00 AM",
-      location: "Galle Face Green, Colombo",
-      description: "Join us for a coastal cleanup drive to make Colombo cleaner and greener. Volunteers will receive certificates and refreshments.",
-      category: "Community Service",
-      maxParticipants: 80,
-      registered: 52,
-      image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=200&fit=crop",
-      isOpen: true
-    },
-    {
-      id: 2,
-      title: "Tech Career Workshop",
-      date: "2025-07-25",
-      time: "2:00 PM",
-      location: "UCSC Main Auditorium",
-      description: "Professional development workshop featuring Sri Lankan tech industry experts sharing insights on career growth and innovation opportunities.",
-      category: "Professional Development",
-      maxParticipants: 60,
-      registered: 45,
-      image: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=300&h=200&fit=crop",
-      isOpen: true
-    },
-    {
-      id: 3,
-      title: "Blood Donation Camp",
-      date: "2025-08-01",
-      time: "9:00 AM",
-      location: "National Hospital of Sri Lanka",
-      description: "Annual blood donation camp in partnership with National Hospital. Every donation can save up to 3 lives in our community.",
-      category: "Health & Wellness",
-      maxParticipants: 150,
-      registered: 89,
-      image: "https://images.unsplash.com/photo-1615461066841-6116e61058f4?w=300&h=200&fit=crop",
-      isOpen: true
-    },
-    {
-      id: 4,
-      title: "Youth Leadership Summit",
-      date: "2025-08-10",
-      time: "10:00 AM",
-      location: "University of Colombo",
-      description: "District-level summit bringing together young leaders from across Sri Lanka to discuss sustainable development goals and digital transformation.",
-      category: "Leadership",
-      maxParticipants: 200,
-      registered: 127,
-      image: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=300&h=200&fit=crop",
-      isOpen: true
-    }
-  ]);
-
-  const toggleEdit = () => {
-    setIsEditing(!isEditing);
+interface Club {
+  id: string;
+  name: string;
+  motto?: string;
+  founded?: string;
+  headquarters?: string;
+  coverImage?: string;
+  profileImage?: string;
+  about?: string;
+  mission?: string;
+  values?: string[];
+  avenues?: string[];
+  email?: string;
+  phone?: string;
+  website?: string;
+  instagram?: string;
+  facebook?: string;
+  linkedIn?: string;
+  twitter?: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+  createdBy: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
   };
+}
 
-  const addNewEvent = () => {
-    const newEvent = {
-      id: Date.now(),
-      title: "New Event",
-      date: new Date().toISOString().split('T')[0],
-      time: "6:00 PM",
-      location: "TBD",
-      description: "Event description",
-      category: "Community Service",
-      maxParticipants: 50,
-      registered: 0,
-      image: "/api/placeholder/300/200",
-      isOpen: true
+export default function ClubsPage() {
+  const [clubs, setClubs] = useState<Club[]>([]);
+  const [filteredClubs, setFilteredClubs] = useState<Club[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterActive, setFilterActive] = useState<boolean | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const clubsPerPage = 12;
+
+  useEffect(() => {
+    const fetchClubs = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch("/api/clubs");
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch clubs");
+        }
+
+        const clubsData = await response.json();
+        setClubs(clubsData);
+        setFilteredClubs(clubsData);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "An error occurred");
+      } finally {
+        setLoading(false);
+      }
     };
-    setUpcomingEvents([...upcomingEvents, newEvent]);
+
+    fetchClubs();
+  }, []);
+
+  useEffect(() => {
+    let filtered = clubs;
+
+    // Filter by search term
+    if (searchTerm) {
+      filtered = filtered.filter(
+        (club) =>
+          club.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          club.motto?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          club.about?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Filter by active status
+    if (filterActive !== null) {
+      filtered = filtered.filter((club) => club.isActive === filterActive);
+    }
+
+    setFilteredClubs(filtered);
+    setCurrentPage(1); // Reset to first page when filters change
+  }, [clubs, searchTerm, filterActive]);
+
+  // Calculate pagination
+  const totalPages = Math.ceil(filteredClubs.length / clubsPerPage);
+  const startIndex = (currentPage - 1) * clubsPerPage;
+  const endIndex = startIndex + clubsPerPage;
+  const currentClubs = filteredClubs.slice(startIndex, endIndex);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const deleteEvent = (eventId: number) => {
-    setUpcomingEvents(upcomingEvents.filter(event => event.id !== eventId));
-  };
+  if (loading) {
+    return (
+      <BeautifulLoader 
+        message="Discovering Amazing Clubs"
+        subMessage="Loading communities that inspire..."
+        type="morphing"
+      />
+    );
+  }
 
-  const getCategoryColor = (category: string) => {
-    const colors: { [key: string]: string } = {
-      "Community Service": "from-orange-400 to-red-500",
-      "Professional Development": "from-orange-500 to-yellow-500", 
-      "Health & Wellness": "from-red-500 to-orange-600",
-      "Leadership": "from-orange-600 to-amber-500",
-      "Environmental": "from-amber-500 to-orange-400"
-    };
-    return colors[category] || "from-orange-500 to-red-500";
-  };
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      weekday: 'long', 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
-    });
-  };
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 pt-16">
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex items-center justify-center min-h-[60vh]">
+            <div className="text-center max-w-md">
+              <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Heart className="h-10 w-10 text-red-500" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-800 mb-4">
+                Oops! Something went wrong
+              </h3>
+              <p className="text-red-600 text-lg mb-6">{error}</p>
+              <button
+                onClick={() => window.location.reload()}
+                className="bg-gradient-to-r from-orange-400 to-red-400 text-white px-8 py-3 rounded-full hover:from-orange-500 hover:to-red-500 transition-all duration-300 transform hover:scale-105 shadow-lg"
+              >
+                Try Again
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 pt-16">
-      {/* Hero Section */}
-      <div className="relative bg-gradient-to-l from-orange-500 to-red-500 text-white overflow-hidden">
-        <div className="absolute inset-0 bg-black/20"></div>
-        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=1200&h=600&fit=crop')] bg-cover bg-center opacity-30"></div>
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50">
+      {/* Hero Section with Enhanced Design */}
+      <div className="relative overflow-hidden bg-gradient-to-r from-orange-400 to-red-400 text-white min-h-screen flex items-center">
+        <div className="absolute inset-0 bg-black/10"></div>
         
-        <div className="relative z-10 max-w-7xl mx-auto px-6 py-16">
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
-            <div className="flex-1">
-              <div className="flex items-center gap-4 mb-6">
-                <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
-                  <Zap className="w-10 h-10 text-white" />
-                </div>
-                <div>
-                  {isEditing ? (
-                    <input
-                      type="text"
-                      value={clubData.name}
-                      onChange={(e) => setClubData({...clubData, name: e.target.value})}
-                      className="text-4xl font-bold bg-transparent border-b border-white/50 focus:border-white outline-none"
-                    />
-                  ) : (
-                    <h1 className="text-4xl lg:text-5xl font-bold mb-2">{clubData.name}</h1>
-                  )}
-                  {isEditing ? (
-                    <input
-                      type="text"
-                      value={clubData.tagline}
-                      onChange={(e) => setClubData({...clubData, tagline: e.target.value})}
-                      className="text-xl bg-transparent border-b border-white/50 focus:border-white outline-none"
-                    />
-                  ) : (
-                    <p className="text-xl opacity-90">{clubData.tagline}</p>
-                  )}
-                </div>
+        {/* Animated Background Shapes */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-white/10 rounded-full animate-pulse"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-white/10 rounded-full animate-pulse delay-1000"></div>
+          <div className="absolute top-1/2 left-1/4 w-20 h-20 bg-white/20 rounded-full animate-bounce delay-500"></div>
+          <div className="absolute bottom-1/4 right-1/3 w-16 h-16 bg-white/20 rounded-full animate-bounce delay-700"></div>
+        </div>
+
+        <div className="relative z-10 container mx-auto px-4 py-20 text-center">
+          <div className="max-w-4xl mx-auto">
+            <div className="flex items-center justify-center mb-8">
+              <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mr-4 animate-pulse">
+                <Sparkles className="h-10 w-10 text-white" />
               </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 text-center">
-                  <Users className="w-8 h-8 mx-auto mb-2" />
-                  <div className="text-2xl font-bold">{clubData.memberCount}</div>
-                  <div className="text-sm opacity-80">Active Members</div>
-                </div>
-                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 text-center">
-                  <Award className="w-8 h-8 mx-auto mb-2" />
-                  <div className="text-2xl font-bold">{clubData.projectsCompleted}</div>
-                  <div className="text-sm opacity-80">Projects Completed</div>
-                </div>
-                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 text-center">
-                  <Heart className="w-8 h-8 mx-auto mb-2" />
-                  <div className="text-2xl font-bold">{clubData.volunteersEngaged}</div>
-                  <div className="text-sm opacity-80">Volunteers Engaged</div>
-                </div>
-              </div>
-              
-              <div className="flex flex-wrap gap-4">
-                <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2">
-                  <Calendar className="w-5 h-5" />
-                  <span>Founded {clubData.founded}</span>
-                </div>
-                <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2">
-                  <MapPin className="w-5 h-5" />
-                  <span>{clubData.meetingLocation}</span>
-                </div>
-              </div>
+              <h1 className="text-6xl md:text-7xl font-bold">
+                Discover Your
+                <span className="block bg-gradient-to-r from-orange-200 to-red-200 bg-clip-text text-transparent">
+                  Perfect Club
+                </span>
+              </h1>
             </div>
             
-            <div className="flex-shrink-0">
-              <div className="relative">
-                <Image
-                  src="https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?w=300&h=300&fit=crop&crop=center" 
-                  alt="Club Logo" 
-                  width={192}
-                  height={192}
-                  className="w-48 h-48 rounded-full border-4 border-white/20 shadow-2xl object-cover"
-                />
-                {isAdmin && (
-                  <button 
-                    onClick={toggleEdit}
-                    className="absolute top-4 right-4 bg-white/20 backdrop-blur-sm rounded-full p-2 hover:bg-white/30 transition-colors"
-                  >
-                    {isEditing ? <Save className="w-5 h-5" /> : <Edit3 className="w-5 h-5" />}
-                  </button>
-                )}
+            <p className="text-2xl md:text-3xl text-white/90 mb-12 leading-relaxed max-w-3xl mx-auto">
+              Join extraordinary communities, build lasting connections, and 
+              <span className="font-semibold"> make a difference together</span>
+            </p>
+
+            <div className="flex flex-wrap justify-center gap-12 mb-16">
+              <div className="flex items-center bg-white/20 backdrop-blur-sm rounded-full px-8 py-4">
+                <Users className="h-8 w-8 mr-3 text-orange-200" />
+                <span className="font-semibold text-lg">1000+ Members</span>
+              </div>
+              <div className="flex items-center bg-white/20 backdrop-blur-sm rounded-full px-8 py-4">
+                <Award className="h-8 w-8 mr-3 text-orange-200" />
+                <span className="font-semibold text-lg">50+ Active Clubs</span>
+              </div>
+              <div className="flex items-center bg-white/20 backdrop-blur-sm rounded-full px-8 py-4">
+                <Target className="h-8 w-8 mr-3 text-orange-200" />
+                <span className="font-semibold text-lg">200+ Events</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Scroll Indicator */}
+          <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+            <div className="flex flex-col items-center text-white/80">
+              <span className="text-sm mb-2 font-medium">Scroll to explore</span>
+              <div className="w-6 h-10 border-2 border-white/50 rounded-full flex justify-center">
+                <div className="w-1 h-3 bg-white/70 rounded-full mt-2 animate-pulse"></div>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Navigation Tabs */}
-      <div className="bg-white shadow-sm border-b sticky top-16 z-20 -mt-1">
-        <div className="max-w-7xl mx-auto px-6">
-          <nav className="flex space-x-8">
-            {[
-              { id: 'overview', label: 'Overview', icon: Target },
-              { id: 'exco', label: 'Executive Committee', icon: Users },
-              { id: 'events', label: 'Upcoming Events', icon: Calendar },
-              { id: 'contact', label: 'Contact & Social', icon: Mail }
-            ].map(({ id, label, icon: Icon }) => (
-              <button
-                key={id}
-                onClick={() => setActiveTab(id)}
-                className={`flex items-center gap-2 py-4 px-2 border-b-2 font-medium transition-colors ${
-                  activeTab === id
-                    ? 'border-orange-500 text-orange-500'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                <Icon className="w-5 h-5" />
-                {label}
-              </button>
-            ))}
-          </nav>
-        </div>
-      </div>
+      <div className="container mx-auto px-4 py-12 relative z-10">
+        {/* Enhanced Search and Filter Section */}
+        <div className="max-w-5xl mx-auto mb-12">
+          <div className="bg-white/90 backdrop-blur-lg rounded-2xl shadow-xl border border-white/40 p-6">
+            <div className="flex flex-col lg:flex-row gap-4">
+              {/* Enhanced Search Bar */}
+              <div className="relative flex-1">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <Search className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  type="text"
+                  placeholder="Search clubs by name, motto, or description..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-orange-200 focus:border-orange-400 transition-all duration-300 text-base placeholder-gray-500 bg-white/90 backdrop-blur-sm hover:border-gray-300"
+                />
+              </div>
 
-      {/* Content Sections */}
-      <div className="max-w-7xl mx-auto px-6 py-12">
-        {/* Overview Tab */}
-        {activeTab === 'overview' && (
-          <div className="space-y-8">
-            <div className="bg-white rounded-2xl p-8 shadow-sm border">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">About Our Club</h2>
-                {isAdmin && (
+              {/* Enhanced Filter */}
+              <div className="relative lg:w-48">
+                <select
+                  value={filterActive === null ? "" : filterActive.toString()}
+                  onChange={(e) =>
+                    setFilterActive(
+                      e.target.value === ""
+                        ? null
+                        : e.target.value === "true"
+                    )
+                  }
+                  className="w-full appearance-none bg-white/90 backdrop-blur-sm border-2 border-gray-200 rounded-xl px-4 py-4 pr-10 focus:ring-4 focus:ring-orange-200 focus:border-orange-400 transition-all duration-300 text-base font-medium hover:border-gray-300"
+                >
+                  <option value="">All Clubs</option>
+                  <option value="true">Active Clubs</option>
+                  <option value="false">Inactive Clubs</option>
+                </select>
+                <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                  <Filter className="h-5 w-5 text-gray-400" />
+                </div>
+              </div>
+            </div>
+
+            {/* Enhanced Results Summary */}
+            <div className="mt-6 flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="flex items-center bg-gradient-to-r from-orange-100 to-red-100 rounded-full px-4 py-2">
+                  <Zap className="h-5 w-5 mr-2 text-orange-600" />
+                  <span className="font-bold text-orange-700 text-lg">{filteredClubs.length}</span>
+                  <span className="ml-1 text-orange-600 font-medium">
+                    club{filteredClubs.length !== 1 ? 's' : ''} found
+                  </span>
+                </div>
+                {(searchTerm || filterActive !== null) && (
                   <button
-                    onClick={toggleEdit}
-                    className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-red-500 text-white px-4 py-2 rounded-lg hover:from-orange-600 hover:to-red-600 transition-all duration-300"
+                    onClick={() => {
+                      setSearchTerm("");
+                      setFilterActive(null);
+                    }}
+                    className="text-sm text-gray-500 hover:text-orange-600 transition-colors duration-200 underline"
                   >
-                    <Edit3 className="w-4 h-4" />
-                    {isEditing ? 'Save Changes' : 'Edit Description'}
+                    Clear filters
                   </button>
                 )}
               </div>
               
-              {isEditing ? (
-                <textarea
-                  value={clubData.description}
-                  onChange={(e) => setClubData({...clubData, description: e.target.value})}
-                  className="w-full h-32 p-4 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none"
-                  placeholder="Club description..."
-                />
-              ) : (
-                <p className="text-gray-600 leading-relaxed text-lg">{clubData.description}</p>
-              )}
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-8">
-              <div className="bg-white rounded-2xl p-8 shadow-sm border">
-                <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
-                  <Target className="w-6 h-6 text-orange-500" />
-                  Our Mission
-                </h3>
-                <p className="text-gray-600 leading-relaxed">
-                  To provide opportunities for young people in Sri Lanka to enhance their leadership and professional skills, 
-                  to address the physical and social needs of their communities through technology and innovation, and to promote better relations 
-                  between all people worldwide through a framework of friendship and service.
-                </p>
-              </div>
-              
-              <div className="bg-white rounded-2xl p-8 shadow-sm border">
-                <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
-                  <Shield className="w-6 h-6 text-orange-500" />
-                  Our Values
-                </h3>
-                <ul className="space-y-2 text-gray-600">
-                  <li className="flex items-center gap-2">
-                    <ChevronRight className="w-4 h-4 text-orange-500" />
-                    Service Above Self
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <ChevronRight className="w-4 h-4 text-orange-500" />
-                    Innovation & Technology
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <ChevronRight className="w-4 h-4 text-orange-500" />
-                    Community Development
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <ChevronRight className="w-4 h-4 text-orange-500" />
-                    Cultural Unity
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Executive Committee Tab */}
-        {activeTab === 'exco' && (
-          <div className="space-y-8">
-            <div className="flex items-center justify-between">
-              <h2 className="text-3xl font-bold text-gray-900">Executive Committee</h2>
-              {isAdmin && (
-                <button className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-red-500 text-white px-4 py-2 rounded-lg hover:from-orange-600 hover:to-red-600 transition-all duration-300">
-                  <Plus className="w-4 h-4" />
-                  Add Member
-                </button>
-              )}
-            </div>
-            
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {excoMembers.map((member) => (
-                <div
-                  key={member.id}
-                  className="bg-white rounded-2xl p-6 shadow-sm border hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
-                  onMouseEnter={() => setHoveredMember(member.id)}
-                  onMouseLeave={() => setHoveredMember(null)}
-                >
-                  <div className="relative mb-4">
-                    <Image
-                      src={member.image}
-                      alt={member.name}
-                      width={96}
-                      height={96}
-                      className="w-24 h-24 rounded-full mx-auto border-4 border-orange-100"
-                    />
-                    {hoveredMember === member.id && isAdmin && (
-                      <button className="absolute top-0 right-0 bg-orange-500 text-white p-2 rounded-full hover:bg-orange-600 transition-colors">
-                        <Camera className="w-4 h-4" />
-                      </button>
-                    )}
-                  </div>
-                  
-                  <div className="text-center">
-                    <h3 className="text-lg font-bold text-gray-900 mb-1">{member.name}</h3>
-                    <p className="text-orange-600 font-semibold mb-3">{member.position}</p>
-                    <p className="text-gray-600 text-sm mb-4">{member.bio}</p>
-                    
-                    <div className="flex justify-center gap-2">
-                      <button className="p-2 bg-orange-100 text-orange-500 rounded-lg hover:bg-orange-200 transition-colors">
-                        <Mail className="w-4 h-4" />
-                      </button>
-                      <button className="p-2 bg-orange-100 text-orange-500 rounded-lg hover:bg-orange-200 transition-colors">
-                        <Phone className="w-4 h-4" />
-                      </button>
-                    </div>
-                    
-                    <div className="mt-4 text-xs text-gray-500">
-                      Member since {member.joinDate}
-                    </div>
-                  </div>
+              {filteredClubs.length > 0 && (
+                <div className="flex items-center text-gray-400">
+                  <span className="text-sm mr-2">Click any club to explore</span>
+                  <ArrowRight className="h-4 w-4" />
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Events Tab */}
-        {activeTab === 'events' && (
-          <div className="space-y-8">
-            <div className="flex items-center justify-between">
-              <h2 className="text-3xl font-bold text-gray-900">Upcoming Events</h2>
-              {isAdmin && (
-                <button
-                  onClick={addNewEvent}
-                  className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-red-500 text-white px-4 py-2 rounded-lg hover:from-orange-600 hover:to-red-600 transition-all duration-300"
-                >
-                  <Plus className="w-4 h-4" />
-                  Add Event
-                </button>
               )}
             </div>
-            
-            <div className="grid gap-6">
-              {upcomingEvents.map((event) => (
-                <div
-                  key={event.id}
-                  className="bg-white rounded-2xl shadow-sm border overflow-hidden hover:shadow-lg transition-shadow"
+          </div>
+        </div>
+
+        {/* Compact Clubs Grid */}
+        {filteredClubs.length === 0 ? (
+          <div className="text-center py-16">
+            <div className="max-w-sm mx-auto">
+              <div className="w-16 h-16 bg-gradient-to-r from-orange-200 to-red-200 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Building className="h-8 w-8 text-gray-500" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-700 mb-2">
+                {searchTerm || filterActive !== null
+                  ? "No clubs found"
+                  : "No clubs available"}
+              </h3>
+              <p className="text-gray-500 text-sm">
+                {searchTerm || filterActive !== null
+                  ? "Try adjusting your search"
+                  : "Check back soon for new clubs!"}
+              </p>
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {currentClubs.map((club, index) => (
+                <Link
+                  key={club.id}
+                  href={`/clubs/${club.id}`}
+                  className="group block"
+                  style={{ animationDelay: `${index * 50}ms` }}
                 >
-                  <div className="md:flex">
-                    <div className="md:w-1/3">
-                      <Image
-                        src={event.image}
-                        alt={event.title}
-                        width={300}
-                        height={200}
-                        className="w-full h-48 md:h-full object-cover"
-                      />
+                  <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2 border border-white/50 hover:border-orange-300 h-full group-hover:bg-white">
+                    {/* Compact Cover Image */}
+                    <div className="relative h-36 overflow-hidden">
+                      {club.coverImage ? (
+                        <Image
+                          src={club.coverImage}
+                          alt={`${club.name} cover`}
+                          fill
+                          className="object-cover group-hover:scale-110 transition-transform duration-700"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-orange-400 to-red-400 flex items-center justify-center">
+                          <Building className="h-14 w-14 text-white/60" />
+                        </div>
+                      )}
+                      
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+
+                      {/* Active Status Badge */}
+                      <div className="absolute top-3 right-3">
+                        <span
+                          className={`px-3 py-1.5 text-xs font-semibold rounded-full shadow-sm ${
+                            club.isActive
+                              ? "bg-emerald-500/95 text-white"
+                              : "bg-gray-500/95 text-white"
+                          }`}
+                        >
+                          {club.isActive ? "Active" : "Inactive"}
+                        </span>
+                      </div>
+
+                      {/* Hover Arrow */}
+                      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                        <div className="w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg">
+                          <ArrowRight className="h-5 w-5 text-orange-600" />
+                        </div>
+                      </div>
                     </div>
-                    <div className="md:w-2/3 p-6">
-                      <div className="flex items-start justify-between mb-4">
-                        <div>
-                          <div className="flex items-center gap-2 mb-2">
-                            <span className={`px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r ${getCategoryColor(event.category)} text-white`}>
-                              {event.category}
-                            </span>
-                            {event.isOpen && (
-                              <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
-                                Open for Registration
+
+                    {/* Compact Content */}
+                    <div className="p-4">
+                      <div className="flex items-start justify-between mb-3">
+                        <h3 className="text-base font-bold text-gray-900 group-hover:text-orange-600 transition-colors duration-300 leading-tight flex-1 pr-2">
+                          {club.name}
+                        </h3>
+                        <ChevronRight className="h-5 w-5 text-orange-500 group-hover:translate-x-1 transition-transform duration-300 flex-shrink-0" />
+                      </div>
+
+                      {club.motto && (
+                        <p className="text-sm text-gray-600 italic mb-4 line-clamp-2 leading-relaxed">
+                          &ldquo;{club.motto}&rdquo;
+                        </p>
+                      )}
+
+                      {/* Compact Avenues */}
+                      {club.avenues && club.avenues.length > 0 && (
+                        <div className="mb-4">
+                          <div className="flex flex-wrap gap-1.5">
+                            {club.avenues.slice(0, 2).map((avenue, index) => (
+                              <span
+                                key={index}
+                                className="px-3 py-1 bg-gradient-to-r from-orange-100 to-red-100 text-orange-700 text-xs rounded-full font-medium border border-orange-200/50"
+                              >
+                                {avenue}
+                              </span>
+                            ))}
+                            {club.avenues.length > 2 && (
+                              <span className="px-3 py-1 bg-gradient-to-r from-gray-100 to-slate-100 text-gray-600 text-xs rounded-full font-medium border border-gray-200/50">
+                                +{club.avenues.length - 2} more
                               </span>
                             )}
                           </div>
-                          <h3 className="text-xl font-bold text-gray-900 mb-2">{event.title}</h3>
-                          <p className="text-gray-600 mb-4">{event.description}</p>
                         </div>
-                        {isAdmin && (
-                          <div className="flex gap-2">
-                            <button className="p-2 text-gray-400 hover:text-orange-500 transition-colors">
-                              <Edit3 className="w-4 h-4" />
-                            </button>
-                            <button
-                              onClick={() => deleteEvent(event.id)}
-                              className="p-2 text-gray-400 hover:text-red-500 transition-colors"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                      
-                      <div className="flex flex-wrap gap-4 mb-4 text-sm text-gray-600">
-                        <div className="flex items-center gap-1">
-                          <Calendar className="w-4 h-4" />
-                          {formatDate(event.date)}
+                      )}
+
+                      {/* Compact Footer */}
+                      <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                        <div className="flex items-center text-sm text-gray-600 font-medium">
+                          <Users className="h-4 w-4 mr-1.5 text-orange-500" />
+                          <span>Connect</span>
                         </div>
-                        <div className="flex items-center gap-1">
-                          <Clock className="w-4 h-4" />
-                          {event.time}
+                        <div className="text-sm text-gray-500 bg-gray-50 px-2 py-1 rounded-md">
+                          {new Date(club.createdAt).getFullYear()}
                         </div>
-                        <div className="flex items-center gap-1">
-                          <MapPin className="w-4 h-4" />
-                          {event.location}
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                          <div className="text-sm text-gray-600">
-                            <span className="font-medium text-orange-500">{event.registered}</span>
-                            /{event.maxParticipants} registered
-                          </div>
-                          <div className="w-32 h-2 bg-gray-200 rounded-full overflow-hidden">
-                            <div
-                              className="h-full bg-gradient-to-r from-orange-500 to-red-500 transition-all duration-300"
-                              style={{ width: `${(event.registered / event.maxParticipants) * 100}%` }}
-                            />
-                          </div>
-                        </div>
-                        <button className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-6 py-2 rounded-lg hover:from-orange-600 hover:to-red-600 transition-all duration-300">
-                          Register Now
-                        </button>
                       </div>
                     </div>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
-          </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex justify-center items-center mt-8 space-x-2">
+                <button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Previous
+                </button>
+
+                <div className="flex space-x-1">
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    let pageNumber;
+                    if (totalPages <= 5) {
+                      pageNumber = i + 1;
+                    } else if (currentPage <= 3) {
+                      pageNumber = i + 1;
+                    } else if (currentPage >= totalPages - 2) {
+                      pageNumber = totalPages - 4 + i;
+                    } else {
+                      pageNumber = currentPage - 2 + i;
+                    }
+
+                    return (
+                      <button
+                        key={pageNumber}
+                        onClick={() => handlePageChange(pageNumber)}
+                        className={`px-3 py-2 text-sm font-medium rounded-lg ${
+                          currentPage === pageNumber
+                            ? 'bg-gradient-to-r from-orange-400 to-red-400 text-white'
+                            : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50 hover:text-gray-700'
+                        }`}
+                      >
+                        {pageNumber}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Next
+                </button>
+              </div>
+            )}
+
+            {/* Results Info */}
+            <div className="text-center mt-6 text-sm text-gray-500">
+              Showing {startIndex + 1}-{Math.min(endIndex, filteredClubs.length)} of {filteredClubs.length} clubs
+            </div>
+          </>
         )}
 
-        {/* Contact Tab */}
-        {activeTab === 'contact' && (
-          <div className="space-y-8">
-            <h2 className="text-3xl font-bold text-gray-900">Contact & Social Media</h2>
-            
-            <div className="grid md:grid-cols-2 gap-8">
-              <div className="bg-white rounded-2xl p-8 shadow-sm border">
-                <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
-                  <Mail className="w-6 h-6 text-orange-500" />
-                  Contact Information
-                </h3>
-                
-                <div className="space-y-4">
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
-                      <Mail className="w-5 h-5 text-orange-500" />
-                    </div>
-                    <div>
-                      <p className="font-medium">Email</p>
-                      <p className="text-gray-600">{clubData.contact.email}</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
-                      <Phone className="w-5 h-5 text-orange-500" />
-                    </div>
-                    <div>
-                      <p className="font-medium">Phone</p>
-                      <p className="text-gray-600">{clubData.contact.phone}</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
-                      <Globe className="w-5 h-5 text-orange-500" />
-                    </div>
-                    <div>
-                      <p className="font-medium">Website</p>
-                      <p className="text-gray-600">{clubData.contact.website}</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
-                      <MapPin className="w-5 h-5 text-orange-500" />
-                    </div>
-                    <div>
-                      <p className="font-medium">Meeting Location</p>
-                      <p className="text-gray-600">{clubData.meetingLocation}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="bg-white rounded-2xl p-8 shadow-sm border">
-                <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
-                  <Star className="w-6 h-6 text-orange-500" />
-                  Follow Us
-                </h3>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <a
-                    href={`https://instagram.com/${clubData.social.instagram}`}
-                    className="flex items-center gap-3 p-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all duration-300"
-                  >
-                    <Instagram className="w-6 h-6" />
-                    <span>Instagram</span>
-                  </a>
-                  
-                  <a
-                    href={`https://facebook.com/${clubData.social.facebook}`}
-                    className="flex items-center gap-3 p-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-300"
-                  >
-                    <Facebook className="w-6 h-6" />
-                    <span>Facebook</span>
-                  </a>
-                  
-                  <a
-                    href={`https://linkedin.com/company/${clubData.social.linkedin}`}
-                    className="flex items-center gap-3 p-4 bg-blue-700 text-white rounded-lg hover:bg-blue-800 transition-all duration-300"
-                  >
-                    <Linkedin className="w-6 h-6" />
-                    <span>LinkedIn</span>
-                  </a>
-                  
-                  <a
-                    href={`https://twitter.com/${clubData.social.twitter}`}
-                    className="flex items-center gap-3 p-4 bg-blue-400 text-white rounded-lg hover:bg-blue-500 transition-all duration-300"
-                  >
-                    <Twitter className="w-6 h-6" />
-                    <span>Twitter</span>
-                  </a>
-                </div>
-                
-                <div className="mt-6 p-4 bg-gradient-to-r from-orange-50 to-red-50 rounded-lg">
-                  <p className="text-sm text-gray-600 mb-2">Want to join our community?</p>
-                  <button className="w-full bg-gradient-to-r from-orange-500 to-red-500 text-white py-2 rounded-lg hover:from-orange-600 hover:to-red-600 transition-all duration-300">
-                    Join Rotaract UCSC
-                  </button>
-                </div>
-              </div>
-            </div>
-            
-            {/* Map Section */}
-            <div className="bg-white rounded-2xl p-8 shadow-sm border">
-              <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
-                <MapPin className="w-6 h-6 text-orange-500" />
-                Find Us
-              </h3>
-              <div className="bg-gray-100 rounded-lg overflow-hidden">
-                <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3960.798473427587!2d79.85395661477326!3d6.914776495034298!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ae25963120b1509%3A0x2db2c18a68712863!2sUniversity%20of%20Colombo%20School%20of%20Computing!5e0!3m2!1sen!2slk!4v1642681234567!5m2!1sen!2slk"
-                  width="100%"
-                  height="300"
-                  style={{ border: 0 }}
-                  allowFullScreen
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  title="UCSC Location"
-                ></iframe>
-              </div>
-              <div className="mt-4 text-center">
-                <p className="text-gray-600 font-medium">{clubData.meetingLocation}</p>
-                <p className="text-sm text-gray-500 mt-1">University of Colombo School of Computing, Reid Avenue, Colombo 00700</p>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
-
-      {/* Admin Toggle for Demo */}
-      <div className="fixed bottom-6 right-6 z-30">
-        <button
-          onClick={() => setIsAdmin(!isAdmin)}
-          className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
-            isAdmin 
-              ? 'bg-gradient-to-r from-red-500 to-orange-500 text-white hover:from-red-600 hover:to-orange-600' 
-              : 'bg-gray-500 text-white hover:bg-gray-600'
-          }`}
-        >
-          {isAdmin ? 'Admin View' : 'Member View'}
-        </button>
-      </div>
-
-      {/* Floating Action Button for Quick Actions */}
-      {isAdmin && (
-        <div className="fixed bottom-20 right-6 z-30">
-          <div className="bg-white rounded-full shadow-lg border">
-            <button className="w-14 h-14 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-full flex items-center justify-center hover:from-orange-600 hover:to-red-600 transition-all duration-300 shadow-lg">
-              <Settings className="w-6 h-6" />
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

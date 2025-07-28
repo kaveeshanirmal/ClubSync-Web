@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/prisma/client";
 
-// GET /api/voting/candidates/[id] - Get candidate by ID
+// GET /api/voting/candidates/[electionId] - Get candidate by ID
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } },
@@ -38,7 +38,7 @@ export async function GET(
   }
 }
 
-// PATCH /api/voting/candidates/[id] - Update candidate by ID
+// PATCH /api/voting/candidates/[electionId] - Update candidate by ID
 export async function PATCH(
   request: NextRequest,
   { params }: { params: { id: string } },
@@ -76,7 +76,7 @@ export async function PATCH(
   }
 }
 
-// DELETE /api/voting/candidates/[id] - Delete candidate by ID
+// DELETE /api/voting/candidates/[electionId] - Delete candidate by ID
 export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string } },

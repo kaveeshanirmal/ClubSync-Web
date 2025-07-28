@@ -2,36 +2,45 @@
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useState } from "react";
-import { 
-  Users, 
-  Calendar, 
-  FileText, 
-  CheckCircle, 
-  MessageSquare, 
-  Plus, 
+import {
+  Users,
+  Calendar,
+  FileText,
+  CheckCircle,
+  MessageSquare,
+  Plus,
   Star,
   TrendingUp,
   Award,
   Clock,
-  AlertCircle
+  AlertCircle,
 } from "lucide-react";
 
 export default function ClubAdminDashboard() {
   const { data: session } = useSession();
   const userName = session?.user?.firstName || session?.user?.name || "Admin";
   const [showAddClubModal, setShowAddClubModal] = useState(false);
+   const [showInquiryModal, setShowInquiryModal] = useState(false);
+const [inquiry, setInquiry] = useState({
+  subject: "",
+  type: "general",
+  message: ""
+});
+const [inquiryNotice, setInquiryNotice] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+
 
   // Mocked clubs data with more details
   const clubs = [
     {
       id: "1",
-      name: "Robotics Club",
-      description: "Innovate and build robots for competitions and research.",
+      name: "Rotaract Club of UCSC",
+      description:
+        "Create positive change through service before self.",
       image: "/robotics.jpg",
       memberCount: 45,
       upcomingEvents: 3,
       pendingRequests: 2,
-      status: "active"
+      status: "active",
     },
     {
       id: "2",
@@ -41,7 +50,7 @@ export default function ClubAdminDashboard() {
       memberCount: 32,
       upcomingEvents: 2,
       pendingRequests: 1,
-      status: "active"
+      status: "active",
     },
     {
       id: "3",
@@ -51,8 +60,8 @@ export default function ClubAdminDashboard() {
       memberCount: 28,
       upcomingEvents: 1,
       pendingRequests: 0,
-      status: "active"
-    }
+      status: "active",
+    },
   ];
 
   // Mocked feedback data
@@ -62,16 +71,18 @@ export default function ClubAdminDashboard() {
       volunteerName: "Sarah Johnson",
       club: "Robotics Club",
       rating: 5,
-      comment: "Amazing experience! The club activities are well-organized and engaging.",
-      date: "2024-01-15"
+      comment:
+        "Amazing experience! The club activities are well-organized and engaging.",
+      date: "2024-01-15",
     },
     {
       id: 2,
       volunteerName: "Mike Chen",
       club: "Drama Club",
       rating: 4,
-      comment: "Great leadership and communication. Would love to see more events.",
-      date: "2024-01-14"
+      comment:
+        "Great leadership and communication. Would love to see more events.",
+      date: "2024-01-14",
     },
     {
       id: 3,
@@ -79,8 +90,8 @@ export default function ClubAdminDashboard() {
       club: "Environmental Club",
       rating: 5,
       comment: "Excellent initiative and dedication to environmental causes.",
-      date: "2024-01-13"
-    }
+      date: "2024-01-13",
+    },
   ];
 
   const getStatusColor = (status: string) => {
@@ -108,248 +119,288 @@ export default function ClubAdminDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-white pt-20">
-
-      {/* Header */}
-      <div className="bg-gradient-to-r from-orange-50 to-red-50 shadow-sm border-b border-orange-200">
+    <div className="min-h-screen bg-gray-50 pt-16">
+      {/* System-aligned Header */}
+      <div className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex justify-center items-center min-h-[150px]">
-            <div className="flex flex-col justify-center">
-              <h1 className="text-3xl font-bold text-black">
-                Welcome back, <span className="text-orange-600">{userName}</span>!
-              </h1>
-              <p className="text-gray-600 mt-1">
-                Manage your clubs and oversee all administrative activities
-              </p>
-            </div>
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+            {/* Welcome Section */}
             <div className="flex items-center space-x-4">
-              <div className="text-right ml-99">
-                <p className="text-sm text-gray-500">Total Clubs</p>
-                <p className="text-2xl font-bold text-black">{clubs.length}</p>
+              <div className="w-16 h-16 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center shadow-lg">
+                <span className="text-xl font-bold text-white">{userName.charAt(0)}</span>
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">
+                  Welcome back, <span className="text-orange-600">{userName}</span>!
+                </h1>
+                <p className="text-gray-600 mt-1">
+                  Manage your clubs and oversee all administrative activities
+                </p>
+                <div className="flex items-center mt-2 space-x-3">
+                  <div className="flex items-center space-x-2 bg-green-50 px-2 py-1 rounded-lg border border-green-200">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    <span className="text-xs font-medium text-green-700">Online</span>
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    Last login: Today at 10:30 AM
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Summary Cards */}
+            <div className="mt-4 lg:mt-0 flex gap-3">
+              <div className="bg-white rounded-xl shadow-sm p-3 border border-gray-200">
+                <div className="text-center">
+                  <p className="text-xs text-gray-500">Total Clubs</p>
+                  <p className="text-lg font-bold text-gray-900">{clubs.length}</p>
+                </div>
+              </div>
+              <div className="bg-white rounded-xl shadow-sm p-3 border border-gray-200">
+                <div className="text-center">
+                  <p className="text-xs text-gray-500">Active Today</p>
+                  <p className="text-lg font-bold text-orange-600">
+                    {clubs.filter(club => club.status === 'active').length}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-            <div className="flex items-center">
-              <div className="p-2 bg-orange-100 rounded-lg">
-                <Users className="w-6 h-6 text-orange-600" />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* Stats Grid - Aligned with Admin Dashboard Theme */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200 hover:shadow-lg transition-all duration-300">
+            <div className="flex items-center justify-between">
+              <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center text-white shadow-lg">
+                <Users className="w-6 h-6" />
               </div>
-              <div className="ml-4">
+              <div className="text-right">
                 <p className="text-sm font-medium text-gray-600">Total Members</p>
-                <p className="text-2xl font-bold text-black">
+                <p className="text-2xl font-bold text-gray-900">
                   {clubs.reduce((sum, club) => sum + club.memberCount, 0)}
                 </p>
+                <p className="text-xs text-green-600 mt-1">+12% from last month</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-            <div className="flex items-center">
-              <div className="p-2 bg-orange-100 rounded-lg">
-                <Calendar className="w-6 h-6 text-orange-600" />
+          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200 hover:shadow-lg transition-all duration-300">
+            <div className="flex items-center justify-between">
+              <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center text-white shadow-lg">
+                <Calendar className="w-6 h-6" />
               </div>
-              <div className="ml-4">
+              <div className="text-right">
                 <p className="text-sm font-medium text-gray-600">Upcoming Events</p>
-                <p className="text-2xl font-bold text-black">
+                <p className="text-2xl font-bold text-gray-900">
                   {clubs.reduce((sum, club) => sum + club.upcomingEvents, 0)}
                 </p>
+                <p className="text-xs text-blue-600 mt-1">+3 this week</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-            <div className="flex items-center">
-              <div className="p-2 bg-orange-100 rounded-lg">
-                <AlertCircle className="w-6 h-6 text-orange-600" />
+          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200 hover:shadow-lg transition-all duration-300">
+            <div className="flex items-center justify-between">
+              <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center text-white shadow-lg">
+                <AlertCircle className="w-6 h-6" />
               </div>
-              <div className="ml-4">
+              <div className="text-right">
                 <p className="text-sm font-medium text-gray-600">Pending Requests</p>
-                <p className="text-2xl font-bold text-black">
+                <p className="text-2xl font-bold text-gray-900">
                   {clubs.reduce((sum, club) => sum + club.pendingRequests, 0)}
                 </p>
+                <p className="text-xs text-yellow-600 mt-1">Needs attention</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-            <div className="flex items-center">
-              <div className="p-2 bg-orange-100 rounded-lg">
-                <Star className="w-6 h-6 text-orange-600" />
+          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200 hover:shadow-lg transition-all duration-300">
+            <div className="flex items-center justify-between">
+              <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center text-white shadow-lg">
+                <Star className="w-6 h-6" />
               </div>
-              <div className="ml-4">
+              <div className="text-right">
                 <p className="text-sm font-medium text-gray-600">Avg. Rating</p>
-                <p className="text-2xl font-bold text-black">4.8</p>
+                <p className="text-2xl font-bold text-gray-900">4.8</p>
+                <p className="text-xs text-green-600 mt-1">Excellent performance</p>
               </div>
             </div>
           </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Clubs Section */}
+          {/* Enhanced Clubs Section */}
           <div className="lg:col-span-2">
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-bold text-black">Your Clubs</h2>
+                <div>
+                  <h2 className="text-xl font-bold text-black">Your Clubs</h2>
+                  <p className="text-sm text-gray-600">Manage and monitor your club activities</p>
+                </div>
                 <button
                   onClick={() => setShowAddClubModal(true)}
-                  className="flex items-center px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg hover:from-orange-600 hover:to-red-600 transition-all duration-200 shadow-sm"
+                  className="flex items-center px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl hover:from-orange-600 hover:to-red-600 transition-all duration-200 shadow-lg hover:shadow-xl"
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   Add New Club
                 </button>
               </div>
 
-              <div className="space-y-4">
-                {clubs.map((club) => (
-                  <Link key={club.id} href={`/club-admin/clubs/${club.id}`}>
-                                         <div className="bg-gray-50 rounded-xl p-6 hover:bg-orange-50 transition-all duration-200 cursor-pointer border border-gray-200 hover:border-orange-300">
-                       <div className="flex items-center justify-between">
-                         <div className="flex items-center space-x-4">
-                           <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-500 rounded-xl flex items-center justify-center text-white font-bold text-lg">
-                             {club.name.charAt(0)}
-                           </div>
-                           <div>
-                             <h3 className="text-lg font-semibold text-black">{club.name}</h3>
-                             <p className="text-gray-600 text-sm">{club.description}</p>
-                            <div className="flex items-center space-x-4 mt-2">
-                              <span className="text-xs text-gray-500 flex items-center">
-                                <Users className="w-3 h-3 mr-1" />
-                                {club.memberCount} members
-                              </span>
-                              <span className="text-xs text-gray-500 flex items-center">
-                                <Calendar className="w-3 h-3 mr-1" />
-                                {club.upcomingEvents} events
-                              </span>
-                              {club.pendingRequests > 0 && (
-                                <span className="text-xs text-yellow-600 flex items-center">
-                                  <AlertCircle className="w-3 h-3 mr-1" />
-                                  {club.pendingRequests} pending
+              <div className="space-y-6">
+                {clubs.map((club, index) => (
+                  <div key={club.id} className="mb-10 last:mb-0">
+                    <Link href={`/club-admin/clubs/${club.id}`}>
+                      <div className="group bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl p-6 hover:from-orange-50 hover:to-red-50 transition-all duration-300 cursor-pointer border border-gray-200 hover:border-orange-300 hover:shadow-lg">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-4">
+                            <div className={`w-16 h-16 bg-gradient-to-br ${
+                              index % 3 === 0 ? 'from-orange-500 to-red-500' :
+                              index % 3 === 1 ? 'from-blue-500 to-indigo-500' :
+                              'from-purple-500 to-pink-500'
+                            } rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                              {club.name.charAt(0)}
+                            </div>
+                            <div className="flex-1">
+                              <h3 className="text-lg font-semibold text-black group-hover:text-orange-700 transition-colors">
+                                {club.name}
+                              </h3>
+                              <p className="text-gray-600 text-sm mb-2">
+                                {club.description}
+                              </p>
+                              <div className="flex items-center space-x-4">
+                                <span className="text-xs text-gray-500 flex items-center bg-white px-2 py-1 rounded-full">
+                                  <Users className="w-3 h-3 mr-1" />
+                                  {club.memberCount} members
                                 </span>
-                              )}
+                                <span className="text-xs text-gray-500 flex items-center bg-white px-2 py-1 rounded-full">
+                                  <Calendar className="w-3 h-3 mr-1" />
+                                  {club.upcomingEvents} events
+                                </span>
+                                {club.pendingRequests > 0 && (
+                                  <span className="text-xs text-yellow-600 flex items-center bg-yellow-50 px-2 py-1 rounded-full border border-yellow-200">
+                                    <AlertCircle className="w-3 h-3 mr-1" />
+                                    {club.pendingRequests} pending
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <span
+                              className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium shadow-sm ${getStatusColor(club.status)}`}
+                            >
+                              {club.status}
+                            </span>
+                            <div className="mt-2">
+                              <TrendingUp className="w-4 h-4 text-green-500 group-hover:scale-110 transition-transform duration-300" />
                             </div>
                           </div>
                         </div>
-                        <div className="text-right">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(club.status)}`}>
-                            {club.status}
-                          </span>
-                        </div>
                       </div>
-                    </div>
-                  </Link>
+                    </Link>
+                  </div>
                 ))}
               </div>
             </div>
           </div>
 
-          {/* Feedback Section */}
+          {/* Enhanced Feedback Section */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                             <div className="flex items-center justify-between mb-6">
-                 <h2 className="text-xl font-bold text-black">Recent Feedback</h2>
-                 <Link href="/club-admin/feedback" className="text-orange-600 hover:text-orange-700 text-sm font-medium">
-                   View All
-                 </Link>
-               </div>
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="text-xl font-bold text-black">Recent Feedback</h2>
+                  <p className="text-sm text-gray-600">Latest member reviews</p>
+                </div>
+                <Link
+                  href="/club-admin/feedback"
+                  className="text-orange-600 hover:text-orange-700 text-sm font-medium hover:underline transition-all duration-200"
+                >
+                  View All
+                </Link>
+              </div>
 
               <div className="space-y-4">
-                {recentFeedback.map((feedback) => (
-                  <div key={feedback.id} className="bg-gray-50 rounded-lg p-4">
-                    <div className="flex items-start justify-between mb-2">
-                      <div>
-                        <h4 className="font-medium text-gray-900">{feedback.volunteerName}</h4>
-                        <p className="text-sm text-gray-600">{feedback.club}</p>
+                {recentFeedback.map((feedback, index) => (
+                  <div key={feedback.id} className={`p-4 rounded-xl border transition-all duration-200 hover:shadow-md ${
+                    index % 2 === 0 ? 'bg-blue-50 border-blue-200' : 'bg-purple-50 border-purple-200'
+                  }`}>
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-center space-x-3">
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm ${
+                          index % 2 === 0 ? 'bg-gradient-to-r from-blue-500 to-indigo-500' : 'bg-gradient-to-r from-purple-500 to-pink-500'
+                        }`}>
+                          {feedback.volunteerName.charAt(0)}
+                        </div>
+                        <div>
+                          <h4 className="font-semibold text-gray-900 text-sm">
+                            {feedback.volunteerName}
+                          </h4>
+                          <p className="text-xs text-gray-600">{feedback.club}</p>
+                        </div>
                       </div>
                       <div className="flex items-center">
                         {renderStars(feedback.rating)}
                       </div>
                     </div>
-                    <p className="text-sm text-gray-700 mb-2">{feedback.comment}</p>
-                    <p className="text-xs text-gray-500">{feedback.date}</p>
+                    <p className="text-sm text-gray-700 mb-3 italic">
+                      "{feedback.comment}"
+                    </p>
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs text-gray-500">{feedback.date}</p>
+                      <div className="text-xs text-gray-400">
+                        {feedback.rating}/5.0
+                      </div>
+                    </div>
                   </div>
                 ))}
-              </div>
-
-              <div className="mt-6 pt-4 border-t border-gray-200">
-                <div className="text-center">
-                  <p className="text-sm text-gray-600 mb-2">Overall Satisfaction</p>
-                  <div className="flex items-center justify-center space-x-1 mb-2">
-                    {renderStars(4.8)}
-                  </div>
-                  <p className="text-lg font-bold text-gray-900">4.8/5.0</p>
-                </div>
               </div>
             </div>
           </div>
         </div>
 
-                 {/* Quick Actions */}
-         <div className="mt-8 bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-           <h2 className="text-xl font-bold text-black mb-6">Quick Actions</h2>
-           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-             <Link href="/club-admin/interviews" className="group">
-               <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg p-4 hover:from-orange-100 hover:to-orange-200 transition-all duration-200 border border-orange-200">
-                 <div className="flex items-center space-x-3">
-                   <div className="p-2 bg-orange-600 rounded-lg group-hover:bg-orange-700 transition-colors">
-                     <Users className="w-5 h-5 text-white" />
-                   </div>
-                   <div>
-                     <h3 className="font-medium text-black">Manage Interviews</h3>
-                     <p className="text-sm text-gray-600">Schedule & conduct</p>
-                   </div>
-                 </div>
-               </div>
-             </Link>
-
-             <Link href="/club-admin/elections" className="group">
-               <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg p-4 hover:from-orange-100 hover:to-orange-200 transition-all duration-200 border border-orange-200">
-                 <div className="flex items-center space-x-3">
-                   <div className="p-2 bg-orange-600 rounded-lg group-hover:bg-orange-700 transition-colors">
-                     <Award className="w-5 h-5 text-white" />
-                   </div>
-                   <div>
-                     <h3 className="font-medium text-black">Approve Elections</h3>
-                     <p className="text-sm text-gray-600">Office bearer list</p>
-                   </div>
-                 </div>
-               </div>
-             </Link>
-
-             <Link href="/club-admin/events" className="group">
-               <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg p-4 hover:from-orange-100 hover:to-orange-200 transition-all duration-200 border border-orange-200">
-                 <div className="flex items-center space-x-3">
-                   <div className="p-2 bg-orange-600 rounded-lg group-hover:bg-orange-700 transition-colors">
-                     <Calendar className="w-5 h-5 text-white" />
-                   </div>
-                   <div>
-                     <h3 className="font-medium text-black">Manage Events</h3>
-                     <p className="text-sm text-gray-600">Add, update, remove</p>
-                   </div>
-                 </div>
-               </div>
-             </Link>
-
-             <Link href="/club-admin/minutes" className="group">
-               <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg p-4 hover:from-orange-100 hover:to-orange-200 transition-all duration-200 border border-orange-200">
-                 <div className="flex items-center space-x-3">
-                   <div className="p-2 bg-orange-600 rounded-lg group-hover:bg-orange-700 transition-colors">
-                     <FileText className="w-5 h-5 text-white" />
-                   </div>
-                   <div>
-                     <h3 className="font-medium text-black">Meeting Minutes</h3>
-                     <p className="text-sm text-gray-600">Record & manage</p>
-                   </div>
-                 </div>
-               </div>
-             </Link>
-           </div>
-         </div>
+        {/* Inquiries Section - Matching Admin Dashboard Theme */}
+        <div className="mt-8">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-xl font-bold text-black">Need Help?</h2>
+                <p className="text-sm text-gray-600">Send an inquiry to get assistance with your club management</p>
+              </div>
+              <div className="flex items-center space-x-2 bg-orange-50 px-3 py-2 rounded-lg border border-orange-200">
+                <MessageSquare className="w-4 h-4 text-orange-600" />
+                <span className="text-sm font-medium text-orange-700">Support Available</span>
+              </div>
+            </div>
+            
+            <div className="bg-gradient-to-r from-orange-50 to-red-50 rounded-xl p-6 border border-orange-200">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <div className="w-16 h-16 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center shadow-lg">
+                    <MessageSquare className="w-8 h-8 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-black mb-1">Send an Inquiry</h3>
+                    <p className="text-sm text-gray-600">Get help with club management, technical issues, or general questions</p>
+                    <div className="flex items-center mt-2 space-x-4">
+                      <span className="text-xs text-gray-500 bg-white px-2 py-1 rounded-full">Fast Response</span>
+                      <span className="text-xs text-gray-500 bg-white px-2 py-1 rounded-full">24/7 Support</span>
+                    </div>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowInquiryModal(true)}
+                  className="px-6 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl hover:from-orange-600 hover:to-red-600 transition-all duration-200 shadow-lg hover:shadow-xl font-medium"
+                >
+                  Send Inquiry
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Add Club Modal */}
@@ -357,33 +408,134 @@ export default function ClubAdminDashboard() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl max-w-md w-full p-6">
             <div className="text-center">
-                             <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-orange-100 mb-4">
-                 <Plus className="h-6 w-6 text-orange-600" />
-               </div>
-               <h3 className="text-lg font-medium text-black mb-2">
-                 Add New Club
-               </h3>
-               <p className="text-sm text-gray-600 mb-6">
-                 Are you sure you want to add a new club? You'll need to complete the verification process to get your club approved.
-               </p>
-               
-               <div className="flex space-x-3">
-                 <button
-                   onClick={() => setShowAddClubModal(false)}
-                   className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-                 >
-                   Cancel
-                 </button>
-                 <Link href="/club-verify" className="flex-1">
-                   <button className="w-full px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-orange-500 to-red-500 rounded-lg hover:from-orange-600 hover:to-red-600 transition-all duration-200">
-                     Continue
-                   </button>
-                 </Link>
-               </div>
+              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-orange-100 mb-4">
+                <Plus className="h-6 w-6 text-orange-600" />
+              </div>
+              <h3 className="text-lg font-medium text-black mb-2">
+                Add New Club
+              </h3>
+              <p className="text-sm text-gray-600 mb-6">
+                Are you sure you want to add a new club? You'll need to complete
+                the verification process to get your club approved.
+              </p>
+
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => setShowAddClubModal(false)}
+                  className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                >
+                  Cancel
+                </button>
+                <Link href="/club-verify" className="flex-1">
+                  <button className="w-full px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-orange-500 to-red-500 rounded-lg hover:from-orange-600 hover:to-red-600 transition-all duration-200">
+                    Continue
+                  </button>
+                </Link>
+              </div>
             </div>
           </div>
         </div>
       )}
+       {showInquiryModal && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 relative animate-fadeIn">
+      <button
+        className="absolute top-4 right-4 text-gray-400 hover:text-orange-500 transition-colors text-xl font-bold"
+        onClick={() => setShowInquiryModal(false)}
+        aria-label="Close"
+      >
+        ×
+      </button>
+      <div className="text-center mb-6">
+        <div className="mx-auto flex items-center justify-center h-14 w-14 rounded-full bg-gradient-to-br from-orange-100 to-red-100 mb-4 shadow">
+          <MessageSquare className="h-7 w-7 text-orange-600" />
+        </div>
+        <h3 className="text-2xl font-semibold text-black mb-1">Send an Inquiry</h3>
+        <p className="text-sm text-gray-500">Let us know your concern or question.</p>
+      </div>
+      {inquiryNotice && (
+        <div className={`mb-4 px-4 py-3 rounded-lg text-sm font-medium flex items-center gap-2 transition-all duration-300 ${inquiryNotice.type === 'success' ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'}`}>
+          {inquiryNotice.type === 'success' ? (
+            <CheckCircle className="w-5 h-5 text-green-500" />
+          ) : (
+            <AlertCircle className="w-5 h-5 text-red-500" />
+          )}
+          {inquiryNotice.message}
+        </div>
+      )}
+      <form
+        className="space-y-5"
+        onSubmit={async (e) => {
+          e.preventDefault();
+          setInquiryNotice(null);
+          const res = await fetch("/api/inquiries", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              subject: inquiry.subject,
+              type: inquiry.type,
+              message: inquiry.message,
+              userId: session?.user?.id
+            })
+          });
+          if (res.ok) {
+            setInquiryNotice({ type: 'success', message: 'Inquiry submitted successfully!' });
+            setInquiry({ subject: '', type: 'general', message: '' });
+            setTimeout(() => {
+              setShowInquiryModal(false);
+              setInquiryNotice(null);
+            }, 1800);
+          } else {
+            setInquiryNotice({ type: 'error', message: 'Failed to submit inquiry. Please try again.' });
+          }
+        }}
+      >
+        <input
+          type="text"
+          className="w-full px-4 py-3 border border-orange-200 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-orange-400 transition placeholder-gray-400 bg-orange-50"
+          placeholder="Subject"
+          value={inquiry.subject}
+          onChange={(e) => setInquiry({ ...inquiry, subject: e.target.value })}
+          required
+        />
+        <select
+          className="w-full px-4 py-3 border border-orange-200 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-orange-400 transition bg-orange-50 text-gray-700"
+          value={inquiry.type}
+          onChange={(e) => setInquiry({ ...inquiry, type: e.target.value })}
+        >
+          <option value="general">General</option>
+          <option value="technicalSupport">Technical Support</option>
+          <option value="partnership">Partnership</option>
+          <option value="feedback">Feedback</option>
+          <option value="other">Other</option>
+        </select>
+        <textarea
+          rows={4}
+          className="w-full px-4 py-3 border border-orange-200 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-orange-400 transition placeholder-gray-400 bg-orange-50 resize-none"
+          placeholder="Your message..."
+          value={inquiry.message}
+          onChange={(e) => setInquiry({ ...inquiry, message: e.target.value })}
+          required
+        />
+        <div className="flex space-x-3 mt-2">
+          <button
+            type="button"
+            onClick={() => setShowInquiryModal(false)}
+            className="flex-1 px-4 py-2 text-base font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            className="flex-1 px-4 py-2 text-base font-medium text-white bg-gradient-to-r from-orange-500 to-red-500 rounded-lg hover:from-orange-600 hover:to-red-600 transition-all duration-200 shadow-sm"
+          >
+            Submit
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+)}
     </div>
   );
 }

@@ -20,26 +20,131 @@ enum Role {
   systemAdmin
 }
 
+enum ClubType {
+  academic
+  sports
+  cultural
+  volunteer
+  professional
+  hobby
+  other
+}
+
+enum ClubCategory {
+  communityBased
+  instituteBased
+}
+
+enum RequestStatus {
+  pending
+  underReview
+  approved
+  rejected
+  needsMoreInfo
+}
+
+enum InquiryType {
+  general
+  technicalSupport
+  partnership
+  feedback
+  other
+}
+
+enum InquirerRole {
+  guest
+  volunteer
+  clubAdmin
+}
+
+enum EventCategory {
+  workshop
+  seminar
+  competition
+  social
+  fundraising
+  meeting
+  conference
+  other
+}
+
 model User {
-  id            String    @id @default(cuid())
-  firstName     String
-  lastName      String
-  email         String    @unique
-  phone         String?
-  password      String    @default("")
-  image         String    @default("")
-  role          Role      @default(volunteer)
-  isActive      Boolean   @default(true)
-  emailVerified Boolean   @default(false)
-  lastLogin     DateTime? @default(now())
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id                 String              @id @default(cuid())
+  firstName          String
+  lastName           String
+  email              String              @unique
+  phone              String?
+  password           String              @default("")
+  image              String              @default("")
+  role               Role                @default(volunteer)
+  isActive           Boolean             @default(true)
+  emailVerified      Boolean             @default(false)
+  lastLogin          DateTime?           @default(now())
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  Club               Club[]
+  EventRegistration  EventRegistration[]
+  ClubRequest        ClubRequest[]
+  createdClubs       Club[]              @relation("ClubCreator")
+  eventRegistrations EventRegistration[] @relation("EventRegistrations")
+  clubRequests       ClubRequest[]       @relation("ClubRequests")
+  eventAttendances   EventAttendance[]  
+  organizedEvents    Event[]             @relation("EventOrganizer")  
 }
 
 model Club {
-  id        String     @id @default(uuid())
-  name      String
-  elections Election[]
+  id           String   @id @default(uuid())
+  name         String
+  motto        String?
+  founded      String?
+  headquarters String?
+  coverImage   String? // URL to cover image
+  profileImage String? // URL to profile image
+  constitution String? // URL to constitution document
+  about        String?  @db.Text
+  mission      String?  @db.Text
+  values       String[] // Array of values
+  avenues      String[] // Array of avenues
+  email        String?
+  phone        String?
+  website      String?
+  googleMapURL String?
+  instagram    String?
+  facebook     String?
+  linkedIn     String?
+  twitter      String?
+  isActive     Boolean  @default(true)
+  isDeleted    Boolean  @default(false)
+  createdById  String
+  createdBy    User?    @relation("ClubCreator", fields: [createdById], references: [id])
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  events       Event[]
+  excomMembers ExcomMember[]
+  clubRequests ClubRequest[]
+  elections    Election[]
+  User         User?         @relation(fields: [userId], references: [id])
+  userId       String?
+}
+
+model ExcomMember {
+  id             String   @id @default(cuid())
+  clubId         String
+  club           Club     @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  name           String
+  position       String
+  image          String?  @default("")
+  about          String?  @db.Text
+  memberSince    String? // Date when the member joined
+  businessEmail  String?
+  businessMobile String?
+  isDeleted      Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("excom_members")
 }
 
 model Election {
@@ -92,3 +197,147 @@ model Vote {
   candidateId String
   createdAt   DateTime @default(now())
 }
+
+model Event {
+  id              String        @id @default(cuid())
+  title           String
+  subtitle        String?
+  clubId          String
+  club            Club          @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  category        EventCategory @default(other)
+  description     String?       @db.Text
+  startDateTime   DateTime
+  endDateTime     DateTime?
+  venue           String?
+  eventOrganizerId String
+  eventOrganizer   User         @relation("EventOrganizer", fields: [eventOrganizerId], references: [id])
+  maxParticipants Int?
+  isDeleted       Boolean       @default(false)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  // Relations
+  registrations   EventRegistration[]
+  addons          EventAddon[]
+  agenda          EventAgenda[]
+  resourcePersons EventResourcePerson[]
+  attendances     EventAttendance[]
+
+  @@map("events")
+}
+
+model EventAddon {
+  id           String   @id @default(cuid())
+  eventId      String
+  event        Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  receivables  String[] // Array of receivables
+  requirements String[] // Array of requirements
+  tags         String[] // Array of tags
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("event_addons")
+}
+
+model EventAgenda {
+  id                String   @id @default(cuid())
+  eventId           String
+  event             Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  startTime         DateTime
+  endTime           DateTime
+  agendaTitle       String
+  agendaDescription String?  @db.Text
+  createdAt         DateTime @default(now())
+
+  @@map("event_agenda")
+}
+
+model EventResourcePerson {
+  id          String   @id @default(cuid())
+  eventId     String
+  event       Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  name        String
+  designation String?
+  about       String?  @db.Text
+  profileImg  String? // URL to profile image
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("event_resource_persons")
+}
+
+model EventRegistration {
+  id           String   @id @default(cuid())
+  eventId      String
+  event        Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  volunteerId  String
+  volunteer    User     @relation("EventRegistrations", fields: [volunteerId], references: [id])
+  isDeleted    Boolean  @default(false)
+  registeredAt DateTime @default(now())
+  User         User?    @relation(fields: [userId], references: [id])
+  userId       String?
+
+  @@unique([eventId, volunteerId]) // Prevent duplicate registrations
+  @@map("event_registrations")
+}
+
+model ClubRequest {
+  id              String        @id @default(cuid())
+  clubName        String
+  motto           String?
+  clubType        ClubType
+  clubCategory    ClubCategory
+  founded         DateTime?
+  description     String        @db.Text
+  mission         String?       @db.Text
+  university      String? // Only if institute-based
+  headquarters    String?
+  requestedById   String
+  requestedBy     User          @relation("ClubRequests", fields: [requestedById], references: [id])
+  designation     String // Position of the person making request
+  idProofDocument String? // URL to ID proof document
+  constitutionDoc String? // URL to constitution document
+  approvalLetter  String? // URL to approval letter
+  clubLogo        String? // URL to club logo
+  requestStatus   RequestStatus @default(pending)
+  adminComments   String?       @db.Text // For admin feedback
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  // Relation to approved club (if any)
+  approvedClubId String? @unique
+  approvedClub   Club?   @relation(fields: [approvedClubId], references: [id])
+  User           User?   @relation(fields: [userId], references: [id])
+  userId         String?
+
+  @@map("club_requests")
+}
+
+model Inquiry {
+  id            String       @id @default(cuid())
+  inquirerName  String
+  email         String
+  subject       String
+  type          InquiryType  @default(general)
+  message       String       @db.Text
+  role          InquirerRole @default(guest)
+  isResolved    Boolean      @default(false)
+  adminResponse String?      @db.Text
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@map("inquiries")
+}
+
+model EventAttendance {
+  id         Int      @id @default(autoincrement())
+  user       User     @relation(fields: [userId], references: [id])
+  userId     String   // was Int, now String
+  event      Event    @relation(fields: [eventId], references: [id])
+  eventId    String   // was Int, now String
+  isAttend   Boolean  @default(false)
+  attendTime DateTime?
+
+  @@unique([userId, eventId])
+}
+

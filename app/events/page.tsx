@@ -1,258 +1,602 @@
 "use client";
-import { Calendar, Users } from "lucide-react";
-import React from "react";
+import { useState, useEffect } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import BeautifulLoader from "../../components/Loader";
+import {
+  Calendar,
+  Search,
+  Filter,
+  MapPin,
+  ChevronRight,
+  Sparkles,
+  Clock,
+  Users,
+  Zap,
+  Heart,
+  ArrowRight,
+  CalendarDays,
+} from "lucide-react";
 
-// Import the upcoming events data from the club page
-const upcomingEventsFromClub = [
+interface Event {
+  id: string;
+  title: string;
+  description?: string;
+  date: string;
+  time: string;
+  location?: string;
+  venue?: string;
+  coverImage?: string;
+  category?: string;
+  maxCapacity?: number;
+  registeredCount?: number;
+  isActive: boolean;
+  isPaid: boolean;
+  price?: number;
+  organizer: {
+    id: string;
+    name: string;
+    type: 'club' | 'organization';
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Mock data until database is ready
+const mockEvents: Event[] = [
   {
-    id: 1,
-    title: "Clean Colombo Initiative",
-    date: "2025-07-20",
-    time: "6:00 AM",
-    location: "Galle Face Green, Colombo",
-    description: "Join us for a coastal cleanup drive to make Colombo cleaner and greener. Volunteers will receive certificates and refreshments.",
-    category: "Community Service",
-    maxParticipants: 80,
-    registered: 52,
-    image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=200&fit=crop",
-    isOpen: true
+    id: "1",
+    title: "Annual Tech Conference 2025",
+    description: "Join us for the biggest tech conference of the year featuring industry leaders and innovative technologies.",
+    date: "2025-08-15",
+    time: "09:00",
+    location: "Main Auditorium",
+    venue: "University Campus",
+    category: "Conference",
+    maxCapacity: 500,
+    registeredCount: 342,
+    isActive: true,
+    isPaid: true,
+    price: 25,
+    organizer: {
+      id: "tech-club",
+      name: "Tech Innovation Club",
+      type: "club"
+    },
+    createdAt: "2025-07-01T00:00:00Z",
+    updatedAt: "2025-07-15T00:00:00Z"
   },
   {
-    id: 2,
-    title: "Tech Career Workshop",
+    id: "2",
+    title: "Community Service Day",
+    description: "Make a difference in our community! Join us for a day of volunteering and giving back.",
     date: "2025-07-25",
-    time: "2:00 PM",
-    location: "UCSC Main Auditorium",
-    description: "Professional development workshop featuring Sri Lankan tech industry experts sharing insights on career growth and innovation opportunities.",
-    category: "Professional Development",
-    maxParticipants: 60,
-    registered: 45,
-    image: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=300&h=200&fit=crop",
-    isOpen: true
+    time: "08:00",
+    location: "Community Center",
+    venue: "Downtown Community Hub",
+    category: "Volunteer",
+    maxCapacity: 100,
+    registeredCount: 78,
+    isActive: true,
+    isPaid: false,
+    organizer: {
+      id: "volunteer-club",
+      name: "Volunteer Society",
+      type: "club"
+    },
+    createdAt: "2025-07-05T00:00:00Z",
+    updatedAt: "2025-07-18T00:00:00Z"
   },
   {
-    id: 3,
-    title: "Blood Donation Camp",
-    date: "2025-08-01",
-    time: "9:00 AM",
-    location: "National Hospital of Sri Lanka",
-    description: "Annual blood donation camp in partnership with National Hospital. Every donation can save up to 3 lives in our community.",
-    category: "Health & Wellness",
-    maxParticipants: 150,
-    registered: 89,
-    image: "https://images.unsplash.com/photo-1615461066841-6116e61058f4?w=300&h=200&fit=crop",
-    isOpen: true
+    id: "3",
+    title: "Photography Workshop",
+    description: "Learn the art of photography from professional photographers. Bring your camera and creativity!",
+    date: "2025-08-02",
+    time: "14:00",
+    location: "Art Studio",
+    venue: "Creative Arts Building",
+    category: "Workshop",
+    maxCapacity: 30,
+    registeredCount: 25,
+    isActive: true,
+    isPaid: true,
+    price: 15,
+    organizer: {
+      id: "photo-club",
+      name: "Photography Club",
+      type: "club"
+    },
+    createdAt: "2025-06-20T00:00:00Z",
+    updatedAt: "2025-07-10T00:00:00Z"
   },
   {
-    id: 4,
-    title: "Youth Leadership Summit",
-    date: "2025-08-10",
-    time: "10:00 AM",
-    location: "University of Colombo",
-    description: "District-level summit bringing together young leaders from across Sri Lanka to discuss sustainable development goals and digital transformation.",
-    category: "Leadership",
-    maxParticipants: 200,
-    registered: 127,
-    image: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=300&h=200&fit=crop",
-    isOpen: true
+    id: "4",
+    title: "Cultural Night 2025",
+    description: "Celebrate diversity with performances, food, and cultural exchanges from around the world.",
+    date: "2025-09-10",
+    time: "18:00",
+    location: "Student Union",
+    venue: "Grand Ballroom",
+    category: "Cultural",
+    maxCapacity: 300,
+    registeredCount: 156,
+    isActive: true,
+    isPaid: false,
+    organizer: {
+      id: "cultural-club",
+      name: "International Cultural Society",
+      type: "club"
+    },
+    createdAt: "2025-06-15T00:00:00Z",
+    updatedAt: "2025-07-12T00:00:00Z"
+  },
+  {
+    id: "5",
+    title: "Business Networking Mixer",
+    description: "Connect with professionals, entrepreneurs, and fellow students in a relaxed networking environment.",
+    date: "2025-08-20",
+    time: "17:30",
+    location: "Business Center",
+    venue: "Executive Lounge",
+    category: "Networking",
+    maxCapacity: 80,
+    registeredCount: 45,
+    isActive: true,
+    isPaid: true,
+    price: 20,
+    organizer: {
+      id: "business-club",
+      name: "Business Students Association",
+      type: "club"
+    },
+    createdAt: "2025-07-02T00:00:00Z",
+    updatedAt: "2025-07-16T00:00:00Z"
+  },
+  {
+    id: "6",
+    title: "Sports Tournament - Basketball",
+    description: "Annual basketball tournament open to all skill levels. Form your team and compete for the championship!",
+    date: "2025-07-30",
+    time: "10:00",
+    location: "Sports Complex",
+    venue: "Main Court",
+    category: "Sports",
+    maxCapacity: 16,
+    registeredCount: 12,
+    isActive: false,
+    isPaid: false,
+    organizer: {
+      id: "sports-club",
+      name: "Athletic Association",
+      type: "club"
+    },
+    createdAt: "2025-06-10T00:00:00Z",
+    updatedAt: "2025-07-20T00:00:00Z"
   }
 ];
 
-type ClubEvent = {
-  id: number;
-  title: string;
-  date: string;
-  time: string;
-  location: string;
-  description: string;
-  category: string;
-  maxParticipants: number;
-  registered: number;
-  image: string;
-  isOpen: boolean;
-  club?: string;
-  volunteers?: string[];
-  participants?: number;
-};
-
-// Add past events and extend upcoming events with additional fields for backward compatibility
-export const mockEvents: ClubEvent[] = [
-  // Upcoming events from club tab
-  ...upcomingEventsFromClub.map(event => ({
-    ...event,
-    club: "Rotaract Club of UCSC",
-    volunteers: ["Priya Sharma", "Arjun Patel"],
-    participants: event.registered
-  })),
-  // Past events
-  {
-    id: 5,
-    title: "Annual Coding Marathon 2024",
-    date: "2024-05-10",
-    time: "8:00 AM",
-    location: "UCSC Lab Complex",
-    description: "A 12-hour coding challenge for students to solve real-world problems. Winners received tech gadgets and certificates.",
-    category: "Technology",
-    maxParticipants: 100,
-    registered: 100,
-    image: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=300&h=200&fit=crop",
-    isOpen: false,
-    club: "Tech Innovators",
-    volunteers: ["Priya Sharma", "Vikram Raj"],
-    participants: 100
-  },
-  {
-    id: 6,
-    title: "Green Earth Tree Planting",
-    date: "2024-03-15",
-    time: "7:00 AM",
-    location: "Viharamahadevi Park",
-    description: "Volunteers planted over 500 trees to promote environmental awareness in Colombo.",
-    category: "Environmental",
-    maxParticipants: 60,
-    registered: 60,
-    image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=300&h=200&fit=crop",
-    isOpen: false,
-    club: "Eco Warriors",
-    volunteers: ["Arjun Patel", "Meera Krishnan"],
-    participants: 60
-  },
-  {
-    id: 7,
-    title: "Health Awareness Walkathon",
-    date: "2024-01-20",
-    time: "6:30 AM",
-    location: "Independence Square",
-    description: "A community walkathon to raise awareness about healthy living and fitness.",
-    category: "Health & Wellness",
-    maxParticipants: 200,
-    registered: 180,
-    image: "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?w=300&h=200&fit=crop",
-    isOpen: false,
-    club: "Red Cross UCSC",
-    volunteers: ["Priya Sharma", "Rahul Menon"],
-    participants: 180
-  },
-];
-
-function splitEvents(events: ClubEvent[]) {
-  const now = new Date();
-  const upcoming = events.filter((e: ClubEvent) => new Date(e.date) >= now);
-  const past = events.filter((e: ClubEvent) => new Date(e.date) < now);
-  // Sort upcoming soonest first, past most recent first
-  upcoming.sort((a: ClubEvent, b: ClubEvent) => new Date(a.date).getTime() - new Date(b.date).getTime());
-  past.sort((a: ClubEvent, b: ClubEvent) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  return { upcoming, past };
-}
-
 export default function EventsPage() {
-  const { upcoming, past } = splitEvents(mockEvents);
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-white pb-20">
-      {/* Hero Section */}
-      <div className="relative bg-gradient-to-r from-orange-400 to-red-400 py-16 px-4 sm:px-8 mb-16 rounded-b-3xl shadow-lg">
-        {/* Hero background image */}
-        <img
-          src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=900&h=400&fit=crop"
-          alt="Event background"
-          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full object-cover opacity-60 blur-sm pointer-events-none select-none z-0"
-        />
-        <div className="max-w-3xl mx-auto text-center relative z-10 mt-8">
-          <h1 className="text-4xl sm:text-5xl font-extrabold text-white mb-4 drop-shadow-lg">Discover Club Events</h1>
-          <p className="text-lg sm:text-xl text-orange-100 mb-6">Stay up to date with all upcoming and past events from every club. Join, learn, and connect!</p>
+  const [events, setEvents] = useState<Event[]>([]);
+  const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterCategory, setFilterCategory] = useState<string>("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const eventsPerPage = 12;
+
+  useEffect(() => {
+    // Simulate API call with mock data
+    const fetchEvents = async () => {
+      try {
+        setLoading(true);
+        // Simulate loading delay
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        setEvents(mockEvents);
+        setFilteredEvents(mockEvents);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "An error occurred");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEvents();
+  }, []);
+
+  useEffect(() => {
+    let filtered = events;
+
+    // Filter by search term
+    if (searchTerm) {
+      filtered = filtered.filter(
+        (event) =>
+          event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          event.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          event.location?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          event.organizer.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Filter by category
+    if (filterCategory) {
+      filtered = filtered.filter((event) => event.category === filterCategory);
+    }
+
+    setFilteredEvents(filtered);
+    setCurrentPage(1); // Reset to first page when filters change
+  }, [events, searchTerm, filterCategory]);
+
+  // Calculate pagination
+  const totalPages = Math.ceil(filteredEvents.length / eventsPerPage);
+  const startIndex = (currentPage - 1) * eventsPerPage;
+  const endIndex = startIndex + eventsPerPage;
+  const currentEvents = filteredEvents.slice(startIndex, endIndex);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Get unique categories for filter
+  const categories = Array.from(new Set(events.map(event => event.category).filter(Boolean)));
+
+  if (loading) {
+    return (
+      <BeautifulLoader 
+        message="Discovering Amazing Events"
+        subMessage="Loading experiences that inspire..."
+        type="morphing"
+      />
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-orange-50/30 pt-16">
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex items-center justify-center min-h-[60vh]">
+            <div className="text-center max-w-md">
+              <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Heart className="h-10 w-10 text-red-500" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-800 mb-4">
+                Oops! Something went wrong
+              </h3>
+              <p className="text-red-600 text-lg mb-6">{error}</p>
+              <button
+                onClick={() => window.location.reload()}
+                className="bg-gradient-to-r from-orange-400 to-red-400 text-white px-8 py-3 rounded-full hover:from-orange-500 hover:to-red-500 transition-all duration-300 transform hover:scale-105 shadow-lg"
+              >
+                Try Again
+              </button>
+            </div>
+          </div>
         </div>
-        <div className="absolute right-8 top-8 opacity-30 pointer-events-none select-none z-10">
-          <Calendar className="w-32 h-32 text-white" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-orange-50/30">
+      {/* Hero Section with Enhanced Design */}
+      <div className="relative overflow-hidden bg-gradient-to-r from-orange-500 to-red-500 text-white min-h-screen flex items-center">
+        <div className="absolute inset-0 bg-black/10"></div>
+        
+        {/* Animated Background Shapes */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-white/10 rounded-full animate-pulse"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-white/10 rounded-full animate-pulse delay-1000"></div>
+          <div className="absolute top-1/2 left-1/4 w-20 h-20 bg-white/20 rounded-full animate-bounce delay-500"></div>
+          <div className="absolute bottom-1/4 right-1/3 w-16 h-16 bg-white/20 rounded-full animate-bounce delay-700"></div>
+        </div>
+
+        <div className="relative z-10 container mx-auto px-4 py-20 text-center">
+          <div className="max-w-4xl mx-auto">
+            <div className="flex items-center justify-center mb-8">
+              <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mr-4 animate-pulse">
+                <CalendarDays className="h-10 w-10 text-white" />
+              </div>
+              <h1 className="text-6xl md:text-7xl font-bold">
+                Discover Amazing
+                <span className="block bg-gradient-to-r from-orange-200 to-red-200 bg-clip-text text-transparent">
+                  Events
+                </span>
+              </h1>
+            </div>
+            
+            <p className="text-2xl md:text-3xl text-white/90 mb-12 leading-relaxed max-w-3xl mx-auto">
+              Join incredible experiences, meet like-minded people, and 
+              <span className="font-semibold"> create lasting memories</span>
+            </p>
+
+            <div className="flex flex-wrap justify-center gap-12 mb-16">
+              <div className="flex items-center bg-white/20 backdrop-blur-sm rounded-full px-8 py-4">
+                <CalendarDays className="h-8 w-8 mr-3 text-orange-200" />
+                <span className="font-semibold text-lg">50+ Events</span>
+              </div>
+              <div className="flex items-center bg-white/20 backdrop-blur-sm rounded-full px-8 py-4">
+                <Users className="h-8 w-8 mr-3 text-orange-200" />
+                <span className="font-semibold text-lg">1000+ Attendees</span>
+              </div>
+              <div className="flex items-center bg-white/20 backdrop-blur-sm rounded-full px-8 py-4">
+                <Sparkles className="h-8 w-8 mr-3 text-orange-200" />
+                <span className="font-semibold text-lg">Multiple Categories</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Scroll Indicator */}
+          <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+            <div className="flex flex-col items-center text-white/80">
+              <span className="text-sm mb-2 font-medium">Scroll to explore</span>
+              <div className="w-6 h-10 border-2 border-white/50 rounded-full flex justify-center">
+                <div className="w-1 h-3 bg-white/70 rounded-full mt-2 animate-pulse"></div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Upcoming Events */}
-      <section className="max-w-6xl mx-auto px-4 mb-16">
-        <div className="flex items-center gap-3 mb-8">
-          <span className="inline-block bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full">Upcoming</span>
-          <h2 className="text-3xl font-bold text-green-800 tracking-tight">Upcoming Events</h2>
-        </div>
-        {upcoming.length === 0 ? (
-          <p className="text-gray-500">No upcoming events.</p>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {upcoming.map((event: ClubEvent) => (
-              <div key={event.id} className="group relative bg-white border border-green-200 rounded-2xl p-0 shadow-lg hover:shadow-2xl transition-all duration-200 flex flex-col overflow-hidden">
-                <img src={event.image} alt={event.title} className="w-full h-48 object-cover rounded-t-2xl" />
-                <div className="p-6 flex flex-col flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-orange-400 to-red-500 text-white`}>{event.category}</span>
-                    {event.isOpen && (
-                      <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">Open for Registration</span>
-                    )}
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-green-700 transition-colors">{event.title}</h3>
-                  <p className="text-sm text-gray-600 mb-3 line-clamp-3">{event.description}</p>
-                  <div className="flex flex-wrap gap-4 mb-4 text-xs text-gray-500">
-                    <div className="flex items-center gap-1">
-                      <Calendar className="w-4 h-4" />
-                      {new Date(event.date).toLocaleDateString()}
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <span className="font-mono">{event.time}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <span className="font-mono">{event.location}</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between mt-auto">
-                    <div className="text-xs text-gray-600">
-                      <span className="font-medium text-orange-500">{event.registered}</span>/{event.maxParticipants} registered
-                    </div>
-                    <button className="ml-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg font-semibold text-xs shadow hover:from-orange-600 hover:to-red-600 transition-all duration-200">Register</button>
-                  </div>
+      <div className="container mx-auto px-4 py-12 relative z-10">
+        {/* Enhanced Search and Filter Section */}
+        <div className="max-w-6xl mx-auto mb-12">
+          <div className="bg-white/90 backdrop-blur-lg rounded-2xl shadow-xl border border-white/40 p-6">
+            <div className="flex flex-col lg:flex-row gap-4">
+              {/* Enhanced Search Bar */}
+              <div className="relative flex-1">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <Search className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  type="text"
+                  placeholder="Search events by title, description, location, or organizer..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-orange-200 focus:border-orange-400 transition-all duration-300 text-base placeholder-gray-500 bg-white/90 backdrop-blur-sm hover:border-gray-300"
+                />
+              </div>
+
+              {/* Category Filter */}
+              <div className="relative lg:w-48">
+                <select
+                  value={filterCategory}
+                  onChange={(e) => setFilterCategory(e.target.value)}
+                  className="w-full appearance-none bg-white/90 backdrop-blur-sm border-2 border-gray-200 rounded-xl px-4 py-4 pr-10 focus:ring-4 focus:ring-orange-200 focus:border-orange-400 transition-all duration-300 text-base font-medium hover:border-gray-300"
+                >
+                  <option value="">All Categories</option>
+                  {categories.map((category) => (
+                    <option key={category} value={category}>
+                      {category}
+                    </option>
+                  ))}
+                </select>
+                <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                  <Filter className="h-5 w-5 text-gray-400" />
                 </div>
               </div>
-            ))}
-          </div>
-        )}
-      </section>
+            </div>
 
-      {/* Past Events */}
-      <section className="max-w-6xl mx-auto px-4">
-        <div className="flex items-center gap-3 mb-8">
-          <span className="inline-block bg-gray-400 text-white text-xs font-bold px-3 py-1 rounded-full">Past</span>
-          <h2 className="text-3xl font-bold text-gray-800 tracking-tight">Past Events</h2>
-        </div>
-        {past.length === 0 ? (
-          <p className="text-gray-400">No past events.</p>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {past.map((event: ClubEvent) => (
-              <a key={event.id} href={`/events/${event.id}`} className="group block relative bg-white border border-gray-200 rounded-2xl p-0 shadow-lg hover:shadow-2xl transition-all duration-200 flex flex-col overflow-hidden cursor-pointer">
-                <img src={event.image} alt={event.title} className="w-full h-48 object-cover rounded-t-2xl" />
-                <div className="p-6 flex flex-col flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-orange-400 to-red-500 text-white`}>{event.category}</span>
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-gray-700 transition-colors">{event.title}</h3>
-                  <p className="text-sm text-gray-600 mb-3 line-clamp-3">{event.description}</p>
-                  <div className="flex flex-wrap gap-4 mb-4 text-xs text-gray-500">
-                    <div className="flex items-center gap-1">
-                      <Calendar className="w-4 h-4" />
-                      {new Date(event.date).toLocaleDateString()}
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <span className="font-mono">{event.time}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <span className="font-mono">{event.location}</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-end mt-auto">
-                    <span className="inline-block bg-gray-50 text-gray-700 px-3 py-1 rounded-full text-xs font-semibold">Past</span>
-                  </div>
+            {/* Enhanced Results Summary */}
+            <div className="mt-6 flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="flex items-center bg-gradient-to-r from-orange-100 to-red-100 rounded-full px-4 py-2">
+                  <Zap className="h-5 w-5 mr-2 text-orange-600" />
+                  <span className="font-bold text-orange-700 text-lg">{filteredEvents.length}</span>
+                  <span className="ml-1 text-orange-600 font-medium">
+                    event{filteredEvents.length !== 1 ? 's' : ''} found
+                  </span>
                 </div>
-              </a>
-            ))}
+                {(searchTerm || filterCategory) && (
+                  <button
+                    onClick={() => {
+                      setSearchTerm("");
+                      setFilterCategory("");
+                    }}
+                    className="text-sm text-gray-500 hover:text-orange-600 transition-colors duration-200 underline"
+                  >
+                    Clear filters
+                  </button>
+                )}
+              </div>
+              
+              {filteredEvents.length > 0 && (
+                <div className="flex items-center text-gray-400">
+                  <span className="text-sm mr-2">Click any event to view details</span>
+                  <ArrowRight className="h-4 w-4" />
+                </div>
+              )}
+            </div>
           </div>
+        </div>
+
+        {/* Compact Events Grid */}
+        {filteredEvents.length === 0 ? (
+          <div className="text-center py-16">
+            <div className="max-w-sm mx-auto">
+              <div className="w-16 h-16 bg-gradient-to-r from-orange-200 to-red-200 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Calendar className="h-8 w-8 text-gray-500" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-700 mb-2">
+                {searchTerm || filterCategory
+                  ? "No events found"
+                  : "No events available"}
+              </h3>
+              <p className="text-gray-500 text-sm">
+                {searchTerm || filterCategory
+                  ? "Try adjusting your search"
+                  : "Check back soon for new events!"}
+              </p>
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {currentEvents.map((event, index) => (
+                <Link
+                  key={event.id}
+                  href={`/events/${event.id}`}
+                  className="group block"
+                  style={{ animationDelay: `${index * 50}ms` }}
+                >
+                    <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2 border border-white/50 hover:border-orange-300 h-full group-hover:bg-white">
+                    {/* Compact Cover Image */}
+                    <div className="relative h-36 overflow-hidden">
+                      {event.coverImage ? (
+                        <Image
+                          src={event.coverImage}
+                          alt={`${event.title} cover`}
+                          fill
+                          className="object-cover group-hover:scale-110 transition-transform duration-700"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-orange-400 to-red-400 flex items-center justify-center">
+                          <Calendar className="h-14 w-14 text-white/60" />
+                        </div>
+                      )}
+                      
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+
+                      {/* Price Badges */}
+                      <div className="absolute top-3 right-3 flex flex-col gap-2">
+                        {event.isPaid && (
+                          <span className="px-3 py-1.5 text-xs font-semibold rounded-full shadow-sm bg-yellow-500/95 text-white">
+                            ${event.price}
+                          </span>
+                        )}
+                        {!event.isPaid && (
+                          <span className="px-3 py-1.5 text-xs font-semibold rounded-full shadow-sm bg-green-500/95 text-white">
+                            Free
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Hover Arrow */}
+                      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                        <div className="w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg">
+                          <ArrowRight className="h-5 w-5 text-orange-600" />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Compact Content */}
+                    <div className="p-4">
+                      <div className="flex items-start justify-between mb-3">
+                        <h3 className="text-base font-bold text-gray-900 group-hover:text-orange-600 transition-colors duration-300 leading-tight flex-1 pr-2">
+                          {event.title}
+                        </h3>
+                        <ChevronRight className="h-5 w-5 text-orange-500 group-hover:translate-x-1 transition-transform duration-300 flex-shrink-0" />
+                      </div>                      {event.description && (
+                        <p className="text-sm text-gray-600 mb-4 line-clamp-2 leading-relaxed">
+                          {event.description}
+                        </p>
+                      )}
+
+                      {/* Event Details */}
+                      <div className="space-y-2 mb-4">
+                        <div className="flex items-center text-sm text-gray-600">
+                          <Calendar className="h-4 w-4 mr-2 text-orange-500" />
+                          <span>{new Date(event.date).toLocaleDateString()}</span>
+                        </div>
+                        <div className="flex items-center text-sm text-gray-600">
+                          <Clock className="h-4 w-4 mr-2 text-orange-500" />
+                          <span>{event.time}</span>
+                        </div>
+                        {event.location && (
+                          <div className="flex items-center text-sm text-gray-600">
+                            <MapPin className="h-4 w-4 mr-2 text-orange-500" />
+                            <span className="truncate">{event.location}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Category Badge */}
+                      {event.category && (
+                        <div className="mb-4">
+                          <span className="px-3 py-1 bg-gradient-to-r from-orange-100 to-red-100 text-orange-700 text-xs rounded-full font-medium border border-orange-200/50">
+                            {event.category}
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Compact Footer */}
+                      <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                        <div className="flex items-center text-sm text-gray-600 font-medium">
+                          <Users className="h-4 w-4 mr-1.5 text-orange-500" />
+                          <span>
+                            {event.registeredCount || 0}
+                            {event.maxCapacity && `/${event.maxCapacity}`}
+                          </span>
+                        </div>
+                        <div className="text-xs text-gray-500 bg-gray-50 px-2 py-1 rounded-md">
+                          {event.organizer.name}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex justify-center items-center mt-8 space-x-2">
+                <button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Previous
+                </button>
+
+                <div className="flex space-x-1">
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    let pageNumber;
+                    if (totalPages <= 5) {
+                      pageNumber = i + 1;
+                    } else if (currentPage <= 3) {
+                      pageNumber = i + 1;
+                    } else if (currentPage >= totalPages - 2) {
+                      pageNumber = totalPages - 4 + i;
+                    } else {
+                      pageNumber = currentPage - 2 + i;
+                    }
+
+                    return (
+                      <button
+                        key={pageNumber}
+                        onClick={() => handlePageChange(pageNumber)}
+                        className={`px-3 py-2 text-sm font-medium rounded-lg ${
+                          currentPage === pageNumber
+                            ? 'bg-gradient-to-r from-orange-400 to-red-400 text-white'
+                            : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50 hover:text-gray-700'
+                        }`}
+                      >
+                        {pageNumber}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Next
+                </button>
+              </div>
+            )}
+
+            {/* Results Info */}
+            <div className="text-center mt-6 text-sm text-gray-500">
+              Showing {startIndex + 1}-{Math.min(endIndex, filteredEvents.length)} of {filteredEvents.length} events
+            </div>
+          </>
         )}
-      </section>
+
+      </div>
     </div>
   );
 }
