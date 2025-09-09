@@ -15,9 +15,27 @@ datasource db {
 
 enum Role {
   volunteer
-  clubAdmin
-  eventOrganizer
   systemAdmin
+}
+
+enum MembershipRole {
+  member
+  president
+  secretary
+  treasurer
+  webmaster
+}
+
+enum EventRole {
+  organizer
+  participant
+}
+
+enum MembershipStatus {
+  active
+  inactive
+  pending
+  banned
 }
 
 enum ClubType {
@@ -54,7 +72,6 @@ enum InquiryType {
 enum InquirerRole {
   guest
   volunteer
-  clubAdmin
 }
 
 enum EventCategory {
@@ -69,27 +86,29 @@ enum EventCategory {
 }
 
 model User {
-  id                 String              @id @default(cuid())
-  firstName          String
-  lastName           String
-  email              String              @unique
-  phone              String?
-  password           String              @default("")
-  image              String              @default("")
-  role               Role                @default(volunteer)
-  isActive           Boolean             @default(true)
-  emailVerified      Boolean             @default(false)
-  lastLogin          DateTime?           @default(now())
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
+  id            String    @id @default(cuid())
+  firstName     String
+  lastName      String
+  email         String    @unique
+  phone         String?
+  password      String    @default("")
+  image         String    @default("")
+  role          Role      @default(volunteer)
+  isActive      Boolean   @default(true)
+  emailVerified Boolean   @default(false)
+  lastLogin     DateTime? @default(now())
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  eventRegistrations EventRegistration[] @relation("EventRegistrations")
+  eventAttendances   EventAttendance[]
+  clubRequests       ClubRequest[]       @relation("ClubRequests")
+  createdClubs       Club[]              @relation("ClubCreator")
+  clubMembers        ClubMember[]
   Club               Club[]
   EventRegistration  EventRegistration[]
   ClubRequest        ClubRequest[]
-  createdClubs       Club[]              @relation("ClubCreator")
-  eventRegistrations EventRegistration[] @relation("EventRegistrations")
-  clubRequests       ClubRequest[]       @relation("ClubRequests")
-  eventAttendances   EventAttendance[]  
-  organizedEvents    Event[]             @relation("EventOrganizer")  
 }
 
 model Club {
@@ -121,12 +140,27 @@ model Club {
   updatedAt    DateTime @updatedAt
 
   // Relations
+  members      ClubMember[]
   events       Event[]
   excomMembers ExcomMember[]
   clubRequests ClubRequest[]
   elections    Election[]
   User         User?         @relation(fields: [userId], references: [id])
   userId       String?
+}
+
+model ClubMember {
+  id               String           @id @default(cuid())
+  clubId           String
+  club             Club             @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  userId           String
+  user             User             @relation(fields: [userId], references: [id])
+  role             MembershipRole   @default(member)
+  membershipStatus MembershipStatus @default(pending)
+  joinedAt         DateTime         @default(now())
+
+  @@unique([clubId, userId])
+  @@map("club_members")
 }
 
 model ExcomMember {
@@ -209,8 +243,6 @@ model Event {
   startDateTime   DateTime
   endDateTime     DateTime?
   venue           String?
-  eventOrganizerId String
-  eventOrganizer   User         @relation("EventOrganizer", fields: [eventOrganizerId], references: [id])
   maxParticipants Int?
   isDeleted       Boolean       @default(false)
   createdAt       DateTime      @default(now())
@@ -267,15 +299,18 @@ model EventResourcePerson {
 }
 
 model EventRegistration {
-  id           String   @id @default(cuid())
+  id           String    @id @default(cuid())
   eventId      String
-  event        Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  event        Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
   volunteerId  String
-  volunteer    User     @relation("EventRegistrations", fields: [volunteerId], references: [id])
-  isDeleted    Boolean  @default(false)
-  registeredAt DateTime @default(now())
-  User         User?    @relation(fields: [userId], references: [id])
-  userId       String?
+  volunteer    User      @relation("EventRegistrations", fields: [volunteerId], references: [id])
+  eventRole    EventRole @default(participant)
+  isDeleted    Boolean   @default(false)
+  registeredAt DateTime  @default(now())
+
+  // Relations
+  User   User?   @relation(fields: [userId], references: [id])
+  userId String?
 
   @@unique([eventId, volunteerId]) // Prevent duplicate registrations
   @@map("event_registrations")
@@ -330,14 +365,13 @@ model Inquiry {
 }
 
 model EventAttendance {
-  id         Int      @id @default(autoincrement())
-  user       User     @relation(fields: [userId], references: [id])
-  userId     String   // was Int, now String
-  event      Event    @relation(fields: [eventId], references: [id])
-  eventId    String   // was Int, now String
-  isAttend   Boolean  @default(false)
+  id         Int       @id @default(autoincrement())
+  user       User      @relation(fields: [userId], references: [id])
+  userId     String // was Int, now String
+  event      Event     @relation(fields: [eventId], references: [id])
+  eventId    String // was Int, now String
+  isAttend   Boolean   @default(false)
   attendTime DateTime?
 
   @@unique([userId, eventId])
 }
-

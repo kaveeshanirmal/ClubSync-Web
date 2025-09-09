@@ -6,7 +6,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const user = await prisma.user.findUnique({
-      where: { id: userId }
+      where: { id: userId },
     });
 
     if (!user) {
@@ -20,13 +20,16 @@ export async function POST(req: NextRequest) {
         subject,
         type,
         message,
-        role: user.role === "volunteer" || user.role === "clubAdmin" ? user.role : "guest"
-      }
+        role: user.role === "volunteer" ? user.role : "guest",
+      },
     });
 
     return NextResponse.json(inquiry, { status: 200 });
   } catch (error) {
     console.error("Failed to submit inquiry:", error);
-    return NextResponse.json({ message: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { message: "Internal server error" },
+      { status: 500 },
+    );
   }
 }

@@ -1,16 +1,20 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '../auth/[...nextauth]/route';
-import { prisma } from '@/prisma/client';
+import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "../auth/[...nextauth]/route";
+import { prisma } from "@/prisma/client";
 
 export async function POST(req: NextRequest) {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.email) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    
-    const user = await prisma.user.findUnique({ where: { email: session.user.email } });
-    if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 });
-    
-    const userId = user.id;
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.email)
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const user = await prisma.user.findUnique({
+    where: { email: session.user.email },
+  });
+  if (!user)
+    return NextResponse.json({ error: "User not found" }, { status: 404 });
+
+  const userId = user.id;
   try {
     const data = await req.json();
 
@@ -34,14 +38,17 @@ export async function POST(req: NextRequest) {
         // requestStatus, adminComments, approvedClubId, userId are optional/managed by admin
       },
     });
-    await prisma.user.update({
-      where: { id: userId },
-      data: { role: 'clubAdmin' }, // Make sure 'clubAdmin' matches your Role enum
-    });
+    // await prisma.user.update({
+    //   where: { id: userId },
+    //   data: { role: 'clubAdmin' }, // Make sure 'clubAdmin' matches your Role enum
+    // });
 
     return NextResponse.json({ success: true, clubRequest }, { status: 201 });
   } catch (e) {
-    console.error('Error saving club verification:', e);
-    return NextResponse.json({ error: 'Failed to save club verification' }, { status: 500 });
+    console.error("Error saving club verification:", e);
+    return NextResponse.json(
+      { error: "Failed to save club verification" },
+      { status: 500 },
+    );
   }
 }

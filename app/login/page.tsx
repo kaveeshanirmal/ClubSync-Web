@@ -64,12 +64,10 @@ export default function LoginPage() {
         if (session?.user?.needsProfileCompletion) {
           // router.push("/profile/complete");
           router.push("/welcome");
-        } else if (session?.user?.role === "clubAdmin") {
-          router.push("/club-admin");
         } else if (session?.user?.role === "systemAdmin") {
           router.push("/admin");
         } else {
-          router.push("/welcome");
+          router.push("/club-admin");
         }
       }
     } catch (error) {
