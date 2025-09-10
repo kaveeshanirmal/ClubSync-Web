@@ -108,7 +108,7 @@ const AdminDashboard = () => {
       case 'overview':
         return <OverviewTab dashboardStats={dashboardStats} chartData={chartData} pieData={pieData} />;
       case 'clubs':
-        return <ClubsTab recentClubs={recentClubs} />;
+        return <ClubsTab />;
       case 'events':
         return <EventsTab />;
       case 'users':

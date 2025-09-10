@@ -139,7 +139,7 @@ export async function GET(request: NextRequest) {
       memberCount: 0,
       upcomingEvents: 0,
       pendingRequests: 0,
-      status: "pending",
+      status: request.requestStatus, // Use the actual request status
       userRole: "president", // Assuming the requester will be president
       type: "request" as const,
       requestStatus: request.requestStatus,

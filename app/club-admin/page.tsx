@@ -13,6 +13,8 @@ import {
   TrendingUp,
   AlertCircle,
   Clock,
+  X,
+  Eye,
 } from "lucide-react";
 
 interface Club {
@@ -103,22 +105,41 @@ export default function ClubAdminDashboard() {
   ];
 
   const getStatusColor = (status: string) => {
-    switch (status) {
+    switch (status.toLowerCase()) {
       case "active":
+      case "approved":
         return "bg-green-100 text-green-800";
       case "pending":
         return "bg-yellow-100 text-yellow-800";
       case "inactive":
+      case "rejected":
         return "bg-red-100 text-red-800";
+      case "underreview":
+      case "under review":
+        return "bg-blue-100 text-blue-800";
+      case "needsmoreinfo":
+      case "needs more info":
+        return "bg-purple-100 text-purple-800";
       default:
         return "bg-gray-100 text-gray-800";
     }
   };
 
   const getStatusIcon = (status: string, type?: string) => {
-    if (status === "pending" || type === "request") {
+    const statusLower = status.toLowerCase();
+    
+    if (statusLower === "pending" || type === "request") {
       return <Clock className="w-3 h-3 mr-1" />;
+    } else if (statusLower === "underreview" || statusLower === "under review") {
+      return <Users className="w-3 h-3 mr-1" />;
+    } else if (statusLower === "needsmoreinfo" || statusLower === "needs more info") {
+      return <AlertCircle className="w-3 h-3 mr-1" />;
+    } else if (statusLower === "rejected" || statusLower === "inactive") {
+      return <X className="w-3 h-3 mr-1" />;
+    } else if (statusLower === "approved" || statusLower === "active") {
+      return <CheckCircle className="w-3 h-3 mr-1" />;
     }
+    
     return <CheckCircle className="w-3 h-3 mr-1" />;
   };
 
@@ -202,9 +223,9 @@ export default function ClubAdminDashboard() {
               </div>
               <div className="bg-white rounded-xl shadow-sm p-3 border border-gray-200">
                 <div className="text-center">
-                  <p className="text-xs text-gray-500">Pending</p>
+                  <p className="text-xs text-gray-500">Pending Requests</p>
                   <p className="text-lg font-bold text-yellow-600">
-                    {clubs.filter((club) => club.status === "pending").length}
+                    {clubs.filter((club) => club.type === "request" && (club.status === "pending" || club.status === "underReview" || club.status === "needsMoreInfo")).length}
                   </p>
                 </div>
               </div>
@@ -364,7 +385,11 @@ export default function ClubAdminDashboard() {
                               className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium shadow-sm ${getStatusColor(club.status)}`}
                             >
                               {getStatusIcon(club.status, club.type)}
-                              {club.status}
+                              {club.status === 'underReview' 
+                                ? 'Under Review' 
+                                : club.status === 'needsMoreInfo'
+                                ? 'Needs More Info'
+                                : club.status}
                             </span>
                             <div className="mt-2">
                               <TrendingUp className="w-4 h-4 text-green-500 group-hover:scale-110 transition-transform duration-300" />
