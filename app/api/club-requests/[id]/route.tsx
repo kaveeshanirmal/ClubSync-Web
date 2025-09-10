@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/prisma/client";
+import { randomUUID } from "crypto";
 
 export async function GET(
   request: NextRequest,
@@ -64,6 +65,7 @@ export async function PATCH(
           mission: true,
           headquarters: true,
           clubLogo: true,
+          constitutionDoc: true,
           requestedById: true,
         }
       });
@@ -84,10 +86,23 @@ export async function PATCH(
           mission: clubRequest.mission,
           headquarters: clubRequest.headquarters,
           profileImage: clubRequest.clubLogo,
+          constitution: clubRequest.constitutionDoc,
           isActive: true,
           createdById: clubRequest.requestedById,
         },
       });
+
+      // Automatically add the requester as president of the new club
+      // First, let's try to create a member entry
+      try {
+        await prisma.$executeRaw`
+          INSERT INTO club_members (id, "clubId", "userId", role, "membershipStatus", "joinedAt")
+          VALUES (${randomUUID()}, ${newClub.id}, ${clubRequest.requestedById}, 'president', 'active', ${new Date()})
+        `;
+      } catch (memberError) {
+        console.error("Error creating club member:", memberError);
+        // Continue even if member creation fails
+      }
 
       // Update the club request with approved status and club reference
       const updatedRequest = await prisma.clubRequest.update({
