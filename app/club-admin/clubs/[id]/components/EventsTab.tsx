@@ -2,6 +2,8 @@ import { Calendar, Plus, Users, MapPin, Clock, Edit, Trash2 } from "lucide-react
 import React, { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import CreateEventModal from "./modals/CreateEventModal";
+import EditEventModal from "./modals/EditEventModal";
+import DeleteEventModal from "./modals/DeleteEventModal";
 import Toast from "@/components/Toast";
 
 interface Event {
@@ -13,6 +15,7 @@ interface Event {
   startDateTime: string;
   endDateTime?: string;
   venue?: string;
+  eventOrganizerId?: string;
   maxParticipants?: number;
   registrations?: { id: string }[];
 }
@@ -83,6 +86,9 @@ const EventsTab: React.FC = () => {
   const [events, setEvents] = useState<Event[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [error, setError] = useState("");
   const [toast, setToast] = useState<{
     message: string;
@@ -130,6 +136,32 @@ const EventsTab: React.FC = () => {
   const handleCreateEvent = (newEvent: Event) => {
     setEvents(prev => [newEvent, ...prev]);
     showToast("Event created successfully!", "success");
+  };
+
+  const handleEditEvent = (event: Event) => {
+    setSelectedEvent(event);
+    setIsEditModalOpen(true);
+  };
+
+  const handleDeleteEvent = (event: Event) => {
+    setSelectedEvent(event);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleUpdateEvent = (updatedEvent: Event) => {
+    setEvents(prev => prev.map(event => 
+      event.id === updatedEvent.id ? updatedEvent : event
+    ));
+    showToast("Event updated successfully!", "success");
+    setIsEditModalOpen(false);
+    setSelectedEvent(null);
+  };
+
+  const handleDeleteConfirm = (eventId: string) => {
+    setEvents(prev => prev.filter(event => event.id !== eventId));
+    showToast("Event deleted successfully!", "success");
+    setIsDeleteModalOpen(false);
+    setSelectedEvent(null);
   };
 
   if (isLoading) {
@@ -251,11 +283,17 @@ const EventsTab: React.FC = () => {
                 )}
 
                 <div className="flex space-x-2">
-                  <button className="flex-1 flex items-center justify-center space-x-1 px-3 py-2 text-sm text-blue-600 border-2 border-blue-200 rounded-xl hover:bg-blue-50 hover:border-blue-300 transition-all duration-300">
+                  <button 
+                    onClick={() => handleEditEvent(event)}
+                    className="flex-1 flex items-center justify-center space-x-1 px-3 py-2 text-sm text-blue-600 border-2 border-blue-200 rounded-xl hover:bg-blue-50 hover:border-blue-300 transition-all duration-300"
+                  >
                     <Edit className="w-4 h-4" />
                     <span>Edit</span>
                   </button>
-                  <button className="flex-1 flex items-center justify-center space-x-1 px-3 py-2 text-sm text-red-600 border-2 border-red-200 rounded-xl hover:bg-red-50 hover:border-red-300 transition-all duration-300">
+                  <button 
+                    onClick={() => handleDeleteEvent(event)}
+                    className="flex-1 flex items-center justify-center space-x-1 px-3 py-2 text-sm text-red-600 border-2 border-red-200 rounded-xl hover:bg-red-50 hover:border-red-300 transition-all duration-300"
+                  >
                     <Trash2 className="w-4 h-4" />
                     <span>Delete</span>
                   </button>
@@ -272,6 +310,28 @@ const EventsTab: React.FC = () => {
         onClose={() => setIsCreateModalOpen(false)}
         onCreateEvent={handleCreateEvent}
         clubId={clubId}
+      />
+
+      {/* Edit Event Modal */}
+      <EditEventModal
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setSelectedEvent(null);
+        }}
+        onUpdateEvent={handleUpdateEvent}
+        event={selectedEvent}
+      />
+
+      {/* Delete Event Modal */}
+      <DeleteEventModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setSelectedEvent(null);
+        }}
+        onDeleteEvent={handleDeleteConfirm}
+        event={selectedEvent}
       />
 
       {/* Toast Notification */}

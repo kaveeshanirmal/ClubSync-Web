@@ -1,11 +1,25 @@
 import React, { useState, useEffect } from "react";
-import { X, Calendar, Users, MapPin, Clock, FileText, Plus, Search } from "lucide-react";
+import { X, Calendar, Users, MapPin, Clock, FileText, Save, Search } from "lucide-react";
 
-interface CreateEventModalProps {
+interface Event {
+  id: string;
+  title: string;
+  subtitle?: string;
+  category: string;
+  description?: string;
+  startDateTime: string;
+  endDateTime?: string;
+  venue?: string;
+  eventOrganizerId?: string;
+  maxParticipants?: number;
+  registrations?: { id: string }[];
+}
+
+interface EditEventModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onCreateEvent: (eventData: any) => void;
-  clubId: string;
+  onUpdateEvent: (eventData: any) => void;
+  event: Event | null;
 }
 
 interface User {
@@ -16,11 +30,11 @@ interface User {
   role: string;
 }
 
-const CreateEventModal: React.FC<CreateEventModalProps> = ({
+const EditEventModal: React.FC<EditEventModalProps> = ({
   isOpen,
   onClose,
-  onCreateEvent,
-  clubId,
+  onUpdateEvent,
+  event,
 }) => {
   const [formData, setFormData] = useState({
     title: "",
@@ -80,11 +94,49 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
     }
   };
 
+  // Initialize form data when event changes
   useEffect(() => {
-    if (isOpen) {
+    if (event && isOpen) {
+      const startDateTime = new Date(event.startDateTime);
+      const endDateTime = event.endDateTime ? new Date(event.endDateTime) : null;
+      
+      // Format datetime for input fields
+      const formatDateTimeForInput = (date: Date) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+      };
+
+      setFormData({
+        title: event.title,
+        subtitle: event.subtitle || "",
+        category: event.category,
+        description: event.description || "",
+        startDateTime: formatDateTimeForInput(startDateTime),
+        endDateTime: endDateTime ? formatDateTimeForInput(endDateTime) : "",
+        venue: event.venue || "",
+        eventOrganizerId: event.eventOrganizerId || "",
+        maxParticipants: event.maxParticipants ? event.maxParticipants.toString() : "",
+      });
+
+      // Fetch users and set organizer
       fetchUsers();
     }
-  }, [isOpen]);
+  }, [event, isOpen]);
+
+  // Set organizer after users are loaded
+  useEffect(() => {
+    if (event && event.eventOrganizerId && users.length > 0) {
+      const organizer = users.find(user => user.id === event.eventOrganizerId);
+      if (organizer) {
+        setSelectedOrganizer(organizer);
+        setOrganizerSearch(`${organizer.firstName} ${organizer.lastName}`);
+      }
+    }
+  }, [users, event]);
 
   const filteredUsers = users.filter(user =>
     `${user.firstName} ${user.lastName}`.toLowerCase().includes(organizerSearch.toLowerCase()) ||
@@ -125,6 +177,8 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!event) return;
+    
     setIsLoading(true);
     setError("");
 
@@ -151,12 +205,11 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
 
       const eventData = {
         ...formData,
-        clubId,
         maxParticipants: formData.maxParticipants ? parseInt(formData.maxParticipants) : null,
       };
 
-      const response = await fetch("/api/events", {
-        method: "POST",
+      const response = await fetch(`/api/events/${event.id}`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
@@ -165,36 +218,21 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to create event");
+        throw new Error(errorData.error || "Failed to update event");
       }
 
       const result = await response.json();
-      onCreateEvent(result.event);
-      
-      // Reset form
-      setFormData({
-        title: "",
-        subtitle: "",
-        category: "other",
-        description: "",
-        startDateTime: "",
-        endDateTime: "",
-        venue: "",
-        eventOrganizerId: "",
-        maxParticipants: "",
-      });
-      setSelectedOrganizer(null);
-      setOrganizerSearch("");
+      onUpdateEvent(result.event);
       
       onClose();
     } catch (err: any) {
-      setError(err.message || "An error occurred while creating the event");
+      setError(err.message || "An error occurred while updating the event");
     } finally {
       setIsLoading(false);
     }
   };
 
-  if (!isOpen) return null;
+  if (!isOpen || !event) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -202,12 +240,12 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center">
+            <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-xl flex items-center justify-center">
               <Calendar className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-gray-900">Create New Event</h2>
-              <p className="text-sm text-gray-600">Add a new event for your club</p>
+              <h2 className="text-xl font-bold text-gray-900">Edit Event</h2>
+              <p className="text-sm text-gray-600">Update event details</p>
             </div>
           </div>
           <button
@@ -237,7 +275,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
               value={formData.title}
               onChange={handleInputChange}
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300"
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
               placeholder="Enter event title"
             />
           </div>
@@ -252,7 +290,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
               name="subtitle"
               value={formData.subtitle}
               onChange={handleInputChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300"
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
               placeholder="Enter event subtitle (optional)"
             />
           </div>
@@ -268,7 +306,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                 value={formData.category}
                 onChange={handleInputChange}
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
               >
                 {eventCategories.map((category) => (
                   <option key={category.value} value={category.value}>
@@ -293,7 +331,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                       setIsOrganizerDropdownOpen(true);
                     }}
                     onFocus={() => setIsOrganizerDropdownOpen(true)}
-                    className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300"
+                    className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
                     placeholder="Search for an organizer (optional)..."
                   />
                 </div>
@@ -302,7 +340,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                   <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-xl shadow-lg max-h-60 overflow-y-auto">
                     {isLoadingUsers ? (
                       <div className="p-4 text-center text-gray-500">
-                        <div className="w-5 h-5 border-2 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+                        <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
                         Loading users...
                       </div>
                     ) : filteredUsers.length > 0 ? (
@@ -342,7 +380,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
               value={formData.description}
               onChange={handleInputChange}
               rows={4}
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 resize-none"
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 resize-none"
               placeholder="Enter event description"
             />
           </div>
@@ -362,7 +400,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                   onChange={handleInputChange}
                   min={getCurrentDateTime()}
                   required
-                  className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300"
+                  className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
                 />
               </div>
             </div>
@@ -379,7 +417,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                   value={formData.endDateTime}
                   onChange={handleInputChange}
                   min={formData.startDateTime || getCurrentDateTime()}
-                  className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300"
+                  className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
                 />
               </div>
             </div>
@@ -398,7 +436,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                   name="venue"
                   value={formData.venue}
                   onChange={handleInputChange}
-                  className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300"
+                  className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
                   placeholder="Enter venue"
                 />
               </div>
@@ -416,7 +454,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                   value={formData.maxParticipants}
                   onChange={handleInputChange}
                   min="1"
-                  className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300"
+                  className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
                   placeholder="Enter max participants"
                 />
               </div>
@@ -435,17 +473,17 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
             <button
               type="submit"
               disabled={isLoading}
-              className="px-6 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl hover:from-orange-600 hover:to-red-600 transition-all duration-300 shadow-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+              className="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-xl hover:from-blue-600 hover:to-indigo-600 transition-all duration-300 shadow-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
             >
               {isLoading ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  <span>Creating...</span>
+                  <span>Updating...</span>
                 </>
               ) : (
                 <>
-                  <Plus className="w-4 h-4" />
-                  <span>Create Event</span>
+                  <Save className="w-4 h-4" />
+                  <span>Update Event</span>
                 </>
               )}
             </button>
@@ -464,4 +502,4 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
   );
 };
 
-export default CreateEventModal;
+export default EditEventModal;

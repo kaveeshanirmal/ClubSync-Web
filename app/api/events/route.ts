@@ -19,21 +19,9 @@ export async function POST(request: NextRequest) {
     } = body;
 
     // Validate required fields
-    if (!title || !clubId || !startDateTime || !eventOrganizerId) {
+    if (!title || !clubId || !startDateTime) {
       return NextResponse.json(
         { error: "Missing required fields" },
-        { status: 400 }
-      );
-    }
-
-    // Verify the event organizer exists
-    const eventOrganizer = await prisma.user.findUnique({
-      where: { id: eventOrganizerId }
-    });
-
-    if (!eventOrganizer) {
-      return NextResponse.json(
-        { error: "Event organizer not found" },
         { status: 400 }
       );
     }
@@ -58,7 +46,7 @@ export async function POST(request: NextRequest) {
     await prisma.$executeRaw`
       INSERT INTO events (
         id, title, subtitle, "clubId", category, description, 
-        "startDateTime", "endDateTime", venue, "eventOrganizerId", 
+        "startDateTime", "endDateTime", venue, 
         "maxParticipants", "isDeleted", "createdAt", "updatedAt"
       ) VALUES (
         ${eventId}, 
@@ -70,7 +58,6 @@ export async function POST(request: NextRequest) {
         ${new Date(startDateTime)}, 
         ${endDateTime ? new Date(endDateTime) : null}, 
         ${venue || null}, 
-        ${eventOrganizerId}, 
         ${maxParticipants ? parseInt(maxParticipants) : null}, 
         false, 
         NOW(), 
