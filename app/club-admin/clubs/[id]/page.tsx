@@ -84,6 +84,10 @@ export default function ClubDetailPage() {
   const [isSettingsAnimating, setIsSettingsAnimating] = useState(false);
   const settingsRef = useRef<HTMLDivElement>(null);
 
+  // Check if club details are complete
+  const [isClubDetailsComplete, setIsClubDetailsComplete] = useState(false);
+  const [clubCompletionLoading, setClubCompletionLoading] = useState(false);
+
   // Role management modal states
   const [showRoleModal, setShowRoleModal] = useState(false);
   const [clubMembers, setClubMembers] = useState<ClubMember[]>([]);
@@ -126,6 +130,13 @@ export default function ClubDetailPage() {
     return () => {
       cancelled = true;
     };
+  }, [clubId]);
+
+  // Check club completion status
+  useEffect(() => {
+    if (clubId) {
+      checkClubCompletion();
+    }
   }, [clubId]);
 
   useEffect(() => {
@@ -179,6 +190,29 @@ export default function ClubDetailPage() {
   // Remove member from role (set to member)
   const removeMemberFromRole = async (memberId: string) => {
     await updateMemberRole(memberId, "member");
+  };
+
+  // Check club details completion status
+  const checkClubCompletion = async () => {
+    try {
+      setClubCompletionLoading(true);
+      const res = await fetch(`/api/clubs/${clubId}/completion-status`);
+      if (res.ok) {
+        const data = await res.json();
+        setIsClubDetailsComplete(data.isComplete || false);
+      }
+    } catch (error) {
+      console.error("Error checking club completion:", error);
+      // Default to incomplete if there's an error
+      setIsClubDetailsComplete(false);
+    } finally {
+      setClubCompletionLoading(false);
+    }
+  };
+
+  // Navigate to complete club details page
+  const handleCompleteClubDetails = () => {
+    router.push(`/club-verify/complete-details?clubId=${clubId}`);
   };
 
   const handleSettingsClick = () => {
@@ -694,6 +728,41 @@ export default function ClubDetailPage() {
                 {String(clubData.status).charAt(0).toUpperCase() +
                   String(clubData.status).slice(1)}
               </span>
+
+              {/* Complete Club Details Button */}
+              <button
+                onClick={handleCompleteClubDetails}
+                disabled={clubCompletionLoading}
+                className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200 font-medium text-sm shadow-sm hover:shadow-md transform hover:scale-105 ${
+                  isClubDetailsComplete
+                    ? "bg-green-50 text-green-700 border border-green-200 hover:bg-green-100 hover:border-green-300"
+                    : "bg-orange-50 text-orange-700 border border-orange-200 hover:bg-orange-100 hover:border-orange-300"
+                } ${clubCompletionLoading ? "opacity-50 cursor-not-allowed transform-none" : ""}`}
+                title={
+                  isClubDetailsComplete
+                    ? "✅ Club details are complete - Click to view or edit details"
+                    : "⚠️ Complete your club details - Required for full functionality"
+                }
+              >
+                {clubCompletionLoading ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                    <span>Checking...</span>
+                  </>
+                ) : isClubDetailsComplete ? (
+                  <>
+                    <CheckCircle className="w-4 h-4" />
+                    <span>Details Complete</span>
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                  </>
+                ) : (
+                  <>
+                    <FileEdit className="w-4 h-4" />
+                    <span>Complete Details</span>
+                    <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
+                  </>
+                )}
+              </button>
 
               {/* Settings Dropdown */}
               <div className="relative" ref={settingsRef}>
