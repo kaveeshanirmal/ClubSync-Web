@@ -68,6 +68,18 @@ export default function CompleteClubDetails() {
         setLoading(true);
         const response = await fetch(`/api/clubs/${clubId}/details`);
         
+        if (response.status === 403) {
+          setError("Access denied. Only club officers (President, Secretary, Treasurer, Webmaster) can access club details.");
+          setLoading(false);
+          return;
+        }
+        
+        if (response.status === 401) {
+          setError("Authentication required. Please log in to access club details.");
+          setLoading(false);
+          return;
+        }
+        
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(errorData.error || "Failed to fetch club data");
@@ -115,6 +127,16 @@ export default function CompleteClubDetails() {
         },
         body: JSON.stringify(formData),
       });
+
+      if (response.status === 403) {
+        setError("Access denied. Only club officers (President, Secretary, Treasurer, Webmaster) can update club details.");
+        return;
+      }
+      
+      if (response.status === 401) {
+        setError("Authentication required. Please log in to update club details.");
+        return;
+      }
 
       if (!response.ok) {
         const errorData = await response.json();

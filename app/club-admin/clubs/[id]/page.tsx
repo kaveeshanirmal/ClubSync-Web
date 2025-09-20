@@ -197,9 +197,13 @@ export default function ClubDetailPage() {
     try {
       setClubCompletionLoading(true);
       const res = await fetch(`/api/clubs/${clubId}/completion-status`);
+      
       if (res.ok) {
         const data = await res.json();
         setIsClubDetailsComplete(data.isComplete || false);
+      } else {
+        // Default to incomplete if there's an error
+        setIsClubDetailsComplete(false);
       }
     } catch (error) {
       console.error("Error checking club completion:", error);
@@ -211,8 +215,35 @@ export default function ClubDetailPage() {
   };
 
   // Navigate to complete club details page
-  const handleCompleteClubDetails = () => {
-    router.push(`/club-verify/complete-details?clubId=${clubId}`);
+  const handleCompleteClubDetails = async () => {
+    try {
+      // Check permissions before navigating
+      const res = await fetch(`/api/clubs/${clubId}/completion-status`);
+      
+      if (res.status === 403) {
+        // Permission denied
+        alert("Access denied. Only club officers (President, Secretary, Treasurer, Webmaster) can access club details.");
+        return;
+      }
+      
+      if (res.status === 401) {
+        // Not authenticated
+        alert("Please log in to access club details.");
+        return;
+      }
+      
+      if (!res.ok) {
+        // Other errors
+        alert("Error accessing club details. Please try again later.");
+        return;
+      }
+      
+      // If we reach here, user has permission
+      router.push(`/club-verify/complete-details?clubId=${clubId}`);
+    } catch (error) {
+      console.error("Error navigating to club details:", error);
+      alert("Error accessing club details. Please try again later.");
+    }
   };
 
   const handleSettingsClick = () => {

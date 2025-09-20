@@ -2,6 +2,56 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { prisma } from "@/prisma/client";
 
+// Helper function to check if user has club officer permission
+async function checkClubOfficerPermission(clubId: string, userEmail: string) {
+  try {
+    // Get user from email
+    const user = await (prisma.user as any).findUnique({
+      where: { email: userEmail },
+    });
+
+    if (!user) {
+      return { hasPermission: false, error: "User not found" };
+    }
+
+    // Check if user is system admin (can access all clubs)
+    if (user.role === 'systemAdmin') {
+      return { hasPermission: true, user };
+    }
+
+    // Check if user is a club officer (president, secretary, treasurer, webmaster)
+    const clubMember = await (prisma.clubMember as any).findFirst({
+      where: {
+        clubId: clubId,
+        userId: user.id,
+        membershipStatus: 'active', // Only active members
+        role: {
+          in: ['president', 'secretary', 'treasurer', 'webmaster']
+        }
+      },
+      include: {
+        club: true,
+        user: true
+      }
+    });
+
+    if (!clubMember) {
+      return { 
+        hasPermission: false, 
+        error: "Access denied. Only club officers (President, Secretary, Treasurer, Webmaster) can access club details." 
+      };
+    }
+
+    return { hasPermission: true, user, clubMember };
+  } catch (error) {
+    console.error("Error checking club officer permission:", error);
+    return { 
+      hasPermission: false, 
+      error: "Error checking permissions" 
+    };
+  }
+}
+
 // GET endpoint to fetch club details for the complete-details form
 export async function GET(
   request: NextRequest,
@@ -18,6 +68,15 @@ export async function GET(
 
     const clubId = params.id;
 
+    // Check if user has club officer permission
+    const permissionCheck = await checkClubOfficerPermission(clubId, session.user.email);
+    if (!permissionCheck.hasPermission) {
+      return NextResponse.json(
+        { error: permissionCheck.error },
+        { status: 403 }
+      );
+    }
+
     // Find the club
     const club = await prisma.club.findUnique({
       where: {
@@ -30,37 +89,6 @@ export async function GET(
       return NextResponse.json(
         { error: "Club not found" },
         { status: 404 }
-      );
-    }
-
-    // Check if user has permission to access this club
-    const user = await prisma.user.findUnique({
-      where: { email: session.user.email },
-    });
-
-    if (!user) {
-      return NextResponse.json(
-        { error: "User not found" },
-        { status: 404 }
-      );
-    }
-
-    // Check if user is the club creator or a club admin (president/secretary)
-    const isCreator = club.createdById === user.id;
-    const clubMember = await prisma.clubMember.findFirst({
-      where: {
-        clubId: clubId,
-        userId: user.id,
-        role: {
-          in: ['president', 'secretary']
-        }
-      }
-    });
-
-    if (!isCreator && !clubMember && user.role !== 'systemAdmin') {
-      return NextResponse.json(
-        { error: "Access denied" },
-        { status: 403 }
       );
     }
 
@@ -114,6 +142,16 @@ export async function PUT(
     }
 
     const clubId = params.id;
+
+    // Check if user has club officer permission
+    const permissionCheck = await checkClubOfficerPermission(clubId, session.user.email);
+    if (!permissionCheck.hasPermission) {
+      return NextResponse.json(
+        { error: permissionCheck.error },
+        { status: 403 }
+      );
+    }
+
     const body = await request.json();
 
     // Validate the request body structure
@@ -138,37 +176,6 @@ export async function PUT(
       return NextResponse.json(
         { error: "Club not found" },
         { status: 404 }
-      );
-    }
-
-    // Check if user has permission to update this club
-    const user = await prisma.user.findUnique({
-      where: { email: session.user.email },
-    });
-
-    if (!user) {
-      return NextResponse.json(
-        { error: "User not found" },
-        { status: 404 }
-      );
-    }
-
-    // Check if user is the club creator or a club admin (president/secretary)
-    const isCreator = club.createdById === user.id;
-    const clubMember = await prisma.clubMember.findFirst({
-      where: {
-        clubId: clubId,
-        userId: user.id,
-        role: {
-          in: ['president', 'secretary']
-        }
-      }
-    });
-
-    if (!isCreator && !clubMember && user.role !== 'systemAdmin') {
-      return NextResponse.json(
-        { error: "Access denied" },
-        { status: 403 }
       );
     }
 
