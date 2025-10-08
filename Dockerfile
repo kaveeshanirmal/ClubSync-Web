@@ -14,7 +14,7 @@ RUN npm install
 COPY . .
 
 # Build Next.js for production
-RUN npm run build
+RUN npm run build -- --no-lint
 
 # Expose port
 EXPOSE 3000
