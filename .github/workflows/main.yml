@@ -1,0 +1,41 @@
+name: Deploy Next.js to EC2
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build --build-arg NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }} -t nextjs-app .
+
+      - name: Save Docker image
+        run: docker save nextjs-app | gzip > nextjs-app.tar.gz
+
+      - name: Copy image to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: nextjs-app.tar.gz
+          target: /home/${{ secrets.EC2_USER }}/
+
+      - name: Deploy on EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            docker stop nextjs-app || true
+            docker rm nextjs-app || true
+            docker load -i nextjs-app.tar.gz
+            docker run -d -p 3000:3000 --name nextjs-app nextjs-app
+            sudo systemctl restart nginx
