@@ -1,6 +1,6 @@
 # ClubSync Web Platform
 
-ClubSync is a Next.js web application designed to streamline club management, event organization, and volunteer tracking for university clubs and organizations.
+ClubSync is a Next.js web application along with a mobile app designed to streamline club management, event organization, and volunteer tracking for university clubs and organizations.
 
 ## 🚀 Recent Updates (July 2025)
 
