@@ -6,6 +6,7 @@ import {
   type ComponentType,
   type SVGProps,
   useRef,
+  Suspense,
 } from "react";
 import {
   ArrowLeft,
@@ -197,7 +198,7 @@ export default function ClubDetailPage() {
     try {
       setClubCompletionLoading(true);
       const res = await fetch(`/api/clubs/${clubId}/completion-status`);
-      
+
       if (res.ok) {
         const data = await res.json();
         setIsClubDetailsComplete(data.isComplete || false);
@@ -219,25 +220,27 @@ export default function ClubDetailPage() {
     try {
       // Check permissions before navigating
       const res = await fetch(`/api/clubs/${clubId}/completion-status`);
-      
+
       if (res.status === 403) {
         // Permission denied
-        alert("Access denied. Only club officers (President, Secretary, Treasurer, Webmaster) can access club details.");
+        alert(
+          "Access denied. Only club officers (President, Secretary, Treasurer, Webmaster) can access club details.",
+        );
         return;
       }
-      
+
       if (res.status === 401) {
         // Not authenticated
         alert("Please log in to access club details.");
         return;
       }
-      
+
       if (!res.ok) {
         // Other errors
         alert("Error accessing club details. Please try again later.");
         return;
       }
-      
+
       // If we reach here, user has permission
       router.push(`/club-verify/complete-details?clubId=${clubId}`);
     } catch (error) {
@@ -874,10 +877,11 @@ export default function ClubDetailPage() {
           </div>
         </div>
 
-        {/* Enhanced Tab Content */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-          {renderTabContent()}
-        </div>
+        <Suspense fallback={<div>Loading content...</div>}>
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            {renderTabContent()}
+          </div>
+        </Suspense>
       </div>
 
       {/* Role Management Modal */}
