@@ -4,10 +4,10 @@ import { prisma } from "@/prisma/client";
 // PATCH /api/clubs/[id]/members/[memberId]/role - Update member role
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string; memberId: string } },
+  { params }: { params: Promise<{ id: string; memberId: string }> },
 ) {
   try {
-    const { id: clubId, memberId } = params;
+    const { id: clubId, memberId } = await params;
     const body = await request.json();
     const { role } = body;
 

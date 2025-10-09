@@ -6,16 +6,15 @@ const prisma = new PrismaClient();
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string; electionId: string }> },
 ) {
   try {
+    const { id, electionId } = await params;
     const session = await getServerSession();
 
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-
-    const electionId = params.id;
 
     const election = await prisma.election.findUnique({
       where: { id: electionId },
@@ -55,16 +54,16 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string; electionId: string }> },
 ) {
   try {
+    const { id, electionId } = await params;
     const session = await getServerSession();
 
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const electionId = params.id;
     const body = await request.json();
 
     // Verify election exists
@@ -198,16 +197,15 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string; electionId: string }> },
 ) {
   try {
+    const { id, electionId } = await params;
     const session = await getServerSession();
 
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-
-    const electionId = params.id;
 
     // Verify election exists
     const election = await prisma.election.findUnique({

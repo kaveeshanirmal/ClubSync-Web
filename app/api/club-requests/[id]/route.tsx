@@ -4,11 +4,11 @@ import { randomUUID } from "crypto";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const clubRequest = await prisma.clubRequest.findUnique({
-      where: { id: params.id },
+      where: { id: (await params).id },
       include: {
         requestedBy: {
           select: {
@@ -24,7 +24,7 @@ export async function GET(
     if (!clubRequest) {
       return NextResponse.json(
         { error: "Club request not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -33,30 +33,32 @@ export async function GET(
     console.error("Error fetching club request:", error);
     return NextResponse.json(
       { error: "Failed to fetch club request" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
-export async function PATCH(
+// PUT /api/club-requests/[id] - Update club request status
+export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
+    const { id } = await params;
     const body = await request.json();
     const { requestStatus, adminComments } = body;
 
     if (!requestStatus) {
       return NextResponse.json(
         { error: "Request status is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     // If request is approved, create a new club
     if (requestStatus === "approved") {
       const clubRequest = await prisma.clubRequest.findUnique({
-        where: { id: params.id },
+        where: { id },
         select: {
           clubName: true,
           motto: true,
@@ -67,13 +69,13 @@ export async function PATCH(
           clubLogo: true,
           constitutionDoc: true,
           requestedById: true,
-        }
+        },
       });
 
       if (!clubRequest) {
         return NextResponse.json(
           { error: "Club request not found" },
-          { status: 404 }
+          { status: 404 },
         );
       }
 
@@ -106,7 +108,7 @@ export async function PATCH(
 
       // Update the club request with approved status and club reference
       const updatedRequest = await prisma.clubRequest.update({
-        where: { id: params.id },
+        where: { id },
         data: {
           requestStatus,
           adminComments: adminComments || "Request approved",
@@ -118,7 +120,7 @@ export async function PATCH(
     } else {
       // Just update the request status
       const updatedRequest = await prisma.clubRequest.update({
-        where: { id: params.id },
+        where: { id },
         data: {
           requestStatus,
           adminComments: adminComments || undefined,
@@ -131,7 +133,7 @@ export async function PATCH(
     console.error("Error updating club request:", error);
     return NextResponse.json(
       { error: "Failed to update club request" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
