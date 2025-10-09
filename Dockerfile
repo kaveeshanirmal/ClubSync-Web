@@ -1,5 +1,5 @@
 # Base image
-FROM node:18-alpine
+FROM node:22-alpine
 
 # Working directory
 WORKDIR /app
@@ -20,7 +20,7 @@ RUN npx prisma generate
 ENV NEXT_SKIP_BUILD_OPTIMIZATION=1
 
 # Build Next.js for production
-RUN npm run build -- --no-lint
+RUN npm run build
 
 # Expose port
 EXPOSE 3000
