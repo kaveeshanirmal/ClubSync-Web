@@ -15,7 +15,7 @@ async function checkClubOfficerPermission(clubId: string, userEmail: string) {
     }
 
     // Check if user is system admin (can access all clubs)
-    if (user.role === 'systemAdmin') {
+    if (user.role === "systemAdmin") {
       return { hasPermission: true, user };
     }
 
@@ -24,56 +24,61 @@ async function checkClubOfficerPermission(clubId: string, userEmail: string) {
       where: {
         clubId: clubId,
         userId: user.id,
-        membershipStatus: 'active', // Only active members
+        membershipStatus: "active", // Only active members
         role: {
-          in: ['president', 'secretary', 'treasurer', 'webmaster']
-        }
+          in: ["president", "secretary", "treasurer", "webmaster"],
+        },
       },
       include: {
         club: true,
-        user: true
-      }
+        user: true,
+      },
     });
 
     if (!clubMember) {
-      return { 
-        hasPermission: false, 
-        error: "Access denied. Only club officers (President, Secretary, Treasurer, Webmaster) can access club details." 
+      return {
+        hasPermission: false,
+        error:
+          "Access denied. Only club officers (President, Secretary, Treasurer, Webmaster) can access club details.",
       };
     }
 
     return { hasPermission: true, user, clubMember };
   } catch (error) {
     console.error("Error checking club officer permission:", error);
-    return { 
-      hasPermission: false, 
-      error: "Error checking permissions" 
+    return {
+      hasPermission: false,
+      error: "Error checking permissions",
     };
   }
 }
 
-// GET endpoint to fetch club details for the complete-details form
+// GET /api/clubs/[id]/details - Get club details for officers
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession();
     if (!session?.user?.email) {
       return NextResponse.json(
         { error: "Authentication required" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
-    const clubId = params.id;
+    const clubId = id;
 
     // Check if user has club officer permission
-    const permissionCheck = await checkClubOfficerPermission(clubId, session.user.email);
+    const permissionCheck = await checkClubOfficerPermission(
+      clubId,
+      session.user.email,
+    );
     if (!permissionCheck.hasPermission) {
       return NextResponse.json(
         { error: permissionCheck.error },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -86,10 +91,7 @@ export async function GET(
     });
 
     if (!club) {
-      return NextResponse.json(
-        { error: "Club not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Club not found" }, { status: 404 });
     }
 
     // Transform club data to match the form structure
@@ -122,33 +124,37 @@ export async function GET(
     console.error("Error fetching club details:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
-// PUT endpoint to update club details
+// PUT /api/clubs/[id]/details - Update club details (officers only)
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession();
     if (!session?.user?.email) {
       return NextResponse.json(
         { error: "Authentication required" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
-    const clubId = params.id;
+    const clubId = id;
 
     // Check if user has club officer permission
-    const permissionCheck = await checkClubOfficerPermission(clubId, session.user.email);
+    const permissionCheck = await checkClubOfficerPermission(
+      clubId,
+      session.user.email,
+    );
     if (!permissionCheck.hasPermission) {
       return NextResponse.json(
         { error: permissionCheck.error },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -160,7 +166,7 @@ export async function PUT(
     if (!socialMedia || !contact || !details) {
       return NextResponse.json(
         { error: "Invalid request body structure" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -173,10 +179,7 @@ export async function PUT(
     });
 
     if (!club) {
-      return NextResponse.json(
-        { error: "Club not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Club not found" }, { status: 404 });
     }
 
     // Update the club with new details
@@ -210,7 +213,7 @@ export async function PUT(
     console.error("Error updating club details:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

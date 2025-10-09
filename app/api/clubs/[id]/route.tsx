@@ -4,10 +4,10 @@ import { prisma } from "@/prisma/client";
 // GET /api/clubs/[electionId] - Get specific club by ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     const club = await prisma.club.findFirst({
       where: {
@@ -113,13 +113,13 @@ export async function GET(
   }
 }
 
-// PUT /api/clubs/[electionId] - Update specific club
+// PUT /api/clubs/[id] - Update club
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const body = await request.json();
 
     // Check if club exists and is not deleted
@@ -175,13 +175,13 @@ export async function PUT(
   }
 }
 
-// DELETE /api/clubs/[electionId] - Soft delete club
+// DELETE /api/clubs/[id] - Delete club
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     // Check if club exists and is not already deleted
     const existingClub = await prisma.club.findFirst({

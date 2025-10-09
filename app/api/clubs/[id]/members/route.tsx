@@ -4,15 +4,15 @@ import { prisma } from "@/prisma/client";
 // GET /api/clubs/[id]/members - Get all members of a specific club
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const { id: clubId } = params;
+    const { id } = await params;
 
     // Verify club exists and is not deleted
     const club = await prisma.club.findFirst({
       where: {
-        id: clubId,
+        id,
         isDeleted: false,
       },
     });
@@ -24,7 +24,7 @@ export async function GET(
     // Fetch all club members with user details
     const members = await prisma.clubMember.findMany({
       where: {
-        clubId: clubId,
+        clubId: id,
       },
       include: {
         user: {
