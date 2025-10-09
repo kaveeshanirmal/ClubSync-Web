@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { MessageCircle, Upload, Link, Phone, Tags, Check, ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
+import { Check, ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
 import type { ClubFormData } from "./types";
 import ImageUploadStep from "./components/ImageUploadStep";
 import SocialMediaStep from "./components/SocialMediaStep";
@@ -35,18 +35,17 @@ const initialFormData: ClubFormData = {
   },
 };
 
-// Animation variants
 const pageVariants = {
   initial: { opacity: 0, x: 100 },
   animate: { opacity: 1, x: 0 },
   exit: { opacity: 0, x: -100 },
 };
 
-export default function CompleteClubDetails() {
+function CompleteClubDetailsContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const clubId = searchParams.get("clubId");
-  
+
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<ClubFormData>(initialFormData);
   const [loading, setLoading] = useState(true);
@@ -55,7 +54,6 @@ export default function CompleteClubDetails() {
 
   const totalSteps = 5;
 
-  // Fetch existing club data when component mounts
   useEffect(() => {
     if (!clubId) {
       setError("Club ID is required");
@@ -67,19 +65,23 @@ export default function CompleteClubDetails() {
       try {
         setLoading(true);
         const response = await fetch(`/api/clubs/${clubId}/details`);
-        
+
         if (response.status === 403) {
-          setError("Access denied. Only club officers (President, Secretary, Treasurer, Webmaster) can access club details.");
+          setError(
+            "Access denied. Only club officers (President, Secretary, Treasurer, Webmaster) can access club details.",
+          );
           setLoading(false);
           return;
         }
-        
+
         if (response.status === 401) {
-          setError("Authentication required. Please log in to access club details.");
+          setError(
+            "Authentication required. Please log in to access club details.",
+          );
           setLoading(false);
           return;
         }
-        
+
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(errorData.error || "Failed to fetch club data");
@@ -89,7 +91,9 @@ export default function CompleteClubDetails() {
         setFormData(clubData);
       } catch (error) {
         console.error("Error fetching club data:", error);
-        setError(error instanceof Error ? error.message : "Failed to load club data");
+        setError(
+          error instanceof Error ? error.message : "Failed to load club data",
+        );
       } finally {
         setLoading(false);
       }
@@ -100,13 +104,13 @@ export default function CompleteClubDetails() {
 
   const handleNext = () => {
     if (currentStep < totalSteps) {
-      setCurrentStep(current => current + 1);
+      setCurrentStep((current) => current + 1);
     }
   };
 
   const handlePrevious = () => {
     if (currentStep > 1) {
-      setCurrentStep(current => current - 1);
+      setCurrentStep((current) => current - 1);
     }
   };
 
@@ -119,7 +123,7 @@ export default function CompleteClubDetails() {
     try {
       setSubmitting(true);
       setError(null);
-      
+
       const response = await fetch(`/api/clubs/${clubId}/details`, {
         method: "PUT",
         headers: {
@@ -129,12 +133,16 @@ export default function CompleteClubDetails() {
       });
 
       if (response.status === 403) {
-        setError("Access denied. Only club officers (President, Secretary, Treasurer, Webmaster) can update club details.");
+        setError(
+          "Access denied. Only club officers (President, Secretary, Treasurer, Webmaster) can update club details.",
+        );
         return;
       }
-      
+
       if (response.status === 401) {
-        setError("Authentication required. Please log in to update club details.");
+        setError(
+          "Authentication required. Please log in to update club details.",
+        );
         return;
       }
 
@@ -143,11 +151,14 @@ export default function CompleteClubDetails() {
         throw new Error(errorData.error || "Failed to update club details");
       }
 
-      // Success - redirect back to club admin page
       router.push(`/club-admin/clubs/${clubId}?tab=overview`);
     } catch (error) {
       console.error("Error updating club details:", error);
-      setError(error instanceof Error ? error.message : "Failed to update club details");
+      setError(
+        error instanceof Error
+          ? error.message
+          : "Failed to update club details",
+      );
     } finally {
       setSubmitting(false);
     }
@@ -157,38 +168,22 @@ export default function CompleteClubDetails() {
     switch (currentStep) {
       case 1:
         return (
-          <ImageUploadStep
-            formData={formData}
-            setFormData={setFormData}
-          />
+          <ImageUploadStep formData={formData} setFormData={setFormData} />
         );
       case 2:
         return (
-          <SocialMediaStep
-            formData={formData}
-            setFormData={setFormData}
-          />
+          <SocialMediaStep formData={formData} setFormData={setFormData} />
         );
       case 3:
         return (
-          <ContactDetailsStep
-            formData={formData}
-            setFormData={setFormData}
-          />
+          <ContactDetailsStep formData={formData} setFormData={setFormData} />
         );
       case 4:
         return (
-          <ClubDetailsStep
-            formData={formData}
-            setFormData={setFormData}
-          />
+          <ClubDetailsStep formData={formData} setFormData={setFormData} />
         );
       case 5:
-        return (
-          <PreviewStep
-            formData={formData}
-          />
-        );
+        return <PreviewStep formData={formData} />;
       default:
         return null;
     }
@@ -196,23 +191,26 @@ export default function CompleteClubDetails() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-orange-50/30 pt-20">
-      {/* Background decorative elements */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-orange-100/50 via-pink-50/30 to-transparent rounded-full blur-3xl" />
         <div className="absolute bottom-0 left-0 w-80 h-80 bg-gradient-to-tr from-red-100/40 via-orange-50/30 to-transparent rounded-full blur-2xl" />
-        <div className="absolute top-1/2 left-1/3 w-64 h-64 bg-gradient-to-r from-orange-50/20 to-red-50/20 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '8s' }} />
+        <div
+          className="absolute top-1/2 left-1/3 w-64 h-64 bg-gradient-to-r from-orange-50/20 to-red-50/20 rounded-full blur-3xl animate-pulse"
+          style={{ animationDuration: "8s" }}
+        />
       </div>
 
       <div className="max-w-6xl mx-auto px-4 py-8">
-        {/* Page Title */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Complete Club Profile</h1>
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            Complete Club Profile
+          </h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Let's make your club profile more informative and engaging. Fill in the details below.
+            Let&apos;s make your club profile more informative and engaging.
+            Fill in the details below.
           </p>
         </div>
 
-        {/* Loading state */}
         {loading && (
           <div className="flex justify-center items-center min-h-[400px]">
             <div className="flex flex-col items-center space-y-4">
@@ -222,7 +220,6 @@ export default function CompleteClubDetails() {
           </div>
         )}
 
-        {/* Error state */}
         {error && !loading && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-2xl mx-auto">
             <div className="flex items-center space-x-3">
@@ -230,7 +227,9 @@ export default function CompleteClubDetails() {
                 <ArrowLeft className="w-5 h-5 text-red-600" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-red-800">Error Loading Club Details</h3>
+                <h3 className="text-lg font-semibold text-red-800">
+                  Error Loading Club Details
+                </h3>
                 <p className="text-red-600 mt-1">{error}</p>
                 <button
                   onClick={() => router.back()}
@@ -243,10 +242,8 @@ export default function CompleteClubDetails() {
           </div>
         )}
 
-        {/* Form content */}
         {!loading && !error && (
           <>
-            {/* Progress bar */}
             <div className="mb-12 max-w-4xl mx-auto">
               <div className="flex justify-between mb-4">
                 {[1, 2, 3, 4, 5].map((step) => (
@@ -262,9 +259,11 @@ export default function CompleteClubDetails() {
                     >
                       {step}
                     </div>
-                    <span className={`mt-2 text-sm ${
-                      step <= currentStep ? "text-gray-800" : "text-gray-400"
-                    }`}>
+                    <span
+                      className={`mt-2 text-sm ${
+                        step <= currentStep ? "text-gray-800" : "text-gray-400"
+                      }`}
+                    >
                       {step === 1 && "Images"}
                       {step === 2 && "Social"}
                       {step === 3 && "Contact"}
@@ -277,13 +276,14 @@ export default function CompleteClubDetails() {
               <div className="h-2 bg-gray-100 rounded-full mt-4">
                 <div
                   className="h-full bg-gradient-to-r from-orange-500 to-red-500 rounded-full transition-all duration-500 ease-in-out shadow-lg"
-                  style={{ width: `${((currentStep - 1) / (totalSteps - 1)) * 100}%` }}
+                  style={{
+                    width: `${((currentStep - 1) / (totalSteps - 1)) * 100}%`,
+                  }}
                 />
               </div>
             </div>
 
             <div className="bg-white rounded-2xl shadow-2xl p-8 relative overflow-hidden max-w-4xl mx-auto">
-              {/* Decorative corner accents */}
               <div className="absolute top-0 left-0 w-16 h-16 bg-gradient-to-br from-orange-500/10 to-transparent rounded-br-3xl" />
               <div className="absolute bottom-0 right-0 w-16 h-16 bg-gradient-to-tl from-red-500/10 to-transparent rounded-tl-3xl" />
 
@@ -294,14 +294,17 @@ export default function CompleteClubDetails() {
                   initial="initial"
                   animate="animate"
                   exit="exit"
-                  transition={{ type: "tween", duration: 0.5, ease: "easeInOut" }}
+                  transition={{
+                    type: "tween",
+                    duration: 0.5,
+                    ease: "easeInOut",
+                  }}
                   className="relative z-10"
                 >
                   {renderStep()}
                 </motion.div>
               </AnimatePresence>
 
-              {/* Navigation buttons */}
               <div className="flex justify-between mt-12 relative z-10">
                 <button
                   onClick={handlePrevious}
@@ -315,7 +318,7 @@ export default function CompleteClubDetails() {
                   <ArrowLeft className="w-5 h-5 mr-3" />
                   Previous Step
                 </button>
-                
+
                 {currentStep === totalSteps ? (
                   <button
                     onClick={handleSubmit}
@@ -358,5 +361,22 @@ export default function CompleteClubDetails() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function CompleteClubDetails() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-orange-50/30 pt-20 flex items-center justify-center">
+          <div className="flex flex-col items-center space-y-4">
+            <Loader2 className="w-8 h-8 animate-spin text-orange-600" />
+            <p className="text-gray-600">Loading...</p>
+          </div>
+        </div>
+      }
+    >
+      <CompleteClubDetailsContent />
+    </Suspense>
   );
 }
