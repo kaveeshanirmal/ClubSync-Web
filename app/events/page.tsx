@@ -36,7 +36,7 @@ interface Event {
   organizer: {
     id: string;
     name: string;
-    type: 'club' | 'organization';
+    type: "club" | "organization";
   };
   createdAt: string;
   updatedAt: string;
@@ -47,7 +47,8 @@ const mockEvents: Event[] = [
   {
     id: "1",
     title: "Annual Tech Conference 2025",
-    description: "Join us for the biggest tech conference of the year featuring industry leaders and innovative technologies.",
+    description:
+      "Join us for the biggest tech conference of the year featuring industry leaders and innovative technologies.",
     date: "2025-08-15",
     time: "09:00",
     location: "Main Auditorium",
@@ -61,15 +62,16 @@ const mockEvents: Event[] = [
     organizer: {
       id: "tech-club",
       name: "Tech Innovation Club",
-      type: "club"
+      type: "club",
     },
     createdAt: "2025-07-01T00:00:00Z",
-    updatedAt: "2025-07-15T00:00:00Z"
+    updatedAt: "2025-07-15T00:00:00Z",
   },
   {
     id: "2",
     title: "Community Service Day",
-    description: "Make a difference in our community! Join us for a day of volunteering and giving back.",
+    description:
+      "Make a difference in our community! Join us for a day of volunteering and giving back.",
     date: "2025-07-25",
     time: "08:00",
     location: "Community Center",
@@ -82,15 +84,16 @@ const mockEvents: Event[] = [
     organizer: {
       id: "volunteer-club",
       name: "Volunteer Society",
-      type: "club"
+      type: "club",
     },
     createdAt: "2025-07-05T00:00:00Z",
-    updatedAt: "2025-07-18T00:00:00Z"
+    updatedAt: "2025-07-18T00:00:00Z",
   },
   {
     id: "3",
     title: "Photography Workshop",
-    description: "Learn the art of photography from professional photographers. Bring your camera and creativity!",
+    description:
+      "Learn the art of photography from professional photographers. Bring your camera and creativity!",
     date: "2025-08-02",
     time: "14:00",
     location: "Art Studio",
@@ -104,15 +107,16 @@ const mockEvents: Event[] = [
     organizer: {
       id: "photo-club",
       name: "Photography Club",
-      type: "club"
+      type: "club",
     },
     createdAt: "2025-06-20T00:00:00Z",
-    updatedAt: "2025-07-10T00:00:00Z"
+    updatedAt: "2025-07-10T00:00:00Z",
   },
   {
     id: "4",
     title: "Cultural Night 2025",
-    description: "Celebrate diversity with performances, food, and cultural exchanges from around the world.",
+    description:
+      "Celebrate diversity with performances, food, and cultural exchanges from around the world.",
     date: "2025-09-10",
     time: "18:00",
     location: "Student Union",
@@ -125,15 +129,16 @@ const mockEvents: Event[] = [
     organizer: {
       id: "cultural-club",
       name: "International Cultural Society",
-      type: "club"
+      type: "club",
     },
     createdAt: "2025-06-15T00:00:00Z",
-    updatedAt: "2025-07-12T00:00:00Z"
+    updatedAt: "2025-07-12T00:00:00Z",
   },
   {
     id: "5",
     title: "Business Networking Mixer",
-    description: "Connect with professionals, entrepreneurs, and fellow students in a relaxed networking environment.",
+    description:
+      "Connect with professionals, entrepreneurs, and fellow students in a relaxed networking environment.",
     date: "2025-08-20",
     time: "17:30",
     location: "Business Center",
@@ -147,15 +152,16 @@ const mockEvents: Event[] = [
     organizer: {
       id: "business-club",
       name: "Business Students Association",
-      type: "club"
+      type: "club",
     },
     createdAt: "2025-07-02T00:00:00Z",
-    updatedAt: "2025-07-16T00:00:00Z"
+    updatedAt: "2025-07-16T00:00:00Z",
   },
   {
     id: "6",
     title: "Sports Tournament - Basketball",
-    description: "Annual basketball tournament open to all skill levels. Form your team and compete for the championship!",
+    description:
+      "Annual basketball tournament open to all skill levels. Form your team and compete for the championship!",
     date: "2025-07-30",
     time: "10:00",
     location: "Sports Complex",
@@ -168,11 +174,11 @@ const mockEvents: Event[] = [
     organizer: {
       id: "sports-club",
       name: "Athletic Association",
-      type: "club"
+      type: "club",
     },
     createdAt: "2025-06-10T00:00:00Z",
-    updatedAt: "2025-07-20T00:00:00Z"
-  }
+    updatedAt: "2025-07-20T00:00:00Z",
+  },
 ];
 
 export default function EventsPage() {
@@ -191,8 +197,8 @@ export default function EventsPage() {
       try {
         setLoading(true);
         // Simulate loading delay
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+
         setEvents(mockEvents);
         setFilteredEvents(mockEvents);
       } catch (err) {
@@ -215,7 +221,7 @@ export default function EventsPage() {
           event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
           event.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
           event.location?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          event.organizer.name.toLowerCase().includes(searchTerm.toLowerCase())
+          event.organizer.name.toLowerCase().includes(searchTerm.toLowerCase()),
       );
     }
 
@@ -236,15 +242,17 @@ export default function EventsPage() {
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   // Get unique categories for filter
-  const categories = Array.from(new Set(events.map(event => event.category).filter(Boolean)));
+  const categories = Array.from(
+    new Set(events.map((event) => event.category).filter(Boolean)),
+  );
 
   if (loading) {
     return (
-      <BeautifulLoader 
+      <BeautifulLoader
         message="Discovering Amazing Events"
         subMessage="Loading experiences that inspire..."
         type="morphing"
@@ -283,7 +291,7 @@ export default function EventsPage() {
       {/* Hero Section with Enhanced Design */}
       <div className="relative overflow-hidden bg-gradient-to-r from-orange-500 to-red-500 text-white min-h-screen flex items-center">
         <div className="absolute inset-0 bg-black/10"></div>
-        
+
         {/* Animated Background Shapes */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-white/10 rounded-full animate-pulse"></div>
@@ -305,9 +313,9 @@ export default function EventsPage() {
                 </span>
               </h1>
             </div>
-            
+
             <p className="text-2xl md:text-3xl text-white/90 mb-12 leading-relaxed max-w-3xl mx-auto">
-              Join incredible experiences, meet like-minded people, and 
+              Join incredible experiences, meet like-minded people, and
               <span className="font-semibold"> create lasting memories</span>
             </p>
 
@@ -322,7 +330,9 @@ export default function EventsPage() {
               </div>
               <div className="flex items-center bg-white/20 backdrop-blur-sm rounded-full px-8 py-4">
                 <Sparkles className="h-8 w-8 mr-3 text-orange-200" />
-                <span className="font-semibold text-lg">Multiple Categories</span>
+                <span className="font-semibold text-lg">
+                  Multiple Categories
+                </span>
               </div>
             </div>
           </div>
@@ -330,7 +340,9 @@ export default function EventsPage() {
           {/* Scroll Indicator */}
           <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
             <div className="flex flex-col items-center text-white/80">
-              <span className="text-sm mb-2 font-medium">Scroll to explore</span>
+              <span className="text-sm mb-2 font-medium">
+                Scroll to explore
+              </span>
               <div className="w-6 h-10 border-2 border-white/50 rounded-full flex justify-center">
                 <div className="w-1 h-3 bg-white/70 rounded-full mt-2 animate-pulse"></div>
               </div>
@@ -383,9 +395,11 @@ export default function EventsPage() {
               <div className="flex items-center space-x-3">
                 <div className="flex items-center bg-gradient-to-r from-orange-100 to-red-100 rounded-full px-4 py-2">
                   <Zap className="h-5 w-5 mr-2 text-orange-600" />
-                  <span className="font-bold text-orange-700 text-lg">{filteredEvents.length}</span>
+                  <span className="font-bold text-orange-700 text-lg">
+                    {filteredEvents.length}
+                  </span>
                   <span className="ml-1 text-orange-600 font-medium">
-                    event{filteredEvents.length !== 1 ? 's' : ''} found
+                    event{filteredEvents.length !== 1 ? "s" : ""} found
                   </span>
                 </div>
                 {(searchTerm || filterCategory) && (
@@ -400,10 +414,12 @@ export default function EventsPage() {
                   </button>
                 )}
               </div>
-              
+
               {filteredEvents.length > 0 && (
                 <div className="flex items-center text-gray-400">
-                  <span className="text-sm mr-2">Click any event to view details</span>
+                  <span className="text-sm mr-2">
+                    Click any event to view details
+                  </span>
                   <ArrowRight className="h-4 w-4" />
                 </div>
               )}
@@ -440,7 +456,7 @@ export default function EventsPage() {
                   className="group block"
                   style={{ animationDelay: `${index * 50}ms` }}
                 >
-                    <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2 border border-white/50 hover:border-orange-300 h-full group-hover:bg-white">
+                  <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2 border border-white/50 hover:border-orange-300 h-full group-hover:bg-white">
                     {/* Compact Cover Image */}
                     <div className="relative h-36 overflow-hidden">
                       {event.coverImage ? (
@@ -455,7 +471,7 @@ export default function EventsPage() {
                           <Calendar className="h-14 w-14 text-white/60" />
                         </div>
                       )}
-                      
+
                       <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
 
                       {/* Price Badges */}
@@ -487,17 +503,19 @@ export default function EventsPage() {
                           {event.title}
                         </h3>
                         <ChevronRight className="h-5 w-5 text-orange-500 group-hover:translate-x-1 transition-transform duration-300 flex-shrink-0" />
-                      </div>                      {event.description && (
+                      </div>{" "}
+                      {event.description && (
                         <p className="text-sm text-gray-600 mb-4 line-clamp-2 leading-relaxed">
                           {event.description}
                         </p>
                       )}
-
                       {/* Event Details */}
                       <div className="space-y-2 mb-4">
                         <div className="flex items-center text-sm text-gray-600">
                           <Calendar className="h-4 w-4 mr-2 text-orange-500" />
-                          <span>{new Date(event.date).toLocaleDateString()}</span>
+                          <span>
+                            {new Date(event.date).toLocaleDateString()}
+                          </span>
                         </div>
                         <div className="flex items-center text-sm text-gray-600">
                           <Clock className="h-4 w-4 mr-2 text-orange-500" />
@@ -510,7 +528,6 @@ export default function EventsPage() {
                           </div>
                         )}
                       </div>
-
                       {/* Category Badge */}
                       {event.category && (
                         <div className="mb-4">
@@ -519,7 +536,6 @@ export default function EventsPage() {
                           </span>
                         </div>
                       )}
-
                       {/* Compact Footer */}
                       <div className="flex items-center justify-between pt-3 border-t border-gray-100">
                         <div className="flex items-center text-sm text-gray-600 font-medium">
@@ -569,8 +585,8 @@ export default function EventsPage() {
                         onClick={() => handlePageChange(pageNumber)}
                         className={`px-3 py-2 text-sm font-medium rounded-lg ${
                           currentPage === pageNumber
-                            ? 'bg-gradient-to-r from-orange-400 to-red-400 text-white'
-                            : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50 hover:text-gray-700'
+                            ? "bg-gradient-to-r from-orange-400 to-red-400 text-white"
+                            : "text-gray-500 bg-white border border-gray-300 hover:bg-gray-50 hover:text-gray-700"
                         }`}
                       >
                         {pageNumber}
@@ -591,12 +607,14 @@ export default function EventsPage() {
 
             {/* Results Info */}
             <div className="text-center mt-6 text-sm text-gray-500">
-              Showing {startIndex + 1}-{Math.min(endIndex, filteredEvents.length)} of {filteredEvents.length} events
+              Showing {startIndex + 1}-
+              {Math.min(endIndex, filteredEvents.length)} of{" "}
+              {filteredEvents.length} events
             </div>
           </>
         )}
-
       </div>
     </div>
   );
 }
+export { mockEvents };

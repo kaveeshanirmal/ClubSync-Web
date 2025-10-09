@@ -24,7 +24,8 @@ import EventsTab from "./components/EventsTab";
 import UsersTab from "./components/UsersTab";
 import AnalyticsTab from "./components/AnalyticsTab";
 
-const AdminDashboard = () => {
+// Create a separate client component that uses useSearchParams
+const AdminDashboardContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [selectedTab, setSelectedTab] = useState("overview");
@@ -95,41 +96,6 @@ const AdminDashboard = () => {
     { name: "Other", value: 10, color: "#fbbf24" },
   ];
 
-  const recentClubs = [
-    {
-      id: 1,
-      name: "Tech Innovators Club",
-      members: 45,
-      status: "Active" as const,
-      joined: "2 days ago",
-      category: "Technology",
-    },
-    {
-      id: 2,
-      name: "Green Earth Society",
-      members: 28,
-      status: "Pending" as const,
-      joined: "1 week ago",
-      category: "Environment",
-    },
-    {
-      id: 3,
-      name: "Creative Arts Hub",
-      members: 67,
-      status: "Active" as const,
-      joined: "3 days ago",
-      category: "Arts",
-    },
-    {
-      id: 4,
-      name: "Future Leaders",
-      members: 34,
-      status: "Active" as const,
-      joined: "5 days ago",
-      category: "Leadership",
-    },
-  ];
-
   // Render current tab content
   const renderTabContent = () => {
     switch (selectedTab) {
@@ -187,137 +153,147 @@ const AdminDashboard = () => {
   );
 
   return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <div className="flex h-screen bg-gray-50 overflow-hidden">
-        {/* Sidebar */}
-        <aside className="w-64 bg-white border-r border-gray-200 flex flex-col h-full">
-          {/* Sidebar Header */}
-          <div className="px-6 py-5 border-b border-gray-200">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center">
-                <Sparkles className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
-                  ClubSync
-                </h1>
-                <p className="text-xs text-gray-500 font-medium">
-                  Admin Portal
-                </p>
-              </div>
+    <div className="flex h-screen bg-gray-50 overflow-hidden">
+      {/* Sidebar */}
+      <aside className="w-64 bg-white border-r border-gray-200 flex flex-col h-full">
+        {/* Sidebar Header */}
+        <div className="px-6 py-5 border-b border-gray-200">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center">
+              <Sparkles className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h1 className="text-xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
+                ClubSync
+              </h1>
+              <p className="text-xs text-gray-500 font-medium">Admin Portal</p>
             </div>
           </div>
-
-          {/* Navigation */}
-          <nav className="flex-1 px-4 py-6 space-y-2">
-            <SidebarButton
-              id="overview"
-              label="Overview"
-              icon={<BarChart3 className="w-5 h-5" />}
-              active={selectedTab === "overview"}
-              onClick={handleTabChange}
-            />
-            <SidebarButton
-              id="clubs"
-              label="Clubs"
-              icon={<Users className="w-5 h-5" />}
-              active={selectedTab === "clubs"}
-              onClick={handleTabChange}
-            />
-            <SidebarButton
-              id="events"
-              label="Events"
-              icon={<Calendar className="w-5 h-5" />}
-              active={selectedTab === "events"}
-              onClick={handleTabChange}
-            />
-            <SidebarButton
-              id="users"
-              label="Users"
-              icon={<UserCheck className="w-5 h-5" />}
-              active={selectedTab === "users"}
-              onClick={handleTabChange}
-            />
-            <SidebarButton
-              id="analytics"
-              label="Analytics"
-              icon={<PieChart className="w-5 h-5" />}
-              active={selectedTab === "analytics"}
-              onClick={handleTabChange}
-            />
-          </nav>
-
-          {/* Sidebar Footer */}
-          <div className="p-4 border-t border-gray-200">
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
-              <div className="flex-1">
-                <p className="text-sm font-medium text-gray-900">Admin User</p>
-                <p className="text-xs text-gray-500">admin@clubsync.com</p>
-              </div>
-              <Settings className="w-5 h-5 text-gray-400" />
-            </div>
-          </div>
-        </aside>
-
-        {/* Main Content */}
-        <div className="flex-1 flex flex-col h-full overflow-hidden">
-          {/* Top Bar */}
-          <header className="bg-white border-b border-gray-200 px-6 py-4">
-            <div className="flex items-center justify-between">
-              {/* Search Bar */}
-              <div className="flex-1 max-w-2xl">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                  <input
-                    type="text"
-                    placeholder="Search clubs, events, users..."
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 bg-gray-50 hover:bg-white"
-                  />
-                </div>
-              </div>
-
-              {/* Live Stats Pills */}
-              <div className="flex items-center space-x-4 ml-6">
-                <div className="flex items-center space-x-2 bg-green-50 px-3 py-2 rounded-lg border border-green-200">
-                  <Activity className="w-4 h-4 text-green-600" />
-                  <span className="text-sm font-medium text-green-700">
-                    524 Active
-                  </span>
-                </div>
-                <div className="flex items-center space-x-2 bg-blue-50 px-3 py-2 rounded-lg border border-blue-200">
-                  <Globe className="w-4 h-4 text-blue-600" />
-                  <span className="text-sm font-medium text-blue-700">
-                    Online
-                  </span>
-                </div>
-              </div>
-
-              {/* User Controls */}
-              <div className="flex items-center space-x-4 ml-4">
-                <button className="relative p-2 text-gray-400 hover:text-gray-600 transition-colors duration-200">
-                  <Bell className="w-5 h-5" />
-                  {notifications > 0 && (
-                    <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full text-xs text-white flex items-center justify-center">
-                      {notifications}
-                    </span>
-                  )}
-                </button>
-                <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded-full"></div>
-              </div>
-            </div>
-          </header>
-
-          {/* Main Content Area */}
-          <main className="flex-1 overflow-auto">
-            <div className="p-6">
-              <Suspense fallback={<div>Loading dashboard...</div>}>
-                {renderTabContent()}
-              </Suspense>
-            </div>
-          </main>
         </div>
+
+        {/* Navigation */}
+        <nav className="flex-1 px-4 py-6 space-y-2">
+          <SidebarButton
+            id="overview"
+            label="Overview"
+            icon={<BarChart3 className="w-5 h-5" />}
+            active={selectedTab === "overview"}
+            onClick={handleTabChange}
+          />
+          <SidebarButton
+            id="clubs"
+            label="Clubs"
+            icon={<Users className="w-5 h-5" />}
+            active={selectedTab === "clubs"}
+            onClick={handleTabChange}
+          />
+          <SidebarButton
+            id="events"
+            label="Events"
+            icon={<Calendar className="w-5 h-5" />}
+            active={selectedTab === "events"}
+            onClick={handleTabChange}
+          />
+          <SidebarButton
+            id="users"
+            label="Users"
+            icon={<UserCheck className="w-5 h-5" />}
+            active={selectedTab === "users"}
+            onClick={handleTabChange}
+          />
+          <SidebarButton
+            id="analytics"
+            label="Analytics"
+            icon={<PieChart className="w-5 h-5" />}
+            active={selectedTab === "analytics"}
+            onClick={handleTabChange}
+          />
+        </nav>
+
+        {/* Sidebar Footer */}
+        <div className="p-4 border-t border-gray-200">
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
+            <div className="flex-1">
+              <p className="text-sm font-medium text-gray-900">Admin User</p>
+              <p className="text-xs text-gray-500">admin@clubsync.com</p>
+            </div>
+            <Settings className="w-5 h-5 text-gray-400" />
+          </div>
+        </div>
+      </aside>
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col h-full overflow-hidden">
+        {/* Top Bar */}
+        <header className="bg-white border-b border-gray-200 px-6 py-4">
+          <div className="flex items-center justify-between">
+            {/* Search Bar */}
+            <div className="flex-1 max-w-2xl">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search clubs, events, users..."
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 bg-gray-50 hover:bg-white"
+                />
+              </div>
+            </div>
+
+            {/* Live Stats Pills */}
+            <div className="flex items-center space-x-4 ml-6">
+              <div className="flex items-center space-x-2 bg-green-50 px-3 py-2 rounded-lg border border-green-200">
+                <Activity className="w-4 h-4 text-green-600" />
+                <span className="text-sm font-medium text-green-700">
+                  524 Active
+                </span>
+              </div>
+              <div className="flex items-center space-x-2 bg-blue-50 px-3 py-2 rounded-lg border border-blue-200">
+                <Globe className="w-4 h-4 text-blue-600" />
+                <span className="text-sm font-medium text-blue-700">
+                  Online
+                </span>
+              </div>
+            </div>
+
+            {/* User Controls */}
+            <div className="flex items-center space-x-4 ml-4">
+              <button className="relative p-2 text-gray-400 hover:text-gray-600 transition-colors duration-200">
+                <Bell className="w-5 h-5" />
+                {notifications > 0 && (
+                  <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full text-xs text-white flex items-center justify-center">
+                    {notifications}
+                  </span>
+                )}
+              </button>
+              <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded-full"></div>
+            </div>
+          </div>
+        </header>
+
+        {/* Main Content Area */}
+        <main className="flex-1 overflow-auto">
+          <div className="p-6">{renderTabContent()}</div>
+        </main>
       </div>
+    </div>
+  );
+};
+
+// Main component with Suspense boundary
+const AdminDashboard = () => {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex h-screen items-center justify-center bg-gray-50">
+          <div className="text-center">
+            <div className="w-16 h-16 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-gray-600 font-medium">Loading dashboard...</p>
+          </div>
+        </div>
+      }
+    >
+      <AdminDashboardContent />
     </Suspense>
   );
 };
