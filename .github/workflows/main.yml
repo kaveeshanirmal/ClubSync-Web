@@ -33,16 +33,9 @@ jobs:
       - name: Confirm saved image exists
         run: ls -lah nextjs-app.tar.gz
 
-      - name: Copy Docker image & env to EC2
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          source: |
-            nextjs-app.tar.gz
-            .env.production
-          target: /home/${{ secrets.EC2_USER }}/
+      - name: Copy Docker image & env to EC2 (manual)
+        run: |
+          scp -i ${{ secrets.EC2_SSH_KEY }} -o StrictHostKeyChecking=no nextjs-app.tar.gz .env.production ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USER }}/
 
       - name: Deploy on EC2
         uses: appleboy/ssh-action@v1.0.3
