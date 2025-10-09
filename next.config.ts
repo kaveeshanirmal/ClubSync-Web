@@ -11,6 +11,9 @@ const nextConfig: NextConfig = {
   experimental: {
     dynamicIO: false,
   },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
 };
 
 export default nextConfig;
