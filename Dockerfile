@@ -13,6 +13,9 @@ RUN npm install
 # Copy source code
 COPY . .
 
+# Generate Prisma client
+RUN npx prisma generate
+
 # Build Next.js for production
 RUN npm run build -- --no-lint
 
