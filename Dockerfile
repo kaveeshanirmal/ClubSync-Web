@@ -16,6 +16,9 @@ COPY . .
 # Generate Prisma client
 RUN npx prisma generate
 
+# Set environment variable to skip build optimization
+ENV NEXT_SKIP_BUILD_OPTIMIZATION=1
+
 # Build Next.js for production
 RUN npm run build -- --no-lint
 
