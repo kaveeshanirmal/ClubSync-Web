@@ -135,6 +135,7 @@ const AdminDashboard = () => {
     switch (selectedTab) {
       case "overview":
         return (
+          <Suspense fallback={<div>Loading...</div>}>
           <OverviewTab
             dashboardStats={dashboardStats}
             chartData={chartData}
@@ -315,6 +316,7 @@ const AdminDashboard = () => {
         </main>
       </div>
     </div>
+  </Suspense>
   );
 };
 
