@@ -1,38 +1,38 @@
 "use client";
-import React, { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { 
-  Users, 
-  Calendar, 
-  Award, 
-  TrendingUp, 
-  Bell, 
-  Settings, 
+import React, { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import {
+  Users,
+  Calendar,
+  Award,
+  TrendingUp,
+  Bell,
+  Settings,
   Search,
   Activity,
   UserCheck,
   BarChart3,
   PieChart,
   Globe,
-  Sparkles
-} from 'lucide-react';
+  Sparkles,
+} from "lucide-react";
 
 // Import tab components
-import OverviewTab from './components/OverviewTab';
-import ClubsTab from './components/ClubsTab';
-import EventsTab from './components/EventsTab';
-import UsersTab from './components/UsersTab';
-import AnalyticsTab from './components/AnalyticsTab';
+import OverviewTab from "./components/OverviewTab";
+import ClubsTab from "./components/ClubsTab";
+import EventsTab from "./components/EventsTab";
+import UsersTab from "./components/UsersTab";
+import AnalyticsTab from "./components/AnalyticsTab";
 
 const AdminDashboard = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [selectedTab, setSelectedTab] = useState('overview');
+  const [selectedTab, setSelectedTab] = useState("overview");
   const [notifications] = useState(1);
 
   // Get tab from URL on mount and when URL changes
   useEffect(() => {
-    const tab = searchParams.get('tab') || 'overview';
+    const tab = searchParams.get("tab") || "overview";
     setSelectedTab(tab);
   }, [searchParams]);
 
@@ -48,79 +48,125 @@ const AdminDashboard = () => {
       title: "Total Clubs",
       value: "524",
       change: "+12%",
-      trend: 'up' as const,
+      trend: "up" as const,
       icon: <Users className="w-6 h-6" />,
-      color: "from-orange-500 to-red-500"
+      color: "from-orange-500 to-red-500",
     },
     {
       title: "Active Events",
       value: "89",
       change: "+8%",
-      trend: 'up' as const,
+      trend: "up" as const,
       icon: <Calendar className="w-6 h-6" />,
-      color: "from-red-500 to-orange-500"
+      color: "from-red-500 to-orange-500",
     },
     {
       title: "Certificates Issued",
       value: "1,247",
       change: "+23%",
-      trend: 'up' as const,
+      trend: "up" as const,
       icon: <Award className="w-6 h-6" />,
-      color: "from-orange-600 to-red-600"
+      color: "from-orange-600 to-red-600",
     },
     {
       title: "Growth Rate",
       value: "15.8%",
       change: "+2.1%",
-      trend: 'up' as const,
+      trend: "up" as const,
       icon: <TrendingUp className="w-6 h-6" />,
-      color: "from-red-600 to-orange-500"
-    }
+      color: "from-red-600 to-orange-500",
+    },
   ];
 
   const chartData = [
-    { name: 'Jan', clubs: 400, events: 240, certificates: 800 },
-    { name: 'Feb', clubs: 420, events: 280, certificates: 900 },
-    { name: 'Mar', clubs: 450, events: 320, certificates: 1100 },
-    { name: 'Apr', clubs: 480, events: 380, certificates: 1200 },
-    { name: 'May', clubs: 500, events: 420, certificates: 1300 },
-    { name: 'Jun', clubs: 524, events: 450, certificates: 1400 }
+    { name: "Jan", clubs: 400, events: 240, certificates: 800 },
+    { name: "Feb", clubs: 420, events: 280, certificates: 900 },
+    { name: "Mar", clubs: 450, events: 320, certificates: 1100 },
+    { name: "Apr", clubs: 480, events: 380, certificates: 1200 },
+    { name: "May", clubs: 500, events: 420, certificates: 1300 },
+    { name: "Jun", clubs: 524, events: 450, certificates: 1400 },
   ];
 
   const pieData = [
-    { name: 'Education', value: 35, color: '#f97316' },
-    { name: 'Technology', value: 28, color: '#ef4444' },
-    { name: 'Arts', value: 15, color: '#fb923c' },
-    { name: 'Sports', value: 12, color: '#f87171' },
-    { name: 'Other', value: 10, color: '#fbbf24' }
+    { name: "Education", value: 35, color: "#f97316" },
+    { name: "Technology", value: 28, color: "#ef4444" },
+    { name: "Arts", value: 15, color: "#fb923c" },
+    { name: "Sports", value: 12, color: "#f87171" },
+    { name: "Other", value: 10, color: "#fbbf24" },
   ];
 
   const recentClubs = [
-    { id: 1, name: "Tech Innovators Club", members: 45, status: "Active" as const, joined: "2 days ago", category: "Technology" },
-    { id: 2, name: "Green Earth Society", members: 28, status: "Pending" as const, joined: "1 week ago", category: "Environment" },
-    { id: 3, name: "Creative Arts Hub", members: 67, status: "Active" as const, joined: "3 days ago", category: "Arts" },
-    { id: 4, name: "Future Leaders", members: 34, status: "Active" as const, joined: "5 days ago", category: "Leadership" }
+    {
+      id: 1,
+      name: "Tech Innovators Club",
+      members: 45,
+      status: "Active" as const,
+      joined: "2 days ago",
+      category: "Technology",
+    },
+    {
+      id: 2,
+      name: "Green Earth Society",
+      members: 28,
+      status: "Pending" as const,
+      joined: "1 week ago",
+      category: "Environment",
+    },
+    {
+      id: 3,
+      name: "Creative Arts Hub",
+      members: 67,
+      status: "Active" as const,
+      joined: "3 days ago",
+      category: "Arts",
+    },
+    {
+      id: 4,
+      name: "Future Leaders",
+      members: 34,
+      status: "Active" as const,
+      joined: "5 days ago",
+      category: "Leadership",
+    },
   ];
 
   // Render current tab content
   const renderTabContent = () => {
     switch (selectedTab) {
-      case 'overview':
-        return <OverviewTab dashboardStats={dashboardStats} chartData={chartData} pieData={pieData} />;
-      case 'clubs':
+      case "overview":
+        return (
+          <OverviewTab
+            dashboardStats={dashboardStats}
+            chartData={chartData}
+            pieData={pieData}
+          />
+        );
+      case "clubs":
         return <ClubsTab />;
-      case 'events':
+      case "events":
         return <EventsTab />;
-      case 'users':
+      case "users":
         return <UsersTab />;
-      case 'analytics':
+      case "analytics":
         return <AnalyticsTab />;
       default:
-        return <OverviewTab dashboardStats={dashboardStats} chartData={chartData} pieData={pieData} />;
+        return (
+          <OverviewTab
+            dashboardStats={dashboardStats}
+            chartData={chartData}
+            pieData={pieData}
+          />
+        );
     }
   };
 
-  const SidebarButton = ({ id, label, icon, active, onClick }: {
+  const SidebarButton = ({
+    id,
+    label,
+    icon,
+    active,
+    onClick,
+  }: {
     id: string;
     label: string;
     icon: React.ReactNode;
@@ -130,9 +176,9 @@ const AdminDashboard = () => {
     <button
       onClick={() => onClick(id)}
       className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg font-medium transition-all duration-300 ${
-        active 
-          ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg' 
-          : 'text-gray-600 hover:text-orange-500 hover:bg-orange-50'
+        active
+          ? "bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg"
+          : "text-gray-600 hover:text-orange-500 hover:bg-orange-50"
       }`}
     >
       {icon}
@@ -165,35 +211,35 @@ const AdminDashboard = () => {
             id="overview"
             label="Overview"
             icon={<BarChart3 className="w-5 h-5" />}
-            active={selectedTab === 'overview'}
+            active={selectedTab === "overview"}
             onClick={handleTabChange}
           />
           <SidebarButton
             id="clubs"
             label="Clubs"
             icon={<Users className="w-5 h-5" />}
-            active={selectedTab === 'clubs'}
+            active={selectedTab === "clubs"}
             onClick={handleTabChange}
           />
           <SidebarButton
             id="events"
             label="Events"
             icon={<Calendar className="w-5 h-5" />}
-            active={selectedTab === 'events'}
+            active={selectedTab === "events"}
             onClick={handleTabChange}
           />
           <SidebarButton
             id="users"
             label="Users"
             icon={<UserCheck className="w-5 h-5" />}
-            active={selectedTab === 'users'}
+            active={selectedTab === "users"}
             onClick={handleTabChange}
           />
           <SidebarButton
             id="analytics"
             label="Analytics"
             icon={<PieChart className="w-5 h-5" />}
-            active={selectedTab === 'analytics'}
+            active={selectedTab === "analytics"}
             onClick={handleTabChange}
           />
         </nav>
@@ -232,11 +278,15 @@ const AdminDashboard = () => {
             <div className="flex items-center space-x-4 ml-6">
               <div className="flex items-center space-x-2 bg-green-50 px-3 py-2 rounded-lg border border-green-200">
                 <Activity className="w-4 h-4 text-green-600" />
-                <span className="text-sm font-medium text-green-700">524 Active</span>
+                <span className="text-sm font-medium text-green-700">
+                  524 Active
+                </span>
               </div>
               <div className="flex items-center space-x-2 bg-blue-50 px-3 py-2 rounded-lg border border-blue-200">
                 <Globe className="w-4 h-4 text-blue-600" />
-                <span className="text-sm font-medium text-blue-700">Online</span>
+                <span className="text-sm font-medium text-blue-700">
+                  Online
+                </span>
               </div>
             </div>
 
@@ -258,7 +308,9 @@ const AdminDashboard = () => {
         {/* Main Content Area */}
         <main className="flex-1 overflow-auto">
           <div className="p-6">
-            {renderTabContent()}
+            <Suspense fallback={<div>Loading dashboard...</div>}>
+              {renderTabContent()}
+            </Suspense>
           </div>
         </main>
       </div>
