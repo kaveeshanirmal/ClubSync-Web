@@ -1,5 +1,2 @@
-echo '🔍 Checking build before push...'
-npx next build || {
-  echo '❌ Build failed! Push aborted.'
-  exit 1
-}
+#!/bin/sh
+node .husky/pre-push.js
