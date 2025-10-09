@@ -23,9 +23,15 @@ jobs:
           echo "NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}" >> .env.production
           echo "NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}" >> .env.production
           echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env.production
-
+      
+      - name: List build files
+        run: ls -lah
+        
       - name: Save Docker image
         run: docker save nextjs-app | gzip > nextjs-app.tar.gz
+
+      - name: Confirm saved image exists
+        run: ls -lah nextjs-app.tar.gz
 
       - name: Copy Docker image & env to EC2
         uses: appleboy/scp-action@v0.1.7
