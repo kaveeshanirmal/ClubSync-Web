@@ -6,6 +6,9 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
+# Disable Husky during Docker build
+ENV HUSKY=0
+
 # Install all dependencies (including devDependencies for build)
 RUN npm ci --only=production && \
     cp -R node_modules /prod_node_modules && \
