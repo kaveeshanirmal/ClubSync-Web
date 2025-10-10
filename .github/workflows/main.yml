@@ -48,7 +48,10 @@ jobs:
       
       - name: Output image URI
         id: image
-        run: echo "image-uri=${{ env.ECR_REGISTRY }}/${{ env.AWS_ACCOUNT_NAMESPACE }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}" >> $GITHUB_OUTPUT
+        run: |
+          IMAGE_URI="${{ env.ECR_REGISTRY }}/${{ env.AWS_ACCOUNT_NAMESPACE }}/${{ env.ECR_REPOSITORY }}:latest"
+          echo "image-uri=${IMAGE_URI}" >> $GITHUB_OUTPUT
+          echo "Image URI: ${IMAGE_URI}"
 
   deploy:
     runs-on: ubuntu-latest
@@ -98,15 +101,18 @@ jobs:
             docker rm clubsync-app || true
             
             echo "📥 Pulling latest image..."
-            docker pull ${{ needs.build-and-push.outputs.image-uri }}
+            IMAGE_URI="${{ needs.build-and-push.outputs.image-uri }}"
+            echo "Using image: ${IMAGE_URI}"
+            docker pull "${IMAGE_URI}"
             
             echo "🚀 Starting new container..."
+            IMAGE_URI="${{ needs.build-and-push.outputs.image-uri }}"
             docker run -d \
               --name clubsync-app \
               --restart unless-stopped \
               --env-file /home/${{ secrets.EC2_USER }}/.env.production \
               -p 3000:3000 \
-              ${{ needs.build-and-push.outputs.image-uri }}
+              "${IMAGE_URI}"
             
             echo "⏳ Waiting for container to be healthy..."
             sleep 5
