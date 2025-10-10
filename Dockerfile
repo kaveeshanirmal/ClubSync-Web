@@ -34,6 +34,9 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/prisma ./prisma
 
+# Generate Prisma client in runtime (required for @prisma/client imports)
+RUN npx prisma generate
+
 # Expose port
 EXPOSE 3000
 
