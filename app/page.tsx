@@ -486,8 +486,6 @@ export default function ClubSyncLanding() {
         </button>
       )}
 
-      
-
       <style jsx>{`
         @keyframes fade-in-up {
           from {
