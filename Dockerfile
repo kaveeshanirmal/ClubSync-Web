@@ -10,9 +10,9 @@ COPY package*.json ./
 ENV HUSKY=0
 
 # Install all dependencies (including devDependencies for build)
-RUN npm ci --only=production && \
+RUN npm ci --ignore-scripts --only=production && \
     cp -R node_modules /prod_node_modules && \
-    npm ci
+    npm ci --ignore-scripts
 
 # Copy source code and Prisma schema
 COPY . .
