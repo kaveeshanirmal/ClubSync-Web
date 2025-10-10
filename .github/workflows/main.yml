@@ -84,6 +84,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
+          envs: ECR_REGISTRY,AWS_ACCOUNT_NAMESPACE,ECR_REPOSITORY,AWS_REGION
           script: |
             set -e
             
@@ -101,9 +102,9 @@ jobs:
             docker rm clubsync-app || true
             
             echo "📥 Pulling latest image..."
-            IMAGE_URI="$ECR_REGISTRY/$AWS_ACCOUNT_NAMESPACE/$ECR_REPOSITORY:latest"
-            echo "Using image: $IMAGE_URI"
-            docker pull "$IMAGE_URI"
+            IMAGE_URI="${ECR_REGISTRY}/${AWS_ACCOUNT_NAMESPACE}/${ECR_REPOSITORY}:latest"
+            echo "Using image: ${IMAGE_URI}"
+            docker pull "${IMAGE_URI}"
             
             echo "🚀 Starting new container..."
             docker run -d \
@@ -111,7 +112,7 @@ jobs:
               --restart unless-stopped \
               --env-file /home/${{ secrets.EC2_USER }}/.env.production \
               -p 3000:3000 \
-              "$IMAGE_URI"
+              "${IMAGE_URI}"
             
             echo "⏳ Waiting for container to be healthy..."
             sleep 5
