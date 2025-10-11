@@ -42,11 +42,12 @@ export default function EventDetailPage() {
   // Patch mockEvents to add mock photo for volunteers if not present
   const mockEvents = originalMockEvents.map((event: any) => ({
     ...event,
-    volunteers: event.volunteers.map((v: any, idx: number) =>
-      typeof v === "string"
-        ? { name: v, photo: `https://randomuser.me/api/portraits/med/men/${10 + idx}.jpg` }
-        : v
-    ),
+    volunteers: event.volunteers || [
+      "John Doe", "Jane Smith", "Mike Johnson", "Sarah Wilson"
+    ].map((name, idx) => ({
+      name,
+      photo: `https://randomuser.me/api/portraits/med/men/${10 + idx}.jpg`
+    })),
     // Add mock key points and summary
     keyPoints: event.keyPoints || [
       "Welcome and introduction",
@@ -54,9 +55,13 @@ export default function EventDetailPage() {
       "Upcoming projects planning",
       "Open discussion and Q&A"
     ],
-    summary: event.summary || "The event covered recent club achievements, planned upcoming projects, and provided a platform for open discussion among members and volunteers."
+    summary: event.summary || "The event covered recent club achievements, planned upcoming projects, and provided a platform for open discussion among members and volunteers.",
+    image: `https://images.unsplash.com/photo-${1529156069898 + parseInt(event.id)}?w=800&h=400&fit=crop`,
+    club: event.organizer.name,
+    participants: event.registeredCount || 0,
+    maxParticipants: event.maxCapacity || 50
   }));
-  const event = mockEvents.find((e: any) => e.id === Number(id));
+  const event = mockEvents.find((e: any) => e.id === id);
 
   if (!event) {
     return <div className="p-8 text-center text-red-500">Event not found.</div>;
@@ -89,6 +94,11 @@ export default function EventDetailPage() {
           <div className="bg-white rounded-2xl shadow p-6 border border-orange-100">
             <h2 className="text-xl font-bold mb-6 text-orange-700 text-center">Club Committee</h2>
             <CardList data={committee} roleColor="bg-orange-500 group-hover:bg-orange-600" />
+          </div>
+          {/* Volunteers */}
+          <div className="bg-white rounded-2xl shadow p-6 border border-orange-100">
+            <h2 className="text-xl font-bold mb-6 text-orange-700 text-center">Event Volunteers</h2>
+            <CardList data={event.volunteers} roleColor="bg-green-500 group-hover:bg-green-600" roleLabel="Volunteer" />
           </div>
           {/* Event Group Photo */}
           <div className="bg-white rounded-2xl shadow p-6 border border-orange-100">
