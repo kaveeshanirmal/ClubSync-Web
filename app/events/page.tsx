@@ -189,66 +189,74 @@ export default function EventsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterCategory, setFilterCategory] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [categories, setCategories] = useState<string[]>([]);
   const eventsPerPage = 12;
 
-  useEffect(() => {
-    // Simulate API call with mock data
-    const fetchEvents = async () => {
-      try {
-        setLoading(true);
-        // Simulate loading delay
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-
-        setEvents(mockEvents);
-        setFilteredEvents(mockEvents);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "An error occurred");
-      } finally {
-        setLoading(false);
+  // Function to fetch categories
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch('/api/events/categories');
+      if (response.ok) {
+        const data = await response.json();
+        setCategories(data.categories || []);
       }
-    };
+    } catch (err) {
+      console.error('Error fetching categories:', err);
+    }
+  };
 
+  // Function to fetch events with filters
+  const fetchEvents = async (search = "", category = "") => {
+    try {
+      setLoading(true);
+      
+      const params = new URLSearchParams();
+      if (search) params.append('search', search);
+      if (category) params.append('category', category);
+      
+      const response = await fetch(`/api/events/all?${params.toString()}`);
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch events');
+      }
+      
+      const data = await response.json();
+      setEvents(data.events || []);
+      setFilteredEvents(data.events || []);
+    } catch (err) {
+      console.error('Error fetching events:', err);
+      setError(err instanceof Error ? err.message : "Failed to load events");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    // Fetch events from database
     fetchEvents();
+    fetchCategories();
   }, []);
 
+  // Debounced search effect
   useEffect(() => {
-    let filtered = events;
+    const delayedSearch = setTimeout(() => {
+      fetchEvents(searchTerm, filterCategory);
+      setCurrentPage(1); // Reset to first page when filters change
+    }, 300); // 300ms delay for debouncing
 
-    // Filter by search term
-    if (searchTerm) {
-      filtered = filtered.filter(
-        (event) =>
-          event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          event.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          event.location?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          event.organizer.name.toLowerCase().includes(searchTerm.toLowerCase()),
-      );
-    }
-
-    // Filter by category
-    if (filterCategory) {
-      filtered = filtered.filter((event) => event.category === filterCategory);
-    }
-
-    setFilteredEvents(filtered);
-    setCurrentPage(1); // Reset to first page when filters change
-  }, [events, searchTerm, filterCategory]);
-
-  // Calculate pagination
-  const totalPages = Math.ceil(filteredEvents.length / eventsPerPage);
-  const startIndex = (currentPage - 1) * eventsPerPage;
-  const endIndex = startIndex + eventsPerPage;
-  const currentEvents = filteredEvents.slice(startIndex, endIndex);
+    return () => clearTimeout(delayedSearch);
+  }, [searchTerm, filterCategory]);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // Get unique categories for filter
-  const categories = Array.from(
-    new Set(events.map((event) => event.category).filter(Boolean)),
-  );
+  // Calculate pagination
+  const totalPages = Math.ceil(filteredEvents.length / eventsPerPage);
+  const startIndex = (currentPage - 1) * eventsPerPage;
+  const endIndex = startIndex + eventsPerPage;
+  const currentEvents = filteredEvents.slice(startIndex, endIndex);
 
   if (loading) {
     return (
