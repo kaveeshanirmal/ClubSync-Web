@@ -27,6 +27,8 @@ import {
   Target,
   Activity,
 } from "lucide-react";
+import { useVolunteerStats } from "@/app/hooks/useVolunteerStats";
+import VolunteerStats from "@/app/components/volunteer/VolunteerStats";
 
 interface Certificate {
   title: string;
@@ -68,6 +70,9 @@ export default function VolunteerProfile() {
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState("activity");
   const { data: session } = useSession();
+  
+  // Fetch volunteer stats
+  const { stats: volunteerStats, loading: statsLoading, error: statsError } = useVolunteerStats(session?.user?.id);
   
   const [user, setUser] = useState({
     name: "Loading...", // This will be fetched from database
@@ -432,6 +437,21 @@ export default function VolunteerProfile() {
             </div>
           </div>
         </div>
+
+        {/* Volunteer Rewards Section */}
+        {volunteerStats && !statsLoading && !statsError && (
+          <div className="mb-8">
+            <VolunteerStats
+              totalPoints={volunteerStats.totalPoints}
+              eventsParticipated={volunteerStats.eventsParticipated}
+              eventsOrganized={volunteerStats.eventsOrganized}
+              totalEvents={volunteerStats.totalEvents}
+              badge={volunteerStats.badge}
+              nextBadge={volunteerStats.nextBadge}
+              progress={volunteerStats.progress}
+            />
+          </div>
+        )}
 
         {/* Professional Navigation Tabs */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-8">
