@@ -1,6 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/prisma/client";
-import { Prisma } from "@prisma/client";
+
+// Interfaces to match incoming JSON body
+interface EventAddonInput {
+  receivables: string[];
+  requirements: string[];
+  tags: string[];
+}
+
+interface EventAgendaInput {
+  startTime: string;
+  endTime: string;
+  agendaTitle: string;
+  agendaDescription: string;
+}
+
+interface EventResourcePersonInput {
+  name: string;
+  designation: string;
+  about: string;
+  profileImg: string;
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,86 +34,104 @@ export async function POST(request: NextRequest) {
       startDateTime,
       endDateTime,
       venue,
-      eventOrganizerId,
-      maxParticipants
+      eventOrganizerId, // This is now the User ID for the organizer
+      maxParticipants,
+      addons,
+      agenda,
+      resourcePersons,
     } = body;
 
-    // Validate required fields
-    if (!title || !clubId || !startDateTime) {
+    // --- 1. Validation ---
+    if (!title || !clubId || !startDateTime || !category) {
       return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 }
+        {
+          error:
+            "Missing required fields (title, clubId, category, startDateTime)",
+        },
+        { status: 400 },
       );
     }
 
-    console.log("Creating event with data:", {
+    // --- 2. Data Transformation for Nested Writes (Prisma) ---
+    const preparedAddons = (addons || []).map((addon: EventAddonInput) => ({
+      receivables: addon.receivables || [],
+      requirements: addon.requirements || [],
+      tags: addon.tags || [],
+    }));
+
+    const preparedAgenda = (agenda || []).map((item: EventAgendaInput) => ({
+      startTime: new Date(item.startTime),
+      endTime: new Date(item.endTime),
+      agendaTitle: item.agendaTitle,
+      agendaDescription: item.agendaDescription,
+    }));
+
+    const preparedResourcePersons = (resourcePersons || []).map(
+      (person: EventResourcePersonInput) => ({
+        name: person.name,
+        designation: person.designation,
+        about: person.about,
+        profileImg: person.profileImg,
+      }),
+    );
+
+    // --- 3. Prepare the main event data object ---
+    const eventData: any = {
       title,
-      subtitle,
+      subtitle: subtitle || null,
       clubId,
       category,
-      description,
-      startDateTime,
-      endDateTime,
-      venue,
-      eventOrganizerId,
-      maxParticipants
-    });
+      description: description || null,
+      startDateTime: new Date(startDateTime),
+      endDateTime: endDateTime ? new Date(endDateTime) : null,
+      venue: venue || null,
+      maxParticipants: maxParticipants ? parseInt(maxParticipants) : null,
+      addons: { create: preparedAddons },
+      agenda: { create: preparedAgenda },
+      resourcePersons: { create: preparedResourcePersons },
+    };
 
-    // Create the event
-    // Create the event using raw SQL to bypass Prisma client issues
-    const eventId = `evt_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    
-    await prisma.$executeRaw`
-      INSERT INTO events (
-        id, title, subtitle, "clubId", category, description, 
-        "startDateTime", "endDateTime", venue, 
-        "maxParticipants", "isDeleted", "createdAt", "updatedAt"
-      ) VALUES (
-        ${eventId}, 
-        ${title}, 
-        ${subtitle || null}, 
-        ${clubId}, 
-        CAST(${category} AS "EventCategory"), 
-        ${description || null}, 
-        ${new Date(startDateTime)}, 
-        ${endDateTime ? new Date(endDateTime) : null}, 
-        ${venue || null}, 
-        ${maxParticipants ? parseInt(maxParticipants) : null}, 
-        false, 
-        NOW(), 
-        NOW()
-      )
-    `;
+    // --- 4. Conditionally add the organizer's registration ---
+    // If an eventOrganizerId is provided, create a registration for them
+    // with the 'organizer' role as part of the same transaction.
+    if (eventOrganizerId) {
+      eventData.registrations = {
+        create: {
+          volunteerId: eventOrganizerId,
+          eventRole: "organizer", // Set the role explicitly
+        },
+      };
+    }
 
-    // Fetch the created event with relations
-    const event = await prisma.event.findUnique({
-      where: { id: eventId },
+    // --- 5. Create Event with all nested relations ---
+    const newEvent = await prisma.event.create({
+      data: eventData,
       include: {
-        club: true
-      }
+        club: true,
+        addons: true,
+        agenda: true,
+        resourcePersons: true,
+        registrations: true, // Include registrations in the response
+      },
     });
 
     return NextResponse.json({
       message: "Event created successfully",
-      event
+      event: newEvent,
     });
-
   } catch (error) {
     console.error("Error creating event:", error);
-    console.error("Error details:", {
-      message: error instanceof Error ? error.message : 'Unknown error',
-      stack: error instanceof Error ? error.stack : 'No stack trace',
-    });
     return NextResponse.json(
-      { 
+      {
         error: "Internal server error",
-        details: error instanceof Error ? error.message : 'Unknown error'
+        details: error instanceof Error ? error.message : "Unknown error",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
+// The GET function remains the same.
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -102,35 +140,36 @@ export async function GET(request: NextRequest) {
     if (!clubId) {
       return NextResponse.json(
         { error: "Club ID is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    // Get events for the club
     const events = await prisma.event.findMany({
       where: {
         clubId,
-        isDeleted: false
+        isDeleted: false,
       },
       include: {
         registrations: {
           select: {
-            id: true
-          }
-        }
+            id: true,
+          },
+        },
+        addons: true,
+        agenda: true,
+        resourcePersons: true,
       },
       orderBy: {
-        startDateTime: "desc"
-      }
+        startDateTime: "desc",
+      },
     });
 
     return NextResponse.json({ events });
-
   } catch (error) {
     console.error("Error fetching events:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
