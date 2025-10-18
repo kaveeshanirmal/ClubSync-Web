@@ -137,3 +137,10 @@ export async function PUT(
     );
   }
 }
+
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  return PUT(request, { params });
+}
