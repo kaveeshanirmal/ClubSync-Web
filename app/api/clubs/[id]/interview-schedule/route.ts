@@ -6,7 +6,7 @@ import { prisma } from "@/prisma/client";
 // GET: Fetch the interview schedule URL
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -14,7 +14,7 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const clubId = params.id;
+    const clubId = (await params).id;
 
     // Verify user has permission
     const clubMember = await prisma.clubMember.findFirst({
@@ -55,7 +55,7 @@ export async function GET(
 // POST/PUT: Save or update the interview schedule URL
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -63,7 +63,7 @@ export async function POST(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const clubId = params.id;
+    const { id: clubId } = await params;
     const { interviewScheduleUrl } = await request.json();
 
     // Validate URL format
