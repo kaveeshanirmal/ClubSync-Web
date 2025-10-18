@@ -118,6 +118,7 @@ model User {
   ClubRequest        ClubRequest[]
   VolunteerStats     VolunteerStats?
   JoinRequest        JoinRequest[]
+  certificates       Certificate[]
 }
 
 model Club {
@@ -265,6 +266,7 @@ model Event {
   agenda          EventAgenda[]
   resourcePersons EventResourcePerson[]
   attendances     EventAttendance[]
+  certificates    Certificate[]
 
   @@map("events")
 }
@@ -418,4 +420,23 @@ model JoinRequest {
   // A user can only have one active request per club
   @@unique([clubId, userId])
   @@map("join_requests")
+}
+
+model Certificate {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  eventId       String
+  event         Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  certificateId String   @unique
+  certificateUrl String
+  userName      String
+  eventName     String
+  clubName      String
+  eventDate     String
+  issuedAt      DateTime @default(now())
+  createdAt     DateTime @default(now())
+
+  @@unique([userId, eventId])
+  @@map("certificates")
 }

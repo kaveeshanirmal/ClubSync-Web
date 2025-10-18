@@ -32,9 +32,10 @@ interface OverviewTabProps {
   dashboardStats: StatItem[];
   chartData: ChartDataItem[];
   pieData: PieDataItem[];
+  platformHealthScore: number;
 }
 
-const OverviewTab: React.FC<OverviewTabProps> = ({ dashboardStats, chartData, pieData }) => (
+const OverviewTab: React.FC<OverviewTabProps> = ({ dashboardStats, chartData, pieData, platformHealthScore }) => (
   <div className="space-y-8">
     {/* Executive Summary Banner */}
     <div className="bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl p-8 text-white relative overflow-hidden">
@@ -42,10 +43,15 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ dashboardStats, chartData, pi
       <div className="relative z-10">
         <h3 className="text-2xl font-bold mb-2">Platform Health Score</h3>
         <div className="flex items-center space-x-6">
-          <div className="text-4xl font-bold">87%</div>
+          <div className="text-4xl font-bold">{platformHealthScore}%</div>
           <div className="space-y-1">
-            <div className="text-orange-100">Excellent performance across all metrics</div>
-            <div className="text-sm text-orange-200">+5% improvement this quarter</div>
+            <div className="text-orange-100">
+              {platformHealthScore >= 80 ? "Excellent performance across all metrics" :
+               platformHealthScore >= 60 ? "Good performance with room for improvement" :
+               platformHealthScore >= 40 ? "Fair performance, monitoring recommended" :
+               "Attention needed to improve metrics"}
+            </div>
+            <div className="text-sm text-orange-200">Real-time platform analytics</div>
           </div>
         </div>
       </div>
@@ -170,16 +176,20 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ dashboardStats, chartData, pi
             </div>
           ))}
         </div>
-        <div className="mt-8 p-4 bg-gradient-to-r from-orange-50 to-red-50 rounded-xl border border-orange-200">
-          <div className="text-center space-y-2">
-            <div className="flex items-center justify-center space-x-2">
-              <Target className="w-4 h-4 text-orange-600" />
-              <span className="text-sm font-bold text-gray-900">Leading Category</span>
+        {pieData.length > 0 && (
+          <div className="mt-8 p-4 bg-gradient-to-r from-orange-50 to-red-50 rounded-xl border border-orange-200">
+            <div className="text-center space-y-2">
+              <div className="flex items-center justify-center space-x-2">
+                <Target className="w-4 h-4 text-orange-600" />
+                <span className="text-sm font-bold text-gray-900">Leading Category</span>
+              </div>
+              <p className="text-xs text-gray-600">
+                {pieData[0].name} leads with {pieData[0].value}% market share
+              </p>
+              <p className="text-xs text-orange-600 font-medium">Most popular category</p>
             </div>
-            <p className="text-xs text-gray-600">Education leads with 35% market share</p>
-            <p className="text-xs text-orange-600 font-medium">+8% growth this quarter</p>
           </div>
-        </div>
+        )}
       </div>
     </div>
   </div>

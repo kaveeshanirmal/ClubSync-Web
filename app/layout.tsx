@@ -4,6 +4,7 @@ import "./globals.css";
 import AuthProvider from "@/app/auth/Provider";
 import ConditionalNavbar from "@/components/ConditionalNavbar";
 import ConditionalFooter from "@/components/ConditionalFooter";
+import GoogleAnalytics from "@/app/components/GoogleAnalytics";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -73,11 +74,14 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
+
   return (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        {gaId && <GoogleAnalytics measurementId={gaId} />}
         <AuthProvider>
           <ConditionalNavbar />
           {children}

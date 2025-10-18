@@ -175,6 +175,45 @@ export async function PUT(
   }
 }
 
+// PATCH /api/clubs/[id] - Partial update (for status changes, etc.)
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  try {
+    const { id } = await params;
+    const body = await request.json();
+
+    // Check if club exists and is not deleted
+    const existingClub = await prisma.club.findFirst({
+      where: {
+        id,
+        isDeleted: false,
+      },
+    });
+
+    if (!existingClub) {
+      return NextResponse.json({ error: "Club not found" }, { status: 404 });
+    }
+
+    const updatedClub = await prisma.club.update({
+      where: { id },
+      data: {
+        ...body,
+        updatedAt: new Date(),
+      },
+    });
+
+    return NextResponse.json(updatedClub);
+  } catch (error) {
+    console.error("Error updating club:", error);
+    return NextResponse.json(
+      { error: "Failed to update club" },
+      { status: 500 },
+    );
+  }
+}
+
 // DELETE /api/clubs/[id] - Delete club
 export async function DELETE(
   request: NextRequest,
