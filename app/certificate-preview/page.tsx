@@ -1,10 +1,12 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
+import { useSession } from 'next-auth/react';
 import Certificate from '@/components/Certificate';
-import { generateAndDownloadCertificate } from '@/utils/generateCertificate';
+import { generateAndDownloadCertificate, generateCertificate } from '@/utils/generateCertificate';
 
 export default function CertificatePreview() {
+  const { data: session } = useSession();
   const certificateRef = useRef<HTMLDivElement>(null);
   const [certificateData, setCertificateData] = useState({
     userName: 'John Doe',
@@ -14,6 +16,11 @@ export default function CertificatePreview() {
     certificateId: 'CERT-2025-001234',
   });
   const [isGenerating, setIsGenerating] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState<{
+    message: string;
+    type: 'success' | 'error' | 'info';
+    url?: string;
+  } | null>(null);
 
   const handleInputChange = (field: string, value: string) => {
     setCertificateData((prev) => ({
@@ -41,6 +48,71 @@ export default function CertificatePreview() {
       console.error('Download error:', error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       alert(`Failed to generate certificate: ${errorMessage}\n\nCheck browser console for details.`);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handleUploadToCloudinary = async () => {
+    if (!certificateRef.current) {
+      setUploadStatus({ message: 'Certificate reference not found', type: 'error' });
+      return;
+    }
+
+    if (!session?.user) {
+      setUploadStatus({ message: 'Please log in first', type: 'error' });
+      return;
+    }
+
+    setIsGenerating(true);
+    setUploadStatus({ message: 'Generating PNG certificate...', type: 'info' });
+
+    try {
+      // Step 1: Generate PNG blob
+      const blob = await generateCertificate({
+        element: certificateRef.current,
+        fileName: certificateData.certificateId,
+        format: 'png',
+      });
+
+      setUploadStatus({ message: 'Uploading to Cloudinary...', type: 'info' });
+
+      // Step 2: Upload to Cloudinary using direct upload
+      const formData = new FormData();
+      formData.append('file', blob, `${certificateData.certificateId}.png`);
+      formData.append('upload_preset', 'unsigned_clubsync');
+      formData.append('folder', 'certificates');
+
+      const cloudinaryResponse = await fetch(
+        `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'dndtt6j1z'}/image/upload`,
+        {
+          method: 'POST',
+          body: formData,
+        }
+      );
+
+      if (!cloudinaryResponse.ok) {
+        const errorData = await cloudinaryResponse.json();
+        throw new Error(errorData.error?.message || 'Cloudinary upload failed');
+      }
+
+      const cloudinaryData = await cloudinaryResponse.json();
+      const certificateUrl = cloudinaryData.secure_url;
+
+      setUploadStatus({
+        message: 'Certificate uploaded successfully!',
+        type: 'success',
+        url: certificateUrl,
+      });
+
+      console.log('Certificate uploaded to:', certificateUrl);
+    } catch (error) {
+      console.error('Upload error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      setUploadStatus({
+        message: `Failed to upload: ${errorMessage}`,
+        type: 'error',
+      });
     } finally {
       setIsGenerating(false);
     }
@@ -127,34 +199,94 @@ export default function CertificatePreview() {
         {/* Download Actions */}
         <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
           <h2 className="text-xl font-semibold mb-4 text-neutral-800">
-            Download Certificate
+            Actions
           </h2>
-          <div className="flex flex-wrap gap-4">
+          
+          {/* Upload to Cloudinary Button */}
+          <div className="mb-6 pb-6 border-b border-neutral-200">
+            <h3 className="text-lg font-medium mb-3 text-neutral-700">
+              Upload to Cloudinary (PNG)
+            </h3>
             <button
-              onClick={() => handleDownload('pdf')}
+              onClick={handleUploadToCloudinary}
               disabled={isGenerating}
-              className="px-6 py-3 bg-neutral-900 text-white rounded-md hover:bg-neutral-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+              className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
             >
-              {isGenerating ? 'Generating...' : 'Download PDF'}
+              {isGenerating ? 'Uploading...' : '📤 Upload PNG to Cloudinary'}
             </button>
-            <button
-              onClick={() => handleDownload('png')}
-              disabled={isGenerating}
-              className="px-6 py-3 bg-neutral-700 text-white rounded-md hover:bg-neutral-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
-            >
-              {isGenerating ? 'Generating...' : 'Download PNG'}
-            </button>
-            <button
-              onClick={() => handleDownload('jpeg')}
-              disabled={isGenerating}
-              className="px-6 py-3 bg-neutral-700 text-white rounded-md hover:bg-neutral-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
-            >
-              {isGenerating ? 'Generating...' : 'Download JPEG'}
-            </button>
+            
+            {uploadStatus && (
+              <div
+                className={`mt-4 p-4 rounded-md ${
+                  uploadStatus.type === 'success'
+                    ? 'bg-green-50 border border-green-200'
+                    : uploadStatus.type === 'error'
+                    ? 'bg-red-50 border border-red-200'
+                    : 'bg-blue-50 border border-blue-200'
+                }`}
+              >
+                <p
+                  className={`text-sm font-medium ${
+                    uploadStatus.type === 'success'
+                      ? 'text-green-800'
+                      : uploadStatus.type === 'error'
+                      ? 'text-red-800'
+                      : 'text-blue-800'
+                  }`}
+                >
+                  {uploadStatus.message}
+                </p>
+                {uploadStatus.url && (
+                  <a
+                    href={uploadStatus.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-blue-600 hover:underline mt-2 block"
+                  >
+                    View on Cloudinary →
+                  </a>
+                )}
+              </div>
+            )}
+            
+            <p className="text-sm text-neutral-600 mt-3">
+              This will upload the certificate as PNG to your Cloudinary account.
+              {!session && ' (You need to be logged in)'}
+            </p>
           </div>
-          <p className="text-sm text-neutral-600 mt-4">
-            Click any button to download the certificate in your preferred format.
-          </p>
+
+          {/* Download Buttons */}
+          <div>
+            <h3 className="text-lg font-medium mb-3 text-neutral-700">
+              Download Locally
+            </h3>
+            <div className="flex flex-wrap gap-4">
+              <button
+                onClick={() => handleDownload('pdf')}
+                disabled={isGenerating}
+                className="px-6 py-3 bg-neutral-900 text-white rounded-md hover:bg-neutral-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+              >
+                {isGenerating ? 'Generating...' : 'Download PDF'}
+              </button>
+              <button
+                onClick={() => handleDownload('png')}
+                disabled={isGenerating}
+                className="px-6 py-3 bg-neutral-700 text-white rounded-md hover:bg-neutral-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+              >
+                {isGenerating ? 'Generating...' : 'Download PNG'}
+              </button>
+              <button
+                onClick={() => handleDownload('jpeg')}
+                disabled={isGenerating}
+                className="px-6 py-3 bg-neutral-700 text-white rounded-md hover:bg-neutral-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+              >
+                {isGenerating ? 'Generating...' : 'Download JPEG'}
+              </button>
+            </div>
+            <p className="text-sm text-neutral-600 mt-3">
+              Download the certificate to your computer for testing.
+            </p>
+          </div>
         </div>
 
         {/* Certificate Preview */}
