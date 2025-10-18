@@ -35,10 +35,13 @@ export interface UpdateUserRequest {
 // Auth-specific types
 export interface AuthUser {
   id: string;
-  email: string;
-  name: string;
-  image?: string;
+  email: string | null;
+  name?: string | null;
+  image?: string | null;
   role?: string;
+  firstName?: string | null;
+  lastName?: string | null;
+  phone?: string | null;
 }
 
 export interface SessionUser {
