@@ -1,7 +1,7 @@
 "use client";
 
 import Script from "next/script";
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 
 interface GoogleAnalyticsProps {
@@ -20,7 +20,8 @@ declare global {
   }
 }
 
-export default function GoogleAnalytics({ measurementId }: GoogleAnalyticsProps) {
+// Separate component for page view tracking with useSearchParams
+function PageViewTracker({ measurementId }: { measurementId: string }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
@@ -28,7 +29,7 @@ export default function GoogleAnalytics({ measurementId }: GoogleAnalyticsProps)
     if (!measurementId) return;
 
     // Track page views on route change
-    const url = pathname + searchParams.toString();
+    const url = pathname + (searchParams.toString() ? `?${searchParams.toString()}` : '');
     
     // Check if gtag is available
     if (typeof window !== "undefined" && window.gtag) {
@@ -38,6 +39,10 @@ export default function GoogleAnalytics({ measurementId }: GoogleAnalyticsProps)
     }
   }, [pathname, searchParams, measurementId]);
 
+  return null;
+}
+
+export default function GoogleAnalytics({ measurementId }: GoogleAnalyticsProps) {
   if (!measurementId) {
     return null;
   }
@@ -62,6 +67,9 @@ export default function GoogleAnalytics({ measurementId }: GoogleAnalyticsProps)
           `,
         }}
       />
+      <Suspense fallback={null}>
+        <PageViewTracker measurementId={measurementId} />
+      </Suspense>
     </>
   );
 }
