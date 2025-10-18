@@ -18,13 +18,10 @@ import {
   FileText,
   Star,
   Camera,
-  Settings,
   Briefcase,
-  TrendingUp,
   BookOpen,
   Users,
   Shield,
-  Target,
   Activity,
 } from "lucide-react";
 import { useVolunteerStats } from "@/app/hooks/useVolunteerStats";
@@ -82,7 +79,6 @@ export default function VolunteerProfile() {
     role: "Senior Volunteer",
     department: "Computer Science",
     profilePicture: null,
-    rewardPoints: 320,
     level: "Silver",
     joinedDate: "2024-01-15",
     totalEvents: 0,
@@ -301,12 +297,6 @@ export default function VolunteerProfile() {
     }
   };
 
-  const getPointsNeededForGold = () => {
-    const goldThreshold = 500; // Assuming 500 points needed for Gold level
-    const pointsNeeded = goldThreshold - user.rewardPoints;
-    return pointsNeeded > 0 ? pointsNeeded : 0;
-  };
-
   return (
     <div className="min-h-screen bg-gray-50 pt-20">
       <div className="w-full px-4 py-6">
@@ -381,45 +371,19 @@ export default function VolunteerProfile() {
                   </div>
                 </div>
 
-                {/* Reward Points and Quick Stats */}
-                <div className="flex flex-wrap items-center gap-6">
-                  {/* Reward Points - Only Colored Section */}
-                  <div className="inline-flex items-center gap-6 bg-gradient-to-r from-orange-400 to-orange-500 text-white px-8 py-4 rounded-xl shadow-lg">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-                        <Star className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <p className="text-sm opacity-90">Reward Points</p>
-                        <p className="text-2xl font-bold">{user.rewardPoints}</p>
-                      </div>
-                    </div>
-                    <div className="h-12 w-px bg-white/20"></div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-                        <Target className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <p className="text-sm opacity-90">Points to Gold</p>
-                        <p className="text-lg font-semibold">{getPointsNeededForGold() === 0 ? "Achieved!" : getPointsNeededForGold()}</p>
-                      </div>
-                    </div>
+                {/* Quick Stats */}
+                <div className="flex flex-wrap gap-3">
+                  <div className="flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-lg">
+                    <CheckCircle className="w-4 h-4 text-green-600" />
+                    <span className="text-sm font-medium text-gray-700">{user.completedEvents} Completed</span>
                   </div>
-
-                  {/* Quick Stats */}
-                  <div className="flex flex-wrap gap-3">
-                    <div className="flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-lg">
-                      <CheckCircle className="w-4 h-4 text-green-600" />
-                      <span className="text-sm font-medium text-gray-700">{user.completedEvents} Completed</span>
-                    </div>
-                    <div className="flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-lg">
-                      <Award className="w-4 h-4 text-blue-600" />
-                      <span className="text-sm font-medium text-gray-700">{user.certificates.length} Certificates</span>
-                    </div>
-                    <div className="flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-lg">
-                      <Clock className="w-4 h-4 text-orange-600" />
-                      <span className="text-sm font-medium text-gray-700">{user.upcomingEvents} Upcoming</span>
-                    </div>
+                  <div className="flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-lg">
+                    <Award className="w-4 h-4 text-blue-600" />
+                    <span className="text-sm font-medium text-gray-700">{user.certificates.length} Certificates</span>
+                  </div>
+                  <div className="flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-lg">
+                    <Clock className="w-4 h-4 text-orange-600" />
+                    <span className="text-sm font-medium text-gray-700">{user.upcomingEvents} Upcoming</span>
                   </div>
                 </div>
               </div>
