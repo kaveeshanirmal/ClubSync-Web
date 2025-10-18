@@ -378,7 +378,7 @@ export default function ClubDetailPage() {
       case "overview":
         return <OverviewTab club={clubData} />;
       case "interviews":
-        return <InterviewsTab />;
+        return <InterviewsTab clubId={clubId} />;
       case "elections":
         return <ElectionsTab />;
       case "events":
