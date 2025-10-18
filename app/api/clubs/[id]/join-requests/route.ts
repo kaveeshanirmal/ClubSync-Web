@@ -1,87 +1,77 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import { prisma } from "@/prisma/client";
+import jwt from "jsonwebtoken";
 
-export async function GET(
+function getUserIdFromToken(request: NextRequest): string | null {
+  const authHeader = request.headers.get("authorization");
+  if (!authHeader?.startsWith("Bearer ")) return null;
+
+  try {
+    const token = authHeader.substring(7);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
+      userId: string;
+    };
+    return decoded.userId;
+  } catch {
+    return null;
+  }
+}
+
+export async function POST(
   request: NextRequest,
   { params }: { params: { id: string } },
 ) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    const userId = getUserIdFromToken(request);
+    if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const clubId = params.id;
+    const body = await request.json();
+    const { motivation, relevantSkills, socialLinks } = body;
 
-    // Verify user has permission to view this club's requests
-    const clubMember = await prisma.clubMember.findFirst({
+    // Check if already a member
+    const existingMember = await prisma.clubMember.findUnique({
       where: {
-        clubId,
-        userId: session.user.id,
-        role: {
-          in: ["president", "secretary"],
-        },
+        clubId_userId: { clubId, userId },
       },
     });
 
-    if (!clubMember) {
+    if (existingMember) {
+      return NextResponse.json({ error: "Already a member" }, { status: 400 });
+    }
+
+    // Check if request already exists
+    const existingRequest = await prisma.joinRequest.findUnique({
+      where: {
+        clubId_userId: { clubId, userId },
+      },
+    });
+
+    if (existingRequest) {
       return NextResponse.json(
-        {
-          error:
-            "You don't have permission to view join requests for this club",
-        },
-        { status: 403 },
+        { error: "Request already submitted" },
+        { status: 400 },
       );
     }
 
-    // Fetch join requests with user details
-    const joinRequests = await prisma.joinRequest.findMany({
-      where: {
+    const joinRequest = await prisma.joinRequest.create({
+      data: {
         clubId,
-      },
-      include: {
-        user: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            email: true,
-            image: true,
-          },
-        },
-      },
-      orderBy: {
-        createdAt: "desc",
+        userId,
+        motivation: motivation || null,
+        relevantSkills: relevantSkills || [],
+        socialLinks: socialLinks || [],
+        status: "pendingReview",
       },
     });
 
-    // Transform to match Applicant interface
-    const applicants = joinRequests.map((request) => ({
-      id: request.id,
-      name: `${request.user.firstName} ${request.user.lastName}`,
-      email: request.user.email,
-      status: request.status
-        .toLowerCase()
-        .replace(/([A-Z])/g, " $1")
-        .trim() as
-        | "pending review"
-        | "interview pending"
-        | "approved"
-        | "declined",
-      submittedAt: request.createdAt.toISOString(),
-      motivation: request.motivation,
-      relevantSkills: request.relevantSkills,
-      socialLinks: request.socialLinks,
-      userImage: request.user.image,
-    }));
-
-    return NextResponse.json(applicants, { status: 200 });
+    return NextResponse.json(joinRequest, { status: 201 });
   } catch (error) {
-    console.error("Error fetching join requests:", error);
+    console.error("Error creating join request:", error);
     return NextResponse.json(
-      { error: "Failed to fetch join requests" },
+      { error: "Failed to create join request" },
       { status: 500 },
     );
   }
