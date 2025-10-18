@@ -44,20 +44,28 @@ export default function Navbar() {
           </div>
 
           <div className="hidden md:flex items-center space-x-8">
-            {["Home", "About", "Contact", "Clubs", "Events"].map((item, index) => {
-              const href = item === "Home" ? "/" : `/${item.toLowerCase()}`;
-              return (
-                <Link
-                  key={item}
-                  href={href}
-                  className="text-gray-700 hover:text-orange-500 transition-all duration-300 font-medium relative group"
-                  style={{ animationDelay: `${index * 0.1}s` }}
-                >
-                  {item}
-                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-orange-500 group-hover:w-full transition-all duration-300" />
-                </Link>
-              );
-            })}
+            {["Home", "About", "Contact", "Clubs", "Events"].map(
+              (item, index) => {
+                let href = item === "Home" ? "/" : `/${item.toLowerCase()}`;
+
+                // Redirect authenticated users to club-admin when clicking Home
+                if (item === "Home" && status === "authenticated") {
+                  href = "/club-admin";
+                }
+
+                return (
+                  <Link
+                    key={item}
+                    href={href}
+                    className="text-gray-700 hover:text-orange-500 transition-all duration-300 font-medium relative group"
+                    style={{ animationDelay: `${index * 0.1}s` }}
+                  >
+                    {item}
+                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-orange-500 group-hover:w-full transition-all duration-300" />
+                  </Link>
+                );
+              },
+            )}
             {status === "unauthenticated" && (
               <Link href="/login">
                 <button className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-6 py-2 rounded-lg hover:from-orange-600 hover:to-red-600 transition-all duration-300 font-medium transform hover:scale-105 hover:shadow-lg">
@@ -66,7 +74,7 @@ export default function Navbar() {
               </Link>
             )}
             {status === "authenticated" && (
-              <div 
+              <div
                 className="relative flex items-center space-x-3 cursor-pointer"
                 onMouseEnter={() => setShowProfileTooltip(true)}
                 onMouseLeave={() => setShowProfileTooltip(false)}
@@ -89,7 +97,7 @@ export default function Navbar() {
                 <span className="text-gray-700 font-medium hover:text-orange-500 transition-colors duration-300">
                   {session.user?.name || "User"}
                 </span>
-                
+
                 {/* Profile Tooltip */}
                 {showProfileTooltip && (
                   <div className="absolute top-full -right-60 mt-1 w-96 bg-white rounded-xl shadow-2xl border border-gray-200 p-4 z-50 transform opacity-0 animate-fade-in">
@@ -111,14 +119,16 @@ export default function Navbar() {
                           />
                         )}
                       </div>
-                      
+
                       <div className="flex-1">
                         <div className="flex items-center justify-between mb-2">
                           <div>
                             <h3 className="text-lg font-bold text-gray-900">
                               {session.user?.name || "User"}
                             </h3>
-                            <p className="text-sm text-gray-600">Senior Volunteer</p>
+                            <p className="text-sm text-gray-600">
+                              Senior Volunteer
+                            </p>
                           </div>
                           <div className="text-right">
                             <div className="flex items-center gap-1 text-sm text-orange-600 font-medium">
@@ -127,13 +137,15 @@ export default function Navbar() {
                             </div>
                           </div>
                         </div>
-                        
+
                         <div className="flex items-center justify-between text-sm">
                           <div className="flex items-center gap-2 text-gray-600">
                             <Mail className="w-4 h-4 text-orange-500" />
-                            <span className="truncate max-w-48">{session.user?.email || "No email"}</span>
+                            <span className="truncate max-w-48">
+                              {session.user?.email || "No email"}
+                            </span>
                           </div>
-                          <Link 
+                          <Link
                             href="/volunteer/profile"
                             className="inline-flex items-center gap-1 text-sm font-medium text-orange-600 hover:text-orange-700 transition-colors duration-300"
                           >
