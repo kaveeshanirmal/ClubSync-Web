@@ -42,148 +42,10 @@ interface Event {
   updatedAt: string;
 }
 
-// Mock data until database is ready
-const mockEvents: Event[] = [
-  {
-    id: "1",
-    title: "Annual Tech Conference 2025",
-    description:
-      "Join us for the biggest tech conference of the year featuring industry leaders and innovative technologies.",
-    date: "2025-08-15",
-    time: "09:00",
-    location: "Main Auditorium",
-    venue: "University Campus",
-    category: "Conference",
-    maxCapacity: 500,
-    registeredCount: 342,
-    isActive: true,
-    isPaid: true,
-    price: 25,
-    organizer: {
-      id: "tech-club",
-      name: "Tech Innovation Club",
-      type: "club",
-    },
-    createdAt: "2025-07-01T00:00:00Z",
-    updatedAt: "2025-07-15T00:00:00Z",
-  },
-  {
-    id: "2",
-    title: "Community Service Day",
-    description:
-      "Make a difference in our community! Join us for a day of volunteering and giving back.",
-    date: "2025-07-25",
-    time: "08:00",
-    location: "Community Center",
-    venue: "Downtown Community Hub",
-    category: "Volunteer",
-    maxCapacity: 100,
-    registeredCount: 78,
-    isActive: true,
-    isPaid: false,
-    organizer: {
-      id: "volunteer-club",
-      name: "Volunteer Society",
-      type: "club",
-    },
-    createdAt: "2025-07-05T00:00:00Z",
-    updatedAt: "2025-07-18T00:00:00Z",
-  },
-  {
-    id: "3",
-    title: "Photography Workshop",
-    description:
-      "Learn the art of photography from professional photographers. Bring your camera and creativity!",
-    date: "2025-08-02",
-    time: "14:00",
-    location: "Art Studio",
-    venue: "Creative Arts Building",
-    category: "Workshop",
-    maxCapacity: 30,
-    registeredCount: 25,
-    isActive: true,
-    isPaid: true,
-    price: 15,
-    organizer: {
-      id: "photo-club",
-      name: "Photography Club",
-      type: "club",
-    },
-    createdAt: "2025-06-20T00:00:00Z",
-    updatedAt: "2025-07-10T00:00:00Z",
-  },
-  {
-    id: "4",
-    title: "Cultural Night 2025",
-    description:
-      "Celebrate diversity with performances, food, and cultural exchanges from around the world.",
-    date: "2025-09-10",
-    time: "18:00",
-    location: "Student Union",
-    venue: "Grand Ballroom",
-    category: "Cultural",
-    maxCapacity: 300,
-    registeredCount: 156,
-    isActive: true,
-    isPaid: false,
-    organizer: {
-      id: "cultural-club",
-      name: "International Cultural Society",
-      type: "club",
-    },
-    createdAt: "2025-06-15T00:00:00Z",
-    updatedAt: "2025-07-12T00:00:00Z",
-  },
-  {
-    id: "5",
-    title: "Business Networking Mixer",
-    description:
-      "Connect with professionals, entrepreneurs, and fellow students in a relaxed networking environment.",
-    date: "2025-08-20",
-    time: "17:30",
-    location: "Business Center",
-    venue: "Executive Lounge",
-    category: "Networking",
-    maxCapacity: 80,
-    registeredCount: 45,
-    isActive: true,
-    isPaid: true,
-    price: 20,
-    organizer: {
-      id: "business-club",
-      name: "Business Students Association",
-      type: "club",
-    },
-    createdAt: "2025-07-02T00:00:00Z",
-    updatedAt: "2025-07-16T00:00:00Z",
-  },
-  {
-    id: "6",
-    title: "Sports Tournament - Basketball",
-    description:
-      "Annual basketball tournament open to all skill levels. Form your team and compete for the championship!",
-    date: "2025-07-30",
-    time: "10:00",
-    location: "Sports Complex",
-    venue: "Main Court",
-    category: "Sports",
-    maxCapacity: 16,
-    registeredCount: 12,
-    isActive: false,
-    isPaid: false,
-    organizer: {
-      id: "sports-club",
-      name: "Athletic Association",
-      type: "club",
-    },
-    createdAt: "2025-06-10T00:00:00Z",
-    updatedAt: "2025-07-20T00:00:00Z",
-  },
-];
-
 export default function EventsPage() {
   const [events, setEvents] = useState<Event[]>([]);
   const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
+  const [categories, setCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -191,64 +53,70 @@ export default function EventsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const eventsPerPage = 12;
 
-  useEffect(() => {
-    // Simulate API call with mock data
-    const fetchEvents = async () => {
-      try {
-        setLoading(true);
-        // Simulate loading delay
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-
-        setEvents(mockEvents);
-        setFilteredEvents(mockEvents);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "An error occurred");
-      } finally {
-        setLoading(false);
+  // Function to fetch categories
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch("/api/events/categories");
+      if (response.ok) {
+        const data = await response.json();
+        setCategories(data.categories || []);
       }
-    };
+    } catch (err) {
+      console.error("Error fetching categories:", err);
+    }
+  };
 
+  // Function to fetch events with filters
+  const fetchEvents = async (search = "", category = "") => {
+    try {
+      setLoading(true);
+
+      const params = new URLSearchParams();
+      if (search) params.append("search", search);
+      if (category) params.append("category", category);
+
+      const response = await fetch(`/api/events/all?${params.toString()}`);
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch events");
+      }
+
+      const data = await response.json();
+      setEvents(data.events || []);
+      setFilteredEvents(data.events || []);
+    } catch (err) {
+      console.error("Error fetching events:", err);
+      setError(err instanceof Error ? err.message : "Failed to load events");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchEvents();
+    fetchCategories();
   }, []);
 
+  // Debounced search effect
   useEffect(() => {
-    let filtered = events;
+    const delayedSearch = setTimeout(() => {
+      fetchEvents(searchTerm, filterCategory);
+      setCurrentPage(1);
+    }, 300);
 
-    // Filter by search term
-    if (searchTerm) {
-      filtered = filtered.filter(
-        (event) =>
-          event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          event.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          event.location?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          event.organizer.name.toLowerCase().includes(searchTerm.toLowerCase()),
-      );
-    }
-
-    // Filter by category
-    if (filterCategory) {
-      filtered = filtered.filter((event) => event.category === filterCategory);
-    }
-
-    setFilteredEvents(filtered);
-    setCurrentPage(1); // Reset to first page when filters change
-  }, [events, searchTerm, filterCategory]);
-
-  // Calculate pagination
-  const totalPages = Math.ceil(filteredEvents.length / eventsPerPage);
-  const startIndex = (currentPage - 1) * eventsPerPage;
-  const endIndex = startIndex + eventsPerPage;
-  const currentEvents = filteredEvents.slice(startIndex, endIndex);
+    return () => clearTimeout(delayedSearch);
+  }, [searchTerm, filterCategory]);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // Get unique categories for filter
-  const categories = Array.from(
-    new Set(events.map((event) => event.category).filter(Boolean)),
-  );
+  // Calculate pagination
+  const totalPages = Math.ceil(filteredEvents.length / eventsPerPage);
+  const startIndex = (currentPage - 1) * eventsPerPage;
+  const endIndex = startIndex + eventsPerPage;
+  const currentEvents = filteredEvents.slice(startIndex, endIndex);
 
   if (loading) {
     return (
@@ -288,11 +156,10 @@ export default function EventsPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-orange-50/30">
-      {/* Hero Section with Enhanced Design */}
+      {/* Hero Section */}
       <div className="relative overflow-hidden bg-gradient-to-r from-orange-500 to-red-500 text-white min-h-screen flex items-center">
         <div className="absolute inset-0 bg-black/10"></div>
 
-        {/* Animated Background Shapes */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-white/10 rounded-full animate-pulse"></div>
           <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-white/10 rounded-full animate-pulse delay-1000"></div>
@@ -322,7 +189,9 @@ export default function EventsPage() {
             <div className="flex flex-wrap justify-center gap-12 mb-16">
               <div className="flex items-center bg-white/20 backdrop-blur-sm rounded-full px-8 py-4">
                 <CalendarDays className="h-8 w-8 mr-3 text-orange-200" />
-                <span className="font-semibold text-lg">50+ Events</span>
+                <span className="font-semibold text-lg">
+                  {filteredEvents.length}+ Events
+                </span>
               </div>
               <div className="flex items-center bg-white/20 backdrop-blur-sm rounded-full px-8 py-4">
                 <Users className="h-8 w-8 mr-3 text-orange-200" />
@@ -337,7 +206,6 @@ export default function EventsPage() {
             </div>
           </div>
 
-          {/* Scroll Indicator */}
           <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
             <div className="flex flex-col items-center text-white/80">
               <span className="text-sm mb-2 font-medium">
@@ -352,11 +220,10 @@ export default function EventsPage() {
       </div>
 
       <div className="container mx-auto px-4 py-12 relative z-10">
-        {/* Enhanced Search and Filter Section */}
+        {/* Search and Filter Section */}
         <div className="max-w-6xl mx-auto mb-12">
           <div className="bg-white/90 backdrop-blur-lg rounded-2xl shadow-xl border border-white/40 p-6">
             <div className="flex flex-col lg:flex-row gap-4">
-              {/* Enhanced Search Bar */}
               <div className="relative flex-1">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                   <Search className="h-5 w-5 text-gray-400" />
@@ -370,7 +237,6 @@ export default function EventsPage() {
                 />
               </div>
 
-              {/* Category Filter */}
               <div className="relative lg:w-48">
                 <select
                   value={filterCategory}
@@ -390,7 +256,6 @@ export default function EventsPage() {
               </div>
             </div>
 
-            {/* Enhanced Results Summary */}
             <div className="mt-6 flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <div className="flex items-center bg-gradient-to-r from-orange-100 to-red-100 rounded-full px-4 py-2">
@@ -427,7 +292,7 @@ export default function EventsPage() {
           </div>
         </div>
 
-        {/* Compact Events Grid */}
+        {/* Events Grid */}
         {filteredEvents.length === 0 ? (
           <div className="text-center py-16">
             <div className="max-w-sm mx-auto">
@@ -457,7 +322,6 @@ export default function EventsPage() {
                   style={{ animationDelay: `${index * 50}ms` }}
                 >
                   <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2 border border-white/50 hover:border-orange-300 h-full group-hover:bg-white">
-                    {/* Compact Cover Image */}
                     <div className="relative h-36 overflow-hidden">
                       {event.coverImage ? (
                         <Image
@@ -474,7 +338,6 @@ export default function EventsPage() {
 
                       <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
 
-                      {/* Price Badges */}
                       <div className="absolute top-3 right-3 flex flex-col gap-2">
                         {event.isPaid && (
                           <span className="px-3 py-1.5 text-xs font-semibold rounded-full shadow-sm bg-yellow-500/95 text-white">
@@ -488,7 +351,6 @@ export default function EventsPage() {
                         )}
                       </div>
 
-                      {/* Hover Arrow */}
                       <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300">
                         <div className="w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg">
                           <ArrowRight className="h-5 w-5 text-orange-600" />
@@ -496,20 +358,20 @@ export default function EventsPage() {
                       </div>
                     </div>
 
-                    {/* Compact Content */}
                     <div className="p-4">
                       <div className="flex items-start justify-between mb-3">
                         <h3 className="text-base font-bold text-gray-900 group-hover:text-orange-600 transition-colors duration-300 leading-tight flex-1 pr-2">
                           {event.title}
                         </h3>
                         <ChevronRight className="h-5 w-5 text-orange-500 group-hover:translate-x-1 transition-transform duration-300 flex-shrink-0" />
-                      </div>{" "}
+                      </div>
+
                       {event.description && (
                         <p className="text-sm text-gray-600 mb-4 line-clamp-2 leading-relaxed">
                           {event.description}
                         </p>
                       )}
-                      {/* Event Details */}
+
                       <div className="space-y-2 mb-4">
                         <div className="flex items-center text-sm text-gray-600">
                           <Calendar className="h-4 w-4 mr-2 text-orange-500" />
@@ -528,7 +390,7 @@ export default function EventsPage() {
                           </div>
                         )}
                       </div>
-                      {/* Category Badge */}
+
                       {event.category && (
                         <div className="mb-4">
                           <span className="px-3 py-1 bg-gradient-to-r from-orange-100 to-red-100 text-orange-700 text-xs rounded-full font-medium border border-orange-200/50">
@@ -536,7 +398,7 @@ export default function EventsPage() {
                           </span>
                         </div>
                       )}
-                      {/* Compact Footer */}
+
                       <div className="flex items-center justify-between pt-3 border-t border-gray-100">
                         <div className="flex items-center text-sm text-gray-600 font-medium">
                           <Users className="h-4 w-4 mr-1.5 text-orange-500" />
@@ -605,7 +467,6 @@ export default function EventsPage() {
               </div>
             )}
 
-            {/* Results Info */}
             <div className="text-center mt-6 text-sm text-gray-500">
               Showing {startIndex + 1}-
               {Math.min(endIndex, filteredEvents.length)} of{" "}
@@ -617,4 +478,3 @@ export default function EventsPage() {
     </div>
   );
 }
-export { mockEvents };

@@ -16,6 +16,7 @@ import {
   X,
   Eye,
 } from "lucide-react";
+import BeautifulLoader from "@/components/Loader";
 
 interface Club {
   id: string;
@@ -127,19 +128,25 @@ export default function ClubAdminDashboard() {
 
   const getStatusIcon = (status: string, type?: string) => {
     const statusLower = status.toLowerCase();
-    
+
     if (statusLower === "pending" || type === "request") {
       return <Clock className="w-3 h-3 mr-1" />;
-    } else if (statusLower === "underreview" || statusLower === "under review") {
+    } else if (
+      statusLower === "underreview" ||
+      statusLower === "under review"
+    ) {
       return <Users className="w-3 h-3 mr-1" />;
-    } else if (statusLower === "needsmoreinfo" || statusLower === "needs more info") {
+    } else if (
+      statusLower === "needsmoreinfo" ||
+      statusLower === "needs more info"
+    ) {
       return <AlertCircle className="w-3 h-3 mr-1" />;
     } else if (statusLower === "rejected" || statusLower === "inactive") {
       return <X className="w-3 h-3 mr-1" />;
     } else if (statusLower === "approved" || statusLower === "active") {
       return <CheckCircle className="w-3 h-3 mr-1" />;
     }
-    
+
     return <CheckCircle className="w-3 h-3 mr-1" />;
   };
 
@@ -161,18 +168,21 @@ export default function ClubAdminDashboard() {
     return `/club-admin/clubs/${club.id}`;
   };
 
+  if (loading) {
+    return (
+      <BeautifulLoader
+        message="Preparing your Club Admin Dashboard"
+        subMessage="Fetching your clubs and data..."
+        type="morphing"
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 pt-16">
       {/* System-aligned Header */}
       <div className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          {/* small status row to use loading/error state */}
-          <div className="mb-4">
-            {loading && (
-              <div className="text-sm text-gray-500">Loading clubs...</div>
-            )}
-            {error && <div className="text-sm text-red-500 mt-1">{error}</div>}
-          </div>
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
             {/* Welcome Section */}
             <div className="flex items-center space-x-4">
@@ -225,7 +235,15 @@ export default function ClubAdminDashboard() {
                 <div className="text-center">
                   <p className="text-xs text-gray-500">Pending Requests</p>
                   <p className="text-lg font-bold text-yellow-600">
-                    {clubs.filter((club) => club.type === "request" && (club.status === "pending" || club.status === "underReview" || club.status === "needsMoreInfo")).length}
+                    {
+                      clubs.filter(
+                        (club) =>
+                          club.type === "request" &&
+                          (club.status === "pending" ||
+                            club.status === "underReview" ||
+                            club.status === "needsMoreInfo"),
+                      ).length
+                    }
                   </p>
                 </div>
               </div>
@@ -385,11 +403,11 @@ export default function ClubAdminDashboard() {
                               className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium shadow-sm ${getStatusColor(club.status)}`}
                             >
                               {getStatusIcon(club.status, club.type)}
-                              {club.status === 'underReview' 
-                                ? 'Under Review' 
-                                : club.status === 'needsMoreInfo'
-                                ? 'Needs More Info'
-                                : club.status}
+                              {club.status === "underReview"
+                                ? "Under Review"
+                                : club.status === "needsMoreInfo"
+                                  ? "Needs More Info"
+                                  : club.status}
                             </span>
                             <div className="mt-2">
                               <TrendingUp className="w-4 h-4 text-green-500 group-hover:scale-110 transition-transform duration-300" />

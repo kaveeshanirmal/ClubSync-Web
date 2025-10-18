@@ -18,15 +18,14 @@ import {
   FileText,
   Star,
   Camera,
-  Settings,
   Briefcase,
-  TrendingUp,
   BookOpen,
   Users,
   Shield,
-  Target,
   Activity,
 } from "lucide-react";
+import { useVolunteerStats } from "@/app/hooks/useVolunteerStats";
+import VolunteerStats from "@/app/components/volunteer/VolunteerStats";
 
 interface Certificate {
   title: string;
@@ -36,10 +35,25 @@ interface Certificate {
 }
 
 interface EventHistory {
+  id: string;
   title: string;
+  subtitle?: string;
   date: string;
+  endDate?: string;
+  venue?: string;
+  category?: string;
+  clubName: string;
   status: "completed" | "upcoming" | "cancelled";
   attendanceMarked: boolean;
+  attendTime?: string | null;
+  eventRole?: string;
+}
+
+interface EventHistoryStats {
+  totalEvents: number;
+  completed: number;
+  upcoming: number;
+  attended: number;
 }
 
 interface ServiceLetter {
@@ -54,6 +68,9 @@ export default function VolunteerProfile() {
   const [activeTab, setActiveTab] = useState("activity");
   const { data: session } = useSession();
   
+  // Fetch volunteer stats
+  const { stats: volunteerStats, loading: statsLoading, error: statsError } = useVolunteerStats(session?.user?.id);
+  
   const [user, setUser] = useState({
     name: "Loading...", // This will be fetched from database
     email: "Loading...", // This will be fetched from database
@@ -62,12 +79,11 @@ export default function VolunteerProfile() {
     role: "Senior Volunteer",
     department: "Computer Science",
     profilePicture: null,
-    rewardPoints: 320,
     level: "Silver",
     joinedDate: "2024-01-15",
-    totalEvents: 15,
-    completedEvents: 12,
-    upcomingEvents: 3,
+    totalEvents: 0,
+    completedEvents: 0,
+    upcomingEvents: 0,
     certificates: [
       { 
         title: "Leadership Workshop Certificate", 
@@ -98,13 +114,13 @@ export default function VolunteerProfile() {
         issuer: "Health Services"
       },
     ],
-    eventHistory: [
-      { title: "TechFest 2024", date: "2024-10-12", status: "completed" as const, attendanceMarked: true },
-      { title: "Green Club Meetup", date: "2024-08-05", status: "completed" as const, attendanceMarked: true },
-      { title: "Community Clean-up Drive", date: "2024-06-15", status: "completed" as const, attendanceMarked: true },
-      { title: "Food Distribution Program", date: "2024-06-01", status: "completed" as const, attendanceMarked: false },
-      { title: "Winter Carnival 2025", date: "2025-01-15", status: "upcoming" as const, attendanceMarked: false },
-    ],
+    eventHistory: [] as EventHistory[],
+    eventStats: {
+      totalEvents: 0,
+      completed: 0,
+      upcoming: 0,
+      attended: 0,
+    } as EventHistoryStats,
     serviceLetters: [
       {
         id: "1",
@@ -162,6 +178,32 @@ export default function VolunteerProfile() {
     };
 
     fetchUserData();
+  }, [session?.user?.id]);
+
+  // Fetch event history data
+  useEffect(() => {
+    const fetchEventHistory = async () => {
+      if (session?.user?.id) {
+        try {
+          const response = await fetch(`/api/users/${session.user.id}/event-history`);
+          if (response.ok) {
+            const data = await response.json();
+            setUser(prevUser => ({
+              ...prevUser,
+              eventHistory: data.events,
+              eventStats: data.stats,
+              totalEvents: data.stats.totalEvents,
+              completedEvents: data.stats.completed,
+              upcomingEvents: data.stats.upcoming,
+            }));
+          }
+        } catch (error) {
+          console.error("Error fetching event history:", error);
+        }
+      }
+    };
+
+    fetchEventHistory();
   }, [session?.user?.id]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -255,12 +297,6 @@ export default function VolunteerProfile() {
     }
   };
 
-  const getPointsNeededForGold = () => {
-    const goldThreshold = 500; // Assuming 500 points needed for Gold level
-    const pointsNeeded = goldThreshold - user.rewardPoints;
-    return pointsNeeded > 0 ? pointsNeeded : 0;
-  };
-
   return (
     <div className="min-h-screen bg-gray-50 pt-20">
       <div className="w-full px-4 py-6">
@@ -335,45 +371,19 @@ export default function VolunteerProfile() {
                   </div>
                 </div>
 
-                {/* Reward Points and Quick Stats */}
-                <div className="flex flex-wrap items-center gap-6">
-                  {/* Reward Points - Only Colored Section */}
-                  <div className="inline-flex items-center gap-6 bg-gradient-to-r from-orange-400 to-orange-500 text-white px-8 py-4 rounded-xl shadow-lg">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-                        <Star className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <p className="text-sm opacity-90">Reward Points</p>
-                        <p className="text-2xl font-bold">{user.rewardPoints}</p>
-                      </div>
-                    </div>
-                    <div className="h-12 w-px bg-white/20"></div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-                        <Target className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <p className="text-sm opacity-90">Points to Gold</p>
-                        <p className="text-lg font-semibold">{getPointsNeededForGold() === 0 ? "Achieved!" : getPointsNeededForGold()}</p>
-                      </div>
-                    </div>
+                {/* Quick Stats */}
+                <div className="flex flex-wrap gap-3">
+                  <div className="flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-lg">
+                    <CheckCircle className="w-4 h-4 text-green-600" />
+                    <span className="text-sm font-medium text-gray-700">{user.completedEvents} Completed</span>
                   </div>
-
-                  {/* Quick Stats */}
-                  <div className="flex flex-wrap gap-3">
-                    <div className="flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-lg">
-                      <CheckCircle className="w-4 h-4 text-green-600" />
-                      <span className="text-sm font-medium text-gray-700">{user.completedEvents} Completed</span>
-                    </div>
-                    <div className="flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-lg">
-                      <Award className="w-4 h-4 text-blue-600" />
-                      <span className="text-sm font-medium text-gray-700">{user.certificates.length} Certificates</span>
-                    </div>
-                    <div className="flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-lg">
-                      <Clock className="w-4 h-4 text-orange-600" />
-                      <span className="text-sm font-medium text-gray-700">{user.upcomingEvents} Upcoming</span>
-                    </div>
+                  <div className="flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-lg">
+                    <Award className="w-4 h-4 text-blue-600" />
+                    <span className="text-sm font-medium text-gray-700">{user.certificates.length} Certificates</span>
+                  </div>
+                  <div className="flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-lg">
+                    <Clock className="w-4 h-4 text-orange-600" />
+                    <span className="text-sm font-medium text-gray-700">{user.upcomingEvents} Upcoming</span>
                   </div>
                 </div>
               </div>
@@ -391,6 +401,21 @@ export default function VolunteerProfile() {
             </div>
           </div>
         </div>
+
+        {/* Volunteer Rewards Section */}
+        {volunteerStats && !statsLoading && !statsError && (
+          <div className="mb-8">
+            <VolunteerStats
+              totalPoints={volunteerStats.totalPoints}
+              eventsParticipated={volunteerStats.eventsParticipated}
+              eventsOrganized={volunteerStats.eventsOrganized}
+              totalEvents={volunteerStats.totalEvents}
+              badge={volunteerStats.badge}
+              nextBadge={volunteerStats.nextBadge}
+              progress={volunteerStats.progress}
+            />
+          </div>
+        )}
 
         {/* Professional Navigation Tabs */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-8">
@@ -558,6 +583,38 @@ export default function VolunteerProfile() {
         {/* Event History Tab */}
         {activeTab === "events" && (
           <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-8">
+            {/* Stats Summary */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+              <div className="p-4 bg-orange-50 rounded-lg border border-orange-200">
+                <div className="flex items-center gap-2 text-orange-600 mb-1">
+                  <Calendar className="w-4 h-4" />
+                  <span className="text-xs font-medium">Total Events</span>
+                </div>
+                <p className="text-2xl font-bold text-gray-900">{user.eventStats.totalEvents}</p>
+              </div>
+              <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+                <div className="flex items-center gap-2 text-green-600 mb-1">
+                  <CheckCircle className="w-4 h-4" />
+                  <span className="text-xs font-medium">Completed</span>
+                </div>
+                <p className="text-2xl font-bold text-gray-900">{user.eventStats.completed}</p>
+              </div>
+              <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <div className="flex items-center gap-2 text-blue-600 mb-1">
+                  <Clock className="w-4 h-4" />
+                  <span className="text-xs font-medium">Upcoming</span>
+                </div>
+                <p className="text-2xl font-bold text-gray-900">{user.eventStats.upcoming}</p>
+              </div>
+              <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
+                <div className="flex items-center gap-2 text-purple-600 mb-1">
+                  <Star className="w-4 h-4" />
+                  <span className="text-xs font-medium">Attended</span>
+                </div>
+                <p className="text-2xl font-bold text-gray-900">{user.eventStats.attended}</p>
+              </div>
+            </div>
+
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-gray-900">Event Participation History</h2>
               <span className="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-medium">
@@ -565,41 +622,90 @@ export default function VolunteerProfile() {
               </span>
             </div>
             
-            <div className="space-y-4">
-              {user.eventHistory.map((event, index) => (
-                <div key={index} className="flex items-center justify-between p-6 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center">
-                      <Calendar className="w-6 h-6 text-gray-600" />
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-gray-900">{event.title}</h3>
-                      <p className="text-sm text-gray-600">{new Date(event.date).toLocaleDateString()}</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center gap-4">
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(event.status)}`}>
-                      {event.status.charAt(0).toUpperCase() + event.status.slice(1)}
-                    </span>
-                    
-                    <div className="flex items-center gap-2">
-                      {event.attendanceMarked ? (
-                        <div className="flex items-center gap-1 text-gray-600">
-                          <CheckCircle className="w-4 h-4" />
-                          <span className="text-sm font-medium">Attended</span>
+            {user.eventHistory.length > 0 ? (
+              <div className="space-y-4">
+                {user.eventHistory.map((event, index) => (
+                  <div key={index} className="flex items-start justify-between p-6 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors group">
+                    <div className="flex items-start gap-4 flex-1">
+                      <div className="w-12 h-12 bg-gradient-to-br from-orange-100 to-red-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <Calendar className="w-6 h-6 text-orange-600" />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-bold text-gray-900 mb-1">{event.title}</h3>
+                        {event.subtitle && (
+                          <p className="text-sm text-gray-600 mb-2">{event.subtitle}</p>
+                        )}
+                        <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600 mb-2">
+                          <span className="flex items-center gap-1">
+                            <Calendar className="w-4 h-4" />
+                            {new Date(event.date).toLocaleDateString('en-US', {
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric',
+                            })}
+                          </span>
+                          {event.venue && (
+                            <span className="flex items-center gap-1">
+                              <MapPin className="w-4 h-4" />
+                              {event.venue}
+                            </span>
+                          )}
+                          <span className="flex items-center gap-1">
+                            <Users className="w-4 h-4" />
+                            {event.clubName}
+                          </span>
+                          {event.category && (
+                            <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs font-medium">
+                              {event.category}
+                            </span>
+                          )}
                         </div>
-                      ) : (
-                        <div className="flex items-center gap-1 text-gray-400">
-                          <X className="w-4 h-4" />
-                          <span className="text-sm">No Record</span>
+                        {event.attendTime && (
+                          <p className="text-xs text-green-600 flex items-center gap-1">
+                            <CheckCircle className="w-3 h-3" />
+                            Attended on {new Date(event.attendTime).toLocaleString('en-US', {
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div className="flex flex-col items-end gap-2">
+                      <span className={`px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(event.status)}`}>
+                        {event.status.charAt(0).toUpperCase() + event.status.slice(1)}
+                      </span>
+                      
+                      {event.status === 'completed' && (
+                        <div className="flex items-center gap-2">
+                          {event.attendanceMarked ? (
+                            <div className="flex items-center gap-1 text-green-600">
+                              <CheckCircle className="w-4 h-4" />
+                              <span className="text-sm font-medium">Attended</span>
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-1 text-gray-400">
+                              <X className="w-4 h-4" />
+                              <span className="text-sm">No Record</span>
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <Calendar className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                <p className="text-gray-500 text-lg mb-2">No event history found</p>
+                <p className="text-gray-400 text-sm">Register for events to see your participation history here</p>
+              </div>
+            )}
           </div>
         )}
 

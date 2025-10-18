@@ -8,7 +8,6 @@ generator client {
   provider = "prisma-client-js"
 }
 
-
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -86,6 +85,13 @@ enum EventCategory {
   other
 }
 
+enum JoinRequestStatus {
+  pendingReview
+  interviewPending
+  approved
+  declined
+}
+
 model User {
   id            String    @id @default(cuid())
   firstName     String
@@ -110,35 +116,38 @@ model User {
   Club               Club[]
   EventRegistration  EventRegistration[]
   ClubRequest        ClubRequest[]
+  VolunteerStats     VolunteerStats?
+  JoinRequest        JoinRequest[]
 }
 
 model Club {
-  id           String   @id @default(uuid())
-  name         String
-  motto        String?
-  founded      String?
-  headquarters String?
-  coverImage   String? // URL to cover image
-  profileImage String? // URL to profile image
-  constitution String? // URL to constitution document
-  about        String?  @db.Text
-  mission      String?  @db.Text
-  values       String[] // Array of values
-  avenues      String[] // Array of avenues
-  email        String?
-  phone        String?
-  website      String?
-  googleMapURL String?
-  instagram    String?
-  facebook     String?
-  linkedIn     String?
-  twitter      String?
-  isActive     Boolean  @default(true)
-  isDeleted    Boolean  @default(false)
-  createdById  String
-  createdBy    User?    @relation("ClubCreator", fields: [createdById], references: [id])
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id                   String   @id @default(uuid())
+  name                 String
+  motto                String?
+  founded              String?
+  headquarters         String?
+  coverImage           String? // URL to cover image
+  profileImage         String? // URL to profile image
+  constitution         String? // URL to constitution document
+  about                String?  @db.Text
+  mission              String?  @db.Text
+  values               String[] // Array of values
+  avenues              String[] // Array of avenues
+  email                String?
+  phone                String?
+  website              String?
+  googleMapURL         String?
+  instagram            String?
+  facebook             String?
+  linkedIn             String?
+  twitter              String?
+  interviewScheduleUrl String?
+  isActive             Boolean  @default(true)
+  isDeleted            Boolean  @default(false)
+  createdById          String
+  createdBy            User?    @relation("ClubCreator", fields: [createdById], references: [id])
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
 
   // Relations
   members      ClubMember[]
@@ -148,6 +157,7 @@ model Club {
   elections    Election[]
   User         User?         @relation(fields: [userId], references: [id])
   userId       String?
+  JoinRequest  JoinRequest[]
 }
 
 model ClubMember {
@@ -375,4 +385,37 @@ model EventAttendance {
   attendTime DateTime?
 
   @@unique([userId, eventId])
+}
+
+model VolunteerStats {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id])
+
+  totalPoints        Int @default(0)
+  eventsParticipated Int @default(0)
+  eventsOrganized    Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("volunteer_stats")
+}
+
+model JoinRequest {
+  id             String            @id @default(cuid())
+  clubId         String
+  club           Club              @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  motivation     String?           @db.Text
+  relevantSkills String[]
+  socialLinks    String[]
+  status         JoinRequestStatus @default(pendingReview)
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  // A user can only have one active request per club
+  @@unique([clubId, userId])
+  @@map("join_requests")
 }

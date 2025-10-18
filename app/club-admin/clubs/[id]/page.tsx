@@ -44,6 +44,7 @@ import MinutesTab from "./components/MinutesTab";
 import ServiceLettersTab from "./components/ServiceLettersTab";
 import CandidatesTab from "./components/CandidatesTab";
 import FeedBackTab from "./components/FeedBackTab";
+import BeautifulLoader from "@/components/Loader";
 
 interface Club {
   id: string;
@@ -377,7 +378,7 @@ export default function ClubDetailPage() {
       case "overview":
         return <OverviewTab club={clubData} />;
       case "interviews":
-        return <InterviewsTab />;
+        return <InterviewsTab clubId={clubId} />;
       case "elections":
         return <ElectionsTab />;
       case "events":
@@ -429,6 +430,16 @@ export default function ClubDetailPage() {
       </button>
     );
   };
+
+  if (loading) {
+    return (
+      <BeautifulLoader
+        message="Fetching club details..."
+        subMessage="Please wait a moment while we load the information."
+        type="morphing"
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 pt-16">
@@ -851,14 +862,6 @@ export default function ClubDetailPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* small status row to use loading/error state */}
-        <div className="mb-4">
-          {loading && (
-            <div className="text-sm text-gray-500">Loading club details...</div>
-          )}
-          {error && <div className="text-sm text-red-500 mt-1">{error}</div>}
-        </div>
-
         {/* Enhanced Navigation Tabs */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 mb-8">
           <div className="border-b border-gray-200">
