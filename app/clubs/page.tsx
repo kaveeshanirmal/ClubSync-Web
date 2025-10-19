@@ -6,15 +6,13 @@ import BeautifulLoader from "../../components/Loader";
 import {
   Users,
   Search,
-  Filter,
   Building,
   ChevronRight,
-  Sparkles,
-  Award,
-  Target,
-  Zap,
   Heart,
-  ArrowRight,
+  Calendar,
+  MapPin,
+  Grid3x3,
+  LayoutList,
 } from "lucide-react";
 
 interface Club {
@@ -55,6 +53,7 @@ export default function ClubsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterActive, setFilterActive] = useState<boolean | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const clubsPerPage = 12;
 
   useEffect(() => {
@@ -138,7 +137,7 @@ export default function ClubsPage() {
               <p className="text-red-600 text-lg mb-6">{error}</p>
               <button
                 onClick={() => window.location.reload()}
-                className="bg-gradient-to-r from-orange-400 to-red-400 text-white px-8 py-3 rounded-full hover:from-orange-500 hover:to-red-500 transition-all duration-300 transform hover:scale-105 shadow-lg"
+                className="bg-gradient-to-r from-orange-400 to-red-400 text-white px-8 py-3 rounded-xl hover:from-orange-500 hover:to-red-500 transition-all duration-300 transform hover:scale-105 shadow-lg"
               >
                 Try Again
               </button>
@@ -150,137 +149,110 @@ export default function ClubsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50">
-      {/* Hero Section with Enhanced Design */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-orange-400 to-red-400 text-white min-h-screen flex items-center">
-        <div className="absolute inset-0 bg-black/10"></div>
-        
-        {/* Animated Background Shapes */}
+    <div className="min-h-screen bg-gradient-to-r from-orange-50 via-orange-50/30 to-red-50">
+      {/* Simplified Hero Section */}
+      <div className="relative bg-gradient-to-r from-orange-400 to-red-400 text-white overflow-hidden">
+        {/* Subtle Background Elements */}
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-white/10 rounded-full animate-pulse"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-white/10 rounded-full animate-pulse delay-1000"></div>
-          <div className="absolute top-1/2 left-1/4 w-20 h-20 bg-white/20 rounded-full animate-bounce delay-500"></div>
-          <div className="absolute bottom-1/4 right-1/3 w-16 h-16 bg-white/20 rounded-full animate-bounce delay-700"></div>
+          <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-0 left-0 w-96 h-96 bg-white/10 rounded-full blur-3xl"></div>
         </div>
 
-        <div className="relative z-10 container mx-auto px-4 py-20 text-center">
-          <div className="max-w-4xl mx-auto">
-            <div className="flex items-center justify-center mb-8">
-              <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mr-4 animate-pulse">
-                <Sparkles className="h-10 w-10 text-white" />
-              </div>
-              <h1 className="text-6xl md:text-7xl font-bold">
-                Discover Your
-                <span className="block bg-gradient-to-r from-orange-200 to-red-200 bg-clip-text text-transparent">
-                  Perfect Club
-                </span>
-              </h1>
-            </div>
-            
-            <p className="text-2xl md:text-3xl text-white/90 mb-12 leading-relaxed max-w-3xl mx-auto">
-              Join extraordinary communities, build lasting connections, and 
-              <span className="font-semibold"> make a difference together</span>
-            </p>
-
-            <div className="flex flex-wrap justify-center gap-12 mb-16">
-              <div className="flex items-center bg-white/20 backdrop-blur-sm rounded-full px-8 py-4">
-                <Users className="h-8 w-8 mr-3 text-orange-200" />
-                <span className="font-semibold text-lg">1000+ Members</span>
-              </div>
-              <div className="flex items-center bg-white/20 backdrop-blur-sm rounded-full px-8 py-4">
-                <Award className="h-8 w-8 mr-3 text-orange-200" />
-                <span className="font-semibold text-lg">50+ Active Clubs</span>
-              </div>
-              <div className="flex items-center bg-white/20 backdrop-blur-sm rounded-full px-8 py-4">
-                <Target className="h-8 w-8 mr-3 text-orange-200" />
-                <span className="font-semibold text-lg">200+ Events</span>
-              </div>
-            </div>
+        <div className="relative z-10 container mx-auto px-4 py-24">
+          <div className="max-w-4xl mx-auto text-center">
+            {/* Main Heading */}
+            <h1 className="text-5xl md:text-7xl font-bold mb-8 leading-tight">
+              Discover Amazing Clubs
+            </h1>
           </div>
+        </div>
 
-          {/* Scroll Indicator */}
-          <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-            <div className="flex flex-col items-center text-white/80">
-              <span className="text-sm mb-2 font-medium">Scroll to explore</span>
-              <div className="w-6 h-10 border-2 border-white/50 rounded-full flex justify-center">
-                <div className="w-1 h-3 bg-white/70 rounded-full mt-2 animate-pulse"></div>
-              </div>
-            </div>
-          </div>
+        {/* Wave Divider */}
+        <div className="absolute bottom-0 left-0 right-0">
+          <svg viewBox="0 0 1440 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-auto">
+            <path d="M0,32 C320,96 420,0 720,32 C1020,64 1120,0 1440,32 L1440,100 L0,100 Z" fill="rgb(255, 247, 237)" />
+          </svg>
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-12 relative z-10">
-        {/* Enhanced Search and Filter Section */}
-        <div className="max-w-5xl mx-auto mb-12">
-          <div className="bg-white/90 backdrop-blur-lg rounded-2xl shadow-xl border border-white/40 p-6">
-            <div className="flex flex-col lg:flex-row gap-4">
-              {/* Enhanced Search Bar */}
-              <div className="relative flex-1">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <Search className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
-                  type="text"
-                  placeholder="Search clubs by name, motto, or description..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-orange-200 focus:border-orange-400 transition-all duration-300 text-base placeholder-gray-500 bg-white/90 backdrop-blur-sm hover:border-gray-300"
-                />
+      {/* Main Content */}
+      <div className="container mx-auto px-4 py-8 -mt-8 relative z-20">
+        {/* Compact Search and Filter Section */}
+        <div className="max-w-7xl mx-auto mb-8">
+          {/* Search Bar */}
+          <div className="relative mb-4">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search clubs..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-12 pr-4 py-3 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all text-gray-700 placeholder-gray-400 shadow-sm"
+            />
+          </div>
+
+          {/* Controls Bar */}
+          <div className="flex items-center justify-between gap-4">
+            {/* Left: Count and Filter */}
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 bg-orange-100 rounded-lg px-3 py-1.5">
+                <Building className="h-4 w-4 text-orange-600" />
+                <span className="font-semibold text-orange-700 text-sm">
+                  {filteredClubs.length} {filteredClubs.length === 1 ? 'club' : 'clubs'}
+                </span>
               </div>
 
-              {/* Enhanced Filter */}
-              <div className="relative lg:w-48">
-                <select
-                  value={filterActive === null ? "" : filterActive.toString()}
-                  onChange={(e) =>
-                    setFilterActive(
-                      e.target.value === ""
-                        ? null
-                        : e.target.value === "true"
-                    )
-                  }
-                  className="w-full appearance-none bg-white/90 backdrop-blur-sm border-2 border-gray-200 rounded-xl px-4 py-4 pr-10 focus:ring-4 focus:ring-orange-200 focus:border-orange-400 transition-all duration-300 text-base font-medium hover:border-gray-300"
+              <select
+                value={filterActive === null ? "" : filterActive.toString()}
+                onChange={(e) =>
+                  setFilterActive(
+                    e.target.value === "" ? null : e.target.value === "true"
+                  )
+                }
+                className="appearance-none bg-white/80 backdrop-blur-sm border border-gray-200 rounded-lg px-3 py-1.5 pr-8 text-sm font-medium text-gray-700 hover:border-gray-300 focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all cursor-pointer"
+              >
+                <option value="">All Status</option>
+                <option value="true">Active</option>
+                <option value="false">Inactive</option>
+              </select>
+
+              {(searchTerm || filterActive !== null) && (
+                <button
+                  onClick={() => {
+                    setSearchTerm("");
+                    setFilterActive(null);
+                  }}
+                  className="text-xs text-gray-500 hover:text-orange-600 transition-colors underline"
                 >
-                  <option value="">All Clubs</option>
-                  <option value="true">Active Clubs</option>
-                  <option value="false">Inactive Clubs</option>
-                </select>
-                <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
-                  <Filter className="h-5 w-5 text-gray-400" />
-                </div>
-              </div>
+                  Clear
+                </button>
+              )}
             </div>
 
-            {/* Enhanced Results Summary */}
-            <div className="mt-6 flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="flex items-center bg-gradient-to-r from-orange-100 to-red-100 rounded-full px-4 py-2">
-                  <Zap className="h-5 w-5 mr-2 text-orange-600" />
-                  <span className="font-bold text-orange-700 text-lg">{filteredClubs.length}</span>
-                  <span className="ml-1 text-orange-600 font-medium">
-                    club{filteredClubs.length !== 1 ? 's' : ''} found
-                  </span>
-                </div>
-                {(searchTerm || filterActive !== null) && (
-                  <button
-                    onClick={() => {
-                      setSearchTerm("");
-                      setFilterActive(null);
-                    }}
-                    className="text-sm text-gray-500 hover:text-orange-600 transition-colors duration-200 underline"
-                  >
-                    Clear filters
-                  </button>
-                )}
-              </div>
-              
-              {filteredClubs.length > 0 && (
-                <div className="flex items-center text-gray-400">
-                  <span className="text-sm mr-2">Click any club to explore</span>
-                  <ArrowRight className="h-4 w-4" />
-                </div>
-              )}
+            {/* Right: View Toggle */}
+            <div className="flex bg-gray-100 rounded-lg p-0.5">
+              <button
+                onClick={() => setViewMode('grid')}
+                className={`p-2 rounded-md transition-all ${
+                  viewMode === 'grid' 
+                    ? 'bg-white shadow-sm text-orange-600' 
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+                title="Grid view"
+              >
+                <Grid3x3 className="h-4 w-4" />
+              </button>
+              <button
+                onClick={() => setViewMode('list')}
+                className={`p-2 rounded-md transition-all ${
+                  viewMode === 'list' 
+                    ? 'bg-white shadow-sm text-orange-600' 
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+                title="List view"
+              >
+                <LayoutList className="h-4 w-4" />
+              </button>
             </div>
           </div>
         </div>
@@ -306,152 +278,276 @@ export default function ClubsPage() {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {currentClubs.map((club, index) => (
-                <Link
-                  key={club.id}
-                  href={`/clubs/${club.id}`}
-                  className="group block"
-                  style={{ animationDelay: `${index * 50}ms` }}
-                >
-                  <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2 border border-white/50 hover:border-orange-300 h-full group-hover:bg-white">
-                    {/* Compact Cover Image */}
-                    <div className="relative h-36 overflow-hidden">
-                      {club.coverImage ? (
-                        <Image
-                          src={club.coverImage}
-                          alt={`${club.name} cover`}
-                          fill
-                          className="object-cover group-hover:scale-110 transition-transform duration-700"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-orange-400 to-red-400 flex items-center justify-center">
-                          <Building className="h-14 w-14 text-white/60" />
+            {/* Grid View */}
+            {viewMode === 'grid' && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-10">
+                {currentClubs.map((club, index) => (
+                  <Link
+                    key={club.id}
+                    href={`/clubs/${club.id}`}
+                    className="group"
+                    style={{ 
+                      animation: 'fadeInUp 0.6s ease-out',
+                      animationDelay: `${index * 50}ms`,
+                      animationFillMode: 'both'
+                    }}
+                  >
+                    <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-orange-100/50 h-full">
+                      {/* Cover Image */}
+                      <div className="relative h-40 overflow-hidden">
+                        {club.coverImage ? (
+                          <Image
+                            src={club.coverImage}
+                            alt={`${club.name} cover`}
+                            fill
+                            className="object-cover group-hover:scale-110 transition-transform duration-700"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-orange-400 to-red-400 flex items-center justify-center">
+                            <Building className="h-16 w-16 text-white/40" />
+                          </div>
+                        )}
+                        
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+
+                        {/* Status Badge */}
+                        <div className="absolute top-4 right-4">
+                          <span
+                            className={`px-3 py-1.5 text-xs font-bold rounded-full backdrop-blur-md ${
+                              club.isActive
+                                ? "bg-emerald-500/90 text-white shadow-lg"
+                                : "bg-gray-500/90 text-white shadow-lg"
+                            }`}
+                          >
+                            {club.isActive ? "● Active" : "● Inactive"}
+                          </span>
                         </div>
-                      )}
-                      
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
 
-                      {/* Active Status Badge */}
-                      <div className="absolute top-3 right-3">
-                        <span
-                          className={`px-3 py-1.5 text-xs font-semibold rounded-full shadow-sm ${
-                            club.isActive
-                              ? "bg-emerald-500/95 text-white"
-                              : "bg-gray-500/95 text-white"
-                          }`}
-                        >
-                          {club.isActive ? "Active" : "Inactive"}
-                        </span>
+                        {/* Hover Overlay */}
+                        <div className="absolute inset-0 bg-orange-500/0 group-hover:bg-orange-500/10 transition-all duration-300" />
                       </div>
 
-                      {/* Hover Arrow */}
-                      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300">
-                        <div className="w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg">
-                          <ArrowRight className="h-5 w-5 text-orange-600" />
+                      {/* Content */}
+                      <div className="p-5">
+                        <div className="flex items-start justify-between mb-2">
+                          <h3 className="text-base font-bold text-gray-900 group-hover:text-orange-600 transition-colors duration-300 leading-tight flex-1 pr-2 line-clamp-2">
+                            {club.name}
+                          </h3>
+                          <ChevronRight className="h-5 w-5 text-orange-500 group-hover:translate-x-1 transition-transform duration-300 flex-shrink-0 mt-1" />
                         </div>
-                      </div>
-                    </div>
 
-                    {/* Compact Content */}
-                    <div className="p-4">
-                      <div className="flex items-start justify-between mb-3">
-                        <h3 className="text-base font-bold text-gray-900 group-hover:text-orange-600 transition-colors duration-300 leading-tight flex-1 pr-2">
-                          {club.name}
-                        </h3>
-                        <ChevronRight className="h-5 w-5 text-orange-500 group-hover:translate-x-1 transition-transform duration-300 flex-shrink-0" />
-                      </div>
+                        {club.motto && (
+                          <p className="text-sm text-gray-600 italic mb-3 line-clamp-2 leading-relaxed">
+                            &ldquo;{club.motto}&rdquo;
+                          </p>
+                        )}
 
-                      {club.motto && (
-                        <p className="text-sm text-gray-600 italic mb-4 line-clamp-2 leading-relaxed">
-                          &ldquo;{club.motto}&rdquo;
-                        </p>
-                      )}
+                        {/* Avenues */}
+                        {club.avenues && club.avenues.length > 0 && (
+                          <div className="mb-3">
+                            <div className="flex flex-wrap gap-1.5">
+                              {club.avenues.slice(0, 2).map((avenue, idx) => (
+                                <span
+                                  key={idx}
+                                  className="px-2.5 py-1 bg-gradient-to-r from-orange-50 to-red-50 text-orange-700 text-xs rounded-lg font-semibold border border-orange-200"
+                                >
+                                  {avenue}
+                                </span>
+                              ))}
+                              {club.avenues.length > 2 && (
+                                <span className="px-2.5 py-1 bg-gray-50 text-gray-600 text-xs rounded-lg font-semibold border border-gray-200">
+                                  +{club.avenues.length - 2}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        )}
 
-                      {/* Compact Avenues */}
-                      {club.avenues && club.avenues.length > 0 && (
-                        <div className="mb-4">
-                          <div className="flex flex-wrap gap-1.5">
-                            {club.avenues.slice(0, 2).map((avenue, index) => (
-                              <span
-                                key={index}
-                                className="px-3 py-1 bg-gradient-to-r from-orange-100 to-red-100 text-orange-700 text-xs rounded-full font-medium border border-orange-200/50"
-                              >
-                                {avenue}
-                              </span>
-                            ))}
-                            {club.avenues.length > 2 && (
-                              <span className="px-3 py-1 bg-gradient-to-r from-gray-100 to-slate-100 text-gray-600 text-xs rounded-full font-medium border border-gray-200/50">
-                                +{club.avenues.length - 2} more
-                              </span>
-                            )}
+                        {/* Footer */}
+                        <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                          <div className="flex items-center text-sm text-gray-500">
+                            <Users className="h-4 w-4 mr-1.5 text-orange-500" />
+                            <span className="font-medium">Join Now</span>
+                          </div>
+                          <div className="text-xs text-gray-400 font-medium">
+                            Est. {club.founded || new Date(club.createdAt).getFullYear()}
                           </div>
                         </div>
-                      )}
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
 
-                      {/* Compact Footer */}
-                      <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-                        <div className="flex items-center text-sm text-gray-600 font-medium">
-                          <Users className="h-4 w-4 mr-1.5 text-orange-500" />
-                          <span>Connect</span>
+            {/* List View */}
+            {viewMode === 'list' && (
+              <div className="space-y-4 mb-10">
+                {currentClubs.map((club, index) => (
+                  <Link
+                    key={club.id}
+                    href={`/clubs/${club.id}`}
+                    className="group block"
+                    style={{ 
+                      animation: 'fadeInUp 0.6s ease-out',
+                      animationDelay: `${index * 50}ms`,
+                      animationFillMode: 'both'
+                    }}
+                  >
+                    <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 border border-orange-100/50 overflow-hidden group-hover:border-orange-300">
+                      <div className="flex flex-col sm:flex-row">
+                        {/* Image */}
+                        <div className="relative sm:w-64 h-48 sm:h-auto flex-shrink-0">
+                          {club.coverImage ? (
+                            <Image
+                              src={club.coverImage}
+                              alt={`${club.name} cover`}
+                              fill
+                              className="object-cover group-hover:scale-105 transition-transform duration-500"
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-gradient-to-br from-orange-400 to-red-400 flex items-center justify-center">
+                              <Building className="h-16 w-16 text-white/40" />
+                            </div>
+                          )}
+
+                          {/* Status Badge */}
+                          <div className="absolute top-4 right-4">
+                            <span
+                              className={`px-3 py-1.5 text-xs font-bold rounded-full backdrop-blur-md ${
+                                club.isActive
+                                  ? "bg-emerald-500/90 text-white"
+                                  : "bg-gray-500/90 text-white"
+                              }`}
+                            >
+                              {club.isActive ? "● Active" : "● Inactive"}
+                            </span>
+                          </div>
                         </div>
-                        <div className="text-sm text-gray-500 bg-gray-50 px-2 py-1 rounded-md">
-                          {new Date(club.createdAt).getFullYear()}
+
+                        {/* Content */}
+                        <div className="flex-1 p-6">
+                          <div className="flex items-start justify-between mb-3">
+                            <div className="flex-1">
+                              <h3 className="text-2xl font-bold text-gray-900 group-hover:text-orange-600 transition-colors duration-300 mb-2">
+                                {club.name}
+                              </h3>
+                              {club.motto && (
+                                <p className="text-gray-600 italic mb-3">
+                                  &ldquo;{club.motto}&rdquo;
+                                </p>
+                              )}
+                            </div>
+                            <ChevronRight className="h-6 w-6 text-orange-500 group-hover:translate-x-2 transition-transform duration-300 flex-shrink-0 ml-4" />
+                          </div>
+
+                          {club.about && (
+                            <p className="text-gray-600 mb-4 line-clamp-2 leading-relaxed">
+                              {club.about}
+                            </p>
+                          )}
+
+                          {/* Avenues */}
+                          {club.avenues && club.avenues.length > 0 && (
+                            <div className="mb-4">
+                              <div className="flex flex-wrap gap-2">
+                                {club.avenues.slice(0, 4).map((avenue, idx) => (
+                                  <span
+                                    key={idx}
+                                    className="px-3 py-1.5 bg-gradient-to-r from-orange-50 to-red-50 text-orange-700 text-xs rounded-lg font-semibold border border-orange-200"
+                                  >
+                                    {avenue}
+                                  </span>
+                                ))}
+                                {club.avenues.length > 4 && (
+                                  <span className="px-3 py-1.5 bg-gray-50 text-gray-600 text-xs rounded-lg font-semibold border border-gray-200">
+                                    +{club.avenues.length - 4} more
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Footer Info */}
+                          <div className="flex items-center gap-6 text-sm text-gray-500">
+                            {club.headquarters && (
+                              <div className="flex items-center gap-1.5">
+                                <MapPin className="h-4 w-4 text-orange-500" />
+                                <span>{club.headquarters}</span>
+                              </div>
+                            )}
+                            <div className="flex items-center gap-1.5">
+                              <Calendar className="h-4 w-4 text-orange-500" />
+                              <span>Est. {club.founded || new Date(club.createdAt).getFullYear()}</span>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                              <Users className="h-4 w-4 text-orange-500" />
+                              <span className="font-medium text-orange-600">Join Now</span>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
+                  </Link>
+                ))}
+              </div>
+            )}
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div className="flex justify-center items-center mt-8 space-x-2">
-                <button
-                  onClick={() => handlePageChange(currentPage - 1)}
-                  disabled={currentPage === 1}
-                  className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Previous
-                </button>
-
-                <div className="flex space-x-1">
-                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                    let pageNumber;
-                    if (totalPages <= 5) {
-                      pageNumber = i + 1;
-                    } else if (currentPage <= 3) {
-                      pageNumber = i + 1;
-                    } else if (currentPage >= totalPages - 2) {
-                      pageNumber = totalPages - 4 + i;
-                    } else {
-                      pageNumber = currentPage - 2 + i;
-                    }
-
-                    return (
-                      <button
-                        key={pageNumber}
-                        onClick={() => handlePageChange(pageNumber)}
-                        className={`px-3 py-2 text-sm font-medium rounded-lg ${
-                          currentPage === pageNumber
-                            ? 'bg-gradient-to-r from-orange-400 to-red-400 text-white'
-                            : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50 hover:text-gray-700'
-                        }`}
-                      >
-                        {pageNumber}
-                      </button>
-                    );
-                  })}
+              <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-10">
+                <div className="text-sm text-gray-600">
+                  Showing <span className="font-semibold text-gray-900">{startIndex + 1}</span> to{' '}
+                  <span className="font-semibold text-gray-900">{Math.min(endIndex, filteredClubs.length)}</span> of{' '}
+                  <span className="font-semibold text-gray-900">{filteredClubs.length}</span> clubs
                 </div>
 
-                <button
-                  onClick={() => handlePageChange(currentPage + 1)}
-                  disabled={currentPage === totalPages}
-                  className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Next
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200"
+                  >
+                    Previous
+                  </button>
+
+                  <div className="flex gap-1">
+                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                      let pageNumber;
+                      if (totalPages <= 5) {
+                        pageNumber = i + 1;
+                      } else if (currentPage <= 3) {
+                        pageNumber = i + 1;
+                      } else if (currentPage >= totalPages - 2) {
+                        pageNumber = totalPages - 4 + i;
+                      } else {
+                        pageNumber = currentPage - 2 + i;
+                      }
+
+                      return (
+                        <button
+                          key={pageNumber}
+                          onClick={() => handlePageChange(pageNumber)}
+                          className={`px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200 ${
+                            currentPage === pageNumber
+                              ? 'bg-gradient-to-r from-orange-400 to-red-400 text-white shadow-lg'
+                              : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 hover:border-gray-400'
+                          }`}
+                        >
+                          {pageNumber}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <button
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200"
+                  >
+                    Next
+                  </button>
+                </div>
               </div>
             )}
 
@@ -463,6 +559,20 @@ export default function ClubsPage() {
         )}
 
       </div>
+
+      {/* Add CSS animations */}
+      <style jsx>{`
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
     </div>
   );
 }
