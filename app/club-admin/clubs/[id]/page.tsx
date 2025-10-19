@@ -384,7 +384,7 @@ export default function ClubDetailPage() {
       case "events":
         return <EventsTab />;
       case "minutes":
-        return <MinutesTab />;
+        return <MinutesTab clubId={clubId} />;
       case "service-letters":
         return <ServiceLettersTab />;
       case "candidates":
