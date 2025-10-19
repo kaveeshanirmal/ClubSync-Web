@@ -1,17 +1,26 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Zap, Menu, X, User, Mail, Award, Calendar } from "lucide-react";
+import { Zap, Menu, X, User, Mail, Award } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
-import Image from "next/image";
+import { useVolunteerStats } from "@/app/hooks/useVolunteerStats";
+import { calculatePoints } from "@/app/lib/volunteerUtils";
 
 export default function Navbar() {
   const [scrollY, setScrollY] = useState(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showSignOutModal, setShowSignOutModal] = useState(false);
   const [showProfileTooltip, setShowProfileTooltip] = useState(false);
+  const [tooltipTimeout, setTooltipTimeout] = useState<NodeJS.Timeout | null>(null);
 
   const { status, data: session } = useSession();
+  const { stats: volunteerStats } = useVolunteerStats(session?.user?.id);
+
+  // Generate consistent fallback avatar based on user email/name
+  const getFallbackAvatar = () => {
+    const seed = session?.user?.email || session?.user?.name || 'default';
+    return `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(seed)}`;
+  };
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
@@ -22,6 +31,21 @@ export default function Navbar() {
   const handleSignOut = () => {
     signOut({ callbackUrl: "/" });
     setShowSignOutModal(false);
+  };
+
+  const handleMouseEnter = () => {
+    if (tooltipTimeout) {
+      clearTimeout(tooltipTimeout);
+      setTooltipTimeout(null);
+    }
+    setShowProfileTooltip(true);
+  };
+
+  const handleMouseLeave = () => {
+    const timeout = setTimeout(() => {
+      setShowProfileTooltip(false);
+    }, 300); // 300ms delay before hiding
+    setTooltipTimeout(timeout);
   };
 
   return (
@@ -76,48 +100,32 @@ export default function Navbar() {
             {status === "authenticated" && (
               <div
                 className="relative flex items-center space-x-3 cursor-pointer"
-                onMouseEnter={() => setShowProfileTooltip(true)}
-                onMouseLeave={() => setShowProfileTooltip(false)}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
               >
-                {session.user?.image?.includes("dicebear.com") ? (
-                  <img
-                    src={session.user.image}
-                    alt={session.user?.name || "User"}
-                    className="w-8 h-8 rounded-full object-cover border-2 border-gray-200 hover:border-orange-300 transition-colors duration-300"
-                  />
-                ) : (
-                  <Image
-                    src={session.user?.image || "/default-avatar.png"}
-                    alt={session.user?.name || "User"}
-                    width={32}
-                    height={32}
-                    className="rounded-full object-cover border-2 border-gray-200 hover:border-orange-300 transition-colors duration-300"
-                  />
-                )}
+                <img
+                  src={session.user?.image || getFallbackAvatar()}
+                  alt={session.user?.name || "User"}
+                  className="w-8 h-8 rounded-full object-cover border-2 border-gray-200 hover:border-orange-300 transition-colors duration-300"
+                />
                 <span className="text-gray-700 font-medium hover:text-orange-500 transition-colors duration-300">
                   {session.user?.name || "User"}
                 </span>
 
                 {/* Profile Tooltip */}
                 {showProfileTooltip && (
-                  <div className="absolute top-full -right-60 mt-1 w-96 bg-white rounded-xl shadow-2xl border border-gray-200 p-4 z-50 transform opacity-0 animate-fade-in">
+                  <div 
+                    className="absolute top-full -right-60 mt-2 w-96 bg-white rounded-xl shadow-2xl border border-gray-200 p-4 z-50 transform opacity-0 animate-fade-in"
+                    onMouseEnter={handleMouseEnter}
+                    onMouseLeave={handleMouseLeave}
+                  >
                     <div className="flex items-center gap-4">
                       <div className="flex-shrink-0">
-                        {session.user?.image?.includes("dicebear.com") ? (
-                          <img
-                            src={session.user.image}
-                            alt={session.user?.name || "User"}
-                            className="w-12 h-12 rounded-full object-cover border-2 border-orange-300"
-                          />
-                        ) : (
-                          <Image
-                            src={session.user?.image || "/default-avatar.png"}
-                            alt={session.user?.name || "User"}
-                            width={48}
-                            height={48}
-                            className="rounded-full object-cover border-2 border-orange-300"
-                          />
-                        )}
+                        <img
+                          src={session.user?.image || getFallbackAvatar()}
+                          alt={session.user?.name || "User"}
+                          className="w-12 h-12 rounded-full object-cover border-2 border-orange-300"
+                        />
                       </div>
 
                       <div className="flex-1">
@@ -133,7 +141,15 @@ export default function Navbar() {
                           <div className="text-right">
                             <div className="flex items-center gap-1 text-sm text-orange-600 font-medium">
                               <Award className="w-4 h-4" />
-                              <span>320 Points</span>
+                              <span>
+                                {volunteerStats 
+                                  ? calculatePoints(
+                                      volunteerStats.eventsParticipated,
+                                      volunteerStats.eventsOrganized
+                                    )
+                                  : 0
+                                } Points
+                              </span>
                             </div>
                           </div>
                         </div>

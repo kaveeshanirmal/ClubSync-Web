@@ -683,7 +683,7 @@ export default function VolunteerProfile() {
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-gray-900">My Certificates</h2>
               <span className="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-medium">
-                {user.certificates.length} Certificates
+                {user.certificates.length} Certificate(s)
               </span>
             </div>
             

@@ -1,6 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useParams } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 import BeautifulLoader from "../../../components/Loader";
 import {
   Calendar,
@@ -9,15 +11,9 @@ import {
   Mail,
   Phone,
   Globe,
-  Edit3,
-  Save,
-  Plus,
-  Trash2,
   Star,
   Award,
   Clock,
-  Camera,
-  Settings,
   Heart,
   Target,
   Zap,
@@ -90,15 +86,13 @@ interface Club {
 }
 
 export default function ClubPage() {
-  const [isEditing, setIsEditing] = useState(false);
+  const params = useParams();
+  const clubId = params.id as string;
+  
   const [activeTab, setActiveTab] = useState("overview");
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [hoveredMember, setHoveredMember] = useState<string | null>(null);
   const [club, setClub] = useState<Club | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  const clubId = "1"; // You can make this dynamic based on route params
 
   useEffect(() => {
     const fetchClubData = async () => {
@@ -121,32 +115,6 @@ export default function ClubPage() {
 
     fetchClubData();
   }, [clubId]);
-
-  const toggleEdit = () => {
-    setIsEditing(!isEditing);
-  };
-
-  const updateClub = async (updatedData: Partial<Club>) => {
-    try {
-      const response = await fetch(`/api/clubs/${clubId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updatedData),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to update club");
-      }
-
-      const updatedClub = await response.json();
-      setClub((prev) => (prev ? { ...prev, ...updatedClub } : null));
-      setIsEditing(false);
-    } catch (err) {
-      console.error("Error updating club:", err);
-    }
-  };
 
   const getCategoryColor = (category: string) => {
     const colors: { [key: string]: string } = {
@@ -226,34 +194,12 @@ export default function ClubPage() {
                   <Zap className="w-10 h-10 text-white" />
                 </div>
                 <div>
-                  {isEditing ? (
-                    <input
-                      type="text"
-                      value={club.name}
-                      onChange={(e) =>
-                        setClub({ ...club, name: e.target.value })
-                      }
-                      className="text-4xl font-bold bg-transparent border-b border-white/50 focus:border-white outline-none"
-                    />
-                  ) : (
-                    <h1 className="text-4xl lg:text-5xl font-bold mb-2">
-                      {club.name}
-                    </h1>
-                  )}
-                  {isEditing ? (
-                    <input
-                      type="text"
-                      value={club.motto || ""}
-                      onChange={(e) =>
-                        setClub({ ...club, motto: e.target.value })
-                      }
-                      className="text-xl bg-transparent border-b border-white/50 focus:border-white outline-none"
-                    />
-                  ) : (
-                    <p className="text-xl opacity-90">
-                      {club.motto || "Service Above Self"}
-                    </p>
-                  )}
+                  <h1 className="text-4xl lg:text-5xl font-bold mb-2">
+                    {club.name}
+                  </h1>
+                  <p className="text-xl opacity-90">
+                    {club.motto || "Service Above Self"}
+                  </p>
                 </div>
               </div>
 
@@ -309,18 +255,6 @@ export default function ClubPage() {
                   height={192}
                   className="w-48 h-48 rounded-full border-4 border-white/20 shadow-2xl object-cover"
                 />
-                {isAdmin && (
-                  <button
-                    onClick={toggleEdit}
-                    className="absolute top-4 right-4 bg-white/20 backdrop-blur-sm rounded-full p-2 hover:bg-white/30 transition-colors"
-                  >
-                    {isEditing ? (
-                      <Save className="w-5 h-5" />
-                    ) : (
-                      <Edit3 className="w-5 h-5" />
-                    )}
-                  </button>
-                )}
               </div>
             </div>
           </div>
@@ -364,35 +298,11 @@ export default function ClubPage() {
                 <h2 className="text-2xl font-bold text-gray-900">
                   About Our Club
                 </h2>
-                {isAdmin && (
-                  <button
-                    onClick={() => {
-                      if (isEditing) {
-                        updateClub({ about: club.about });
-                      } else {
-                        setIsEditing(true);
-                      }
-                    }}
-                    className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-red-500 text-white px-4 py-2 rounded-lg hover:from-orange-600 hover:to-red-600 transition-all duration-300"
-                  >
-                    <Edit3 className="w-4 h-4" />
-                    {isEditing ? "Save Changes" : "Edit Description"}
-                  </button>
-                )}
               </div>
 
-              {isEditing ? (
-                <textarea
-                  value={club.about || ""}
-                  onChange={(e) => setClub({ ...club, about: e.target.value })}
-                  className="w-full h-32 p-4 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none"
-                  placeholder="Club description..."
-                />
-              ) : (
-                <p className="text-gray-600 leading-relaxed">
-                  {club.about || "No description available."}
-                </p>
-              )}
+              <p className="text-gray-600 leading-relaxed">
+                {club.about || "No description available."}
+              </p>
             </div>
 
             <div className="grid md:grid-cols-2 gap-8">
@@ -435,12 +345,6 @@ export default function ClubPage() {
               <h2 className="text-3xl font-bold text-gray-900">
                 Executive Committee
               </h2>
-              {isAdmin && (
-                <button className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-red-500 text-white px-4 py-2 rounded-lg hover:from-orange-600 hover:to-red-600 transition-all duration-300">
-                  <Plus className="w-4 h-4" />
-                  Add Member
-                </button>
-              )}
             </div>
 
             {club.excomMembers && club.excomMembers.length > 0 ? (
@@ -449,8 +353,6 @@ export default function ClubPage() {
                   <div
                     key={member.id}
                     className="bg-white rounded-2xl p-6 shadow-sm border hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
-                    onMouseEnter={() => setHoveredMember(member.id)}
-                    onMouseLeave={() => setHoveredMember(null)}
                   >
                     <div className="relative mb-4">
                       <Image
@@ -463,11 +365,6 @@ export default function ClubPage() {
                         height={96}
                         className="w-24 h-24 rounded-full mx-auto border-4 border-orange-100 object-cover"
                       />
-                      {hoveredMember === member.id && isAdmin && (
-                        <button className="absolute top-0 right-0 bg-orange-500 text-white p-2 rounded-full hover:bg-orange-600 transition-colors">
-                          <Camera className="w-4 h-4" />
-                        </button>
-                      )}
                     </div>
 
                     <div className="text-center">
@@ -521,12 +418,6 @@ export default function ClubPage() {
               <h2 className="text-3xl font-bold text-gray-900">
                 Upcoming Events
               </h2>
-              {isAdmin && (
-                <button className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-red-500 text-white px-4 py-2 rounded-lg hover:from-orange-600 hover:to-red-600 transition-all duration-300">
-                  <Plus className="w-4 h-4" />
-                  Add Event
-                </button>
-              )}
             </div>
 
             {club.events && club.events.length > 0 ? (
@@ -555,16 +446,6 @@ export default function ClubPage() {
                               {event.description || "No description available."}
                             </p>
                           </div>
-                          {isAdmin && (
-                            <div className="flex gap-2">
-                              <button className="p-2 text-gray-400 hover:text-orange-500 transition-colors">
-                                <Edit3 className="w-4 h-4" />
-                              </button>
-                              <button className="p-2 text-gray-400 hover:text-red-500 transition-colors">
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                            </div>
-                          )}
                         </div>
 
                         <div className="flex flex-wrap gap-4 mb-4 text-sm text-gray-600">
@@ -593,9 +474,11 @@ export default function ClubPage() {
                               </span>
                             </div>
                           )}
-                          <button className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-6 py-2 rounded-lg hover:from-orange-600 hover:to-red-600 transition-all duration-300">
-                            View Details
-                          </button>
+                          <Link href={`/events/${event.id}`}>
+                            <button className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-6 py-2 rounded-lg hover:from-orange-600 hover:to-red-600 transition-all duration-300">
+                              View Details
+                            </button>
+                          </Link>
                         </div>
                       </div>
                     </div>
@@ -775,30 +658,6 @@ export default function ClubPage() {
         )}
       </div>
 
-      {/* Admin Toggle for Demo */}
-      <div className="fixed bottom-6 right-6 z-30">
-        <button
-          onClick={() => setIsAdmin(!isAdmin)}
-          className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
-            isAdmin
-              ? "bg-gradient-to-r from-red-500 to-orange-500 text-white hover:from-red-600 hover:to-orange-600"
-              : "bg-gray-500 text-white hover:bg-gray-600"
-          }`}
-        >
-          {isAdmin ? "Admin View" : "Member View"}
-        </button>
-      </div>
-
-      {/* Floating Action Button for Quick Actions */}
-      {isAdmin && (
-        <div className="fixed bottom-20 right-6 z-30">
-          <div className="bg-white rounded-full shadow-lg border">
-            <button className="w-14 h-14 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-full flex items-center justify-center hover:from-orange-600 hover:to-red-600 transition-all duration-300 shadow-lg">
-              <Settings className="w-6 h-6" />
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
