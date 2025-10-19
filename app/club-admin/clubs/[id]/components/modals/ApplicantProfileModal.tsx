@@ -14,18 +14,23 @@ import {
   BarChart2,
   User,
   ClipboardList,
+  Mail,
+  CheckCircle,
+  XCircle,
 } from "lucide-react";
 
-// The basic applicant info passed from the parent
+// The modal now needs the full Applicant object to know its status
 interface Applicant {
-  id: string; // This is the JoinRequest ID
+  id: string;
   name: string;
   email: string;
+  status: "pendingReview" | "interviewPending" | "approved" | "declined";
   userImage: string;
 }
 
 // The detailed profile data fetched from the new API endpoint
 interface ProfileData {
+  // ... (this interface remains the same)
   joinRequest: {
     motivation: string | null;
     relevantSkills: string[];
@@ -53,18 +58,42 @@ interface ApplicantProfileModalProps {
   applicant: Applicant;
   isOpen: boolean;
   onClose: () => void;
+  // ✅ New props for handling actions
+  onSendInvite: (id: string) => Promise<void>;
+  onApprove: (id: string) => Promise<void>;
+  onDecline: (id: string) => Promise<void>;
 }
 
 export const ApplicantProfileModal: React.FC<ApplicantProfileModalProps> = ({
   applicant,
   isOpen,
   onClose,
+  onSendInvite,
+  onApprove,
+  onDecline,
 }) => {
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "approved":
+        return "bg-green-100 text-green-800";
+      case "pendingReview":
+        return "bg-yellow-100 text-yellow-800";
+      case "interviewPending":
+        return "bg-blue-100 text-blue-800";
+      case "declined":
+        return "bg-red-100 text-red-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
+  };
 
   useEffect(() => {
+    // ... (Your existing useEffect for data fetching remains the same)
     if (isOpen) {
       // Reset state on open for clean loading
       setIsLoading(true);
@@ -98,21 +127,112 @@ export const ApplicantProfileModal: React.FC<ApplicantProfileModalProps> = ({
     }
   }, [isOpen, applicant.id]);
 
+  const handleAction = async (action: (id: string) => Promise<void>) => {
+    setIsSubmitting(true);
+    await action(applicant.id);
+    // No need to set isSubmitting to false, as the modal will close.
+  };
+
   if (!isOpen) {
     return null;
   }
 
+  const renderActionFooter = () => {
+    if (isLoading || error) return null;
+
+    switch (applicant.status) {
+      case "pendingReview":
+        return (
+          <div className="flex space-x-3 w-full">
+            <button
+              onClick={() => handleAction(onDecline)}
+              disabled={isSubmitting}
+              className="group flex-1 flex items-center justify-center space-x-2 px-6 py-3 bg-gradient-to-r from-red-500 to-rose-600 text-white rounded-xl hover:from-red-600 hover:to-rose-700 hover:shadow-lg transform hover:scale-105 transition-all duration-300 font-semibold disabled:opacity-50 disabled:transform-none text-sm"
+            >
+              {isSubmitting ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <XCircle className="w-4 h-4" />
+              )}
+              <span>Decline</span>
+            </button>
+            <button
+              onClick={() => handleAction(onApprove)}
+              disabled={isSubmitting}
+              className="group flex-1 flex items-center justify-center space-x-2 px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl hover:from-green-600 hover:to-emerald-700 hover:shadow-lg transform hover:scale-105 transition-all duration-300 font-semibold disabled:opacity-50 disabled:transform-none text-sm"
+            >
+              {isSubmitting ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <CheckCircle className="w-4 h-4" />
+              )}
+              <span>Approve</span>
+            </button>
+            <button
+              onClick={() => handleAction(onSendInvite)}
+              disabled={isSubmitting}
+              className="group flex-1 flex items-center justify-center space-x-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl hover:from-blue-600 hover:to-indigo-700 hover:shadow-lg transform hover:scale-105 transition-all duration-300 font-semibold disabled:opacity-50 disabled:transform-none text-sm"
+            >
+              {isSubmitting ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Mail className="w-4 h-4" />
+              )}
+              <span>Send Invite</span>
+            </button>
+          </div>
+        );
+      case "interviewPending":
+        return (
+          <div className="flex space-x-3 w-full">
+            <button
+              onClick={() => handleAction(onDecline)}
+              disabled={isSubmitting}
+              className="group flex-1 flex items-center justify-center space-x-2 px-6 py-3 bg-gradient-to-r from-red-500 to-rose-600 text-white rounded-xl hover:from-red-600 hover:to-rose-700 hover:shadow-lg transform hover:scale-105 transition-all duration-300 font-semibold disabled:opacity-50 disabled:transform-none text-sm"
+            >
+              {isSubmitting ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <XCircle className="w-4 h-4" />
+              )}
+              <span>Decline</span>
+            </button>
+            <button
+              onClick={() => handleAction(onApprove)}
+              disabled={isSubmitting}
+              className="group flex-1 flex items-center justify-center space-x-2 px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl hover:from-green-600 hover:to-emerald-700 hover:shadow-lg transform hover:scale-105 transition-all duration-300 font-semibold disabled:opacity-50 disabled:transform-none text-sm"
+            >
+              {isSubmitting ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <CheckCircle className="w-4 h-4" />
+              )}
+              <span>Approve</span>
+            </button>
+          </div>
+        );
+      default:
+        // For 'approved' or 'declined' status, show a disabled badge
+        return (
+          <div
+            className={`w-full text-center px-6 py-3 rounded-xl font-semibold text-sm ${getStatusColor(applicant.status)} border-2 border-gray-200`}
+          >
+            Status:{" "}
+            {applicant.status.charAt(0).toUpperCase() +
+              applicant.status.slice(1)}
+          </div>
+        );
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in">
-      {/* Enhanced Backdrop */}
       <div
         className="absolute inset-0 bg-black/30 backdrop-blur-md"
         onClick={onClose}
       />
-
-      {/* Modal with enhanced design */}
-      <div className="relative bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[95vh] overflow-hidden border-2 border-gray-100 transform transition-all duration-300 animate-scale-in">
-        {/* Enhanced Header */}
+      <div className="relative bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[95vh] flex flex-col border-2 border-gray-100 transform transition-all duration-300 animate-scale-in">
+        {/* ... (Your existing beautiful header remains unchanged) ... */}
         <div className="relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600" />
           <div className="absolute inset-0 bg-gradient-to-r from-blue-50/90 to-indigo-50/90 backdrop-blur-sm" />
@@ -138,7 +258,7 @@ export const ApplicantProfileModal: React.FC<ApplicantProfileModalProps> = ({
             <button
               onClick={onClose}
               className="group p-2 hover:bg-white/20 rounded-xl transition-all duration-300 hover:scale-110 hover:rotate-90"
-              disabled={isLoading}
+              disabled={isLoading || isSubmitting}
             >
               <X className="w-5 h-5 text-gray-700 group-hover:text-gray-900 transition-colors duration-300" />
             </button>
@@ -148,8 +268,9 @@ export const ApplicantProfileModal: React.FC<ApplicantProfileModalProps> = ({
           <div className="absolute bottom-3 left-20 w-2 h-2 bg-indigo-300 rounded-full animate-pulse" />
         </div>
 
-        {/* Content with Scrollable Area */}
-        <div className="overflow-y-auto max-h-[calc(95vh-96px)] bg-gradient-to-br from-gray-50/50 to-white p-6">
+        {/* ✅ MODIFIED: The main content area's max-height is adjusted to make room for the footer */}
+        <div className="overflow-y-auto max-h-[calc(95vh-172px)] bg-gradient-to-br from-gray-50/50 to-white p-6">
+          {/* ... (Your existing isLoading, error, and profile content remains unchanged) ... */}
           {isLoading && (
             <div className="flex justify-center items-center h-96">
               <Loader2 className="w-10 h-10 animate-spin text-indigo-600" />
@@ -326,45 +447,14 @@ export const ApplicantProfileModal: React.FC<ApplicantProfileModalProps> = ({
             </div>
           )}
         </div>
+
+        {/* ✅ NEW: Action Footer */}
+        <div className="p-4 bg-gray-50 border-t-2 border-gray-100">
+          {renderActionFooter()}
+        </div>
       </div>
       <style jsx>{`
-        @keyframes fade-in {
-          from {
-            opacity: 0;
-          }
-          to {
-            opacity: 1;
-          }
-        }
-        @keyframes scale-in {
-          from {
-            opacity: 0;
-            transform: scale(0.95) translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: scale(1) translateY(0);
-          }
-        }
-        @keyframes slide-in {
-          from {
-            opacity: 0;
-            transform: translateX(-20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateX(0);
-          }
-        }
-        .animate-fade-in {
-          animation: fade-in 0.3s ease-out forwards;
-        }
-        .animate-scale-in {
-          animation: scale-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-        }
-        .animate-slide-in {
-          animation: slide-in 0.4s ease-out forwards;
-        }
+        /* ... (your existing animation styles) ... */
       `}</style>
     </div>
   );
