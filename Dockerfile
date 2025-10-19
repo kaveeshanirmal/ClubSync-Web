@@ -3,6 +3,9 @@ FROM node:22-alpine AS builder
 
 WORKDIR /app
 
+ARG RESEND_API_KEY
+
+ENV RESEND_API_KEY=$RESEND_API_KEY
 # Copy package files
 COPY package*.json ./
 
