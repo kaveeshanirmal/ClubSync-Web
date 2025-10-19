@@ -119,6 +119,7 @@ model User {
   VolunteerStats     VolunteerStats?
   JoinRequest        JoinRequest[]
   certificates       Certificate[]
+  minutesCreated     MeetingMinute[]
 }
 
 model Club {
@@ -151,14 +152,15 @@ model Club {
   updatedAt            DateTime @updatedAt
 
   // Relations
-  members      ClubMember[]
-  events       Event[]
-  excomMembers ExcomMember[]
-  clubRequests ClubRequest[]
-  elections    Election[]
-  User         User?         @relation(fields: [userId], references: [id])
-  userId       String?
-  JoinRequest  JoinRequest[]
+  members        ClubMember[]
+  events         Event[]
+  excomMembers   ExcomMember[]
+  clubRequests   ClubRequest[]
+  elections      Election[]
+  User           User?           @relation(fields: [userId], references: [id])
+  userId         String?
+  JoinRequest    JoinRequest[]
+  meetingMinutes MeetingMinute[]
 }
 
 model ClubMember {
@@ -423,20 +425,39 @@ model JoinRequest {
 }
 
 model Certificate {
-  id            String   @id @default(cuid())
-  userId        String
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  eventId       String
-  event         Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  certificateId String   @unique
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  eventId        String
+  event          Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  certificateId  String   @unique
   certificateUrl String
-  userName      String
-  eventName     String
-  clubName      String
-  eventDate     String
-  issuedAt      DateTime @default(now())
-  createdAt     DateTime @default(now())
+  userName       String
+  eventName      String
+  clubName       String
+  eventDate      String
+  issuedAt       DateTime @default(now())
+  createdAt      DateTime @default(now())
 
   @@unique([userId, eventId])
   @@map("certificates")
+}
+
+model MeetingMinute {
+  id             String   @id @default(cuid())
+  clubId         String
+  club           Club     @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  title          String
+  content        String?  @db.Text
+  meetingDate    DateTime
+  attendeesCount Int?     @default(0)
+  attendees      String[] @default([])
+  attachments    String[] @default([])
+  status         String   @default("draft") // e.g. draft, published, archived
+  createdById    String
+  createdBy      User     @relation(fields: [createdById], references: [id])
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("meeting_minutes")
 }
