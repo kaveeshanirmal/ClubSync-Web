@@ -45,6 +45,84 @@ interface Club {
   };
 }
 
+// Club/Organization-specific Unsplash image IDs (curated, high-quality images)
+const clubImages: { [key: string]: string } = {
+  // Academic & Professional
+  'academic': 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=800&h=600&fit=crop',
+  'debate': 'https://images.unsplash.com/photo-1591115765373-5207764f72e7?w=800&h=600&fit=crop',
+  'science': 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=800&h=600&fit=crop',
+  'engineering': 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=800&h=600&fit=crop',
+  'business': 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&h=600&fit=crop',
+  
+  // Arts & Culture
+  'art': 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=800&h=600&fit=crop',
+  'music': 'https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=800&h=600&fit=crop',
+  'drama': 'https://images.unsplash.com/photo-1507676184212-d03ab07a01bf?w=800&h=600&fit=crop',
+  'dance': 'https://images.unsplash.com/photo-1508700929628-666bc8bd84ea?w=800&h=600&fit=crop',
+  'photography': 'https://images.unsplash.com/photo-1452587925148-ce544e77e70d?w=800&h=600&fit=crop',
+  'literature': 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=800&h=600&fit=crop',
+  
+  // Sports & Fitness
+  'sports': 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=800&h=600&fit=crop',
+  'fitness': 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=800&h=600&fit=crop',
+  'cricket': 'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=800&h=600&fit=crop',
+  'football': 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=800&h=600&fit=crop',
+  'basketball': 'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=800&h=600&fit=crop',
+  
+  // Technology
+  'genz': 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&h=600&fit=crop',
+  'coding': 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800&h=600&fit=crop',
+  'innovator': 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=800&h=600&fit=crop',
+  'tech': 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&h=600&fit=crop',
+  
+  // Community & Social
+  'community': 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800&h=600&fit=crop',
+  'volunteer': 'https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=800&h=600&fit=crop',
+  'social': 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=800&h=600&fit=crop',
+  'charity': 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=800&h=600&fit=crop',
+  'environment': 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=800&h=600&fit=crop',
+  
+  // Cultural
+  'cultural': 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=800&h=600&fit=crop',
+  'religious': 'https://images.unsplash.com/photo-1507692049790-de58290a4334?w=800&h=600&fit=crop',
+  
+  // Special Interest
+  'entrepreneurship': 'https://images.unsplash.com/photo-1556761175-b413da4baf72?w=800&h=600&fit=crop',
+  'innovation': 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&h=600&fit=crop',
+  'leadership': 'https://images.unsplash.com/photo-1521791136064-7986c2920216?w=800&h=600&fit=crop',
+  
+  // Default
+  'default': 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=800&h=600&fit=crop',
+};
+
+// Function to get club image
+const getClubImage = (club: Club): string => {
+  if (club.coverImage) {
+    return club.coverImage;
+  }
+  
+  // Try to match based on club name or avenues
+  const clubNameLower = club.name.toLowerCase();
+  
+  // Check if club name contains any keywords
+  for (const [keyword, imageUrl] of Object.entries(clubImages)) {
+    if (clubNameLower.includes(keyword)) {
+      return imageUrl;
+    }
+  }
+  
+  // Check avenues if available
+  if (club.avenues && club.avenues.length > 0) {
+    const firstAvenueLower = club.avenues[0].toLowerCase().replace(/\s+/g, '-');
+    if (clubImages[firstAvenueLower]) {
+      return clubImages[firstAvenueLower];
+    }
+  }
+  
+  // Return default image
+  return clubImages['default'];
+};
+
 export default function ClubsPage() {
   const [clubs, setClubs] = useState<Club[]>([]);
   const [filteredClubs, setFilteredClubs] = useState<Club[]>([]);
@@ -295,37 +373,35 @@ export default function ClubsPage() {
                     <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-orange-100/50 h-full">
                       {/* Cover Image */}
                       <div className="relative h-40 overflow-hidden">
-                        {club.coverImage ? (
-                          <Image
-                            src={club.coverImage}
-                            alt={`${club.name} cover`}
-                            fill
-                            className="object-cover group-hover:scale-110 transition-transform duration-700"
-                          />
-                        ) : (
-                          <div className="w-full h-full bg-gradient-to-br from-orange-400 to-red-400 flex items-center justify-center">
-                            <Building className="h-16 w-16 text-white/40" />
-                          </div>
-                        )}
+                        <Image
+                          src={getClubImage(club)}
+                          alt={`${club.name} cover`}
+                          fill
+                          className="object-cover group-hover:scale-110 transition-transform duration-700"
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
+                        />
                         
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
 
                         {/* Status Badge */}
                         <div className="absolute top-4 right-4">
                           <span
-                            className={`px-3 py-1.5 text-xs font-bold rounded-full backdrop-blur-md ${
+                            className={`px-3 py-1.5 text-xs font-bold rounded-lg backdrop-blur-sm shadow-lg ${
                               club.isActive
-                                ? "bg-emerald-500/90 text-white shadow-lg"
-                                : "bg-gray-500/90 text-white shadow-lg"
+                                ? "bg-emerald-400/95 text-emerald-900"
+                                : "bg-gray-400/95 text-gray-900"
                             }`}
                           >
-                            {club.isActive ? "● Active" : "● Inactive"}
+                            {club.isActive ? "Active" : "Inactive"}
                           </span>
                         </div>
 
                         {/* Hover Overlay */}
                         <div className="absolute inset-0 bg-orange-500/0 group-hover:bg-orange-500/10 transition-all duration-300" />
                       </div>
+
+                      {/* Top Accent Line */}
+                      <div className="h-1 bg-gradient-to-r from-orange-400 to-red-400"></div>
 
                       {/* Content */}
                       <div className="p-5">
@@ -342,26 +418,7 @@ export default function ClubsPage() {
                           </p>
                         )}
 
-                        {/* Avenues */}
-                        {club.avenues && club.avenues.length > 0 && (
-                          <div className="mb-3">
-                            <div className="flex flex-wrap gap-1.5">
-                              {club.avenues.slice(0, 2).map((avenue, idx) => (
-                                <span
-                                  key={idx}
-                                  className="px-2.5 py-1 bg-gradient-to-r from-orange-50 to-red-50 text-orange-700 text-xs rounded-lg font-semibold border border-orange-200"
-                                >
-                                  {avenue}
-                                </span>
-                              ))}
-                              {club.avenues.length > 2 && (
-                                <span className="px-2.5 py-1 bg-gray-50 text-gray-600 text-xs rounded-lg font-semibold border border-gray-200">
-                                  +{club.avenues.length - 2}
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        )}
+                        
 
                         {/* Footer */}
                         <div className="flex items-center justify-between pt-3 border-t border-gray-100">
@@ -398,32 +455,30 @@ export default function ClubsPage() {
                       <div className="flex flex-col sm:flex-row">
                         {/* Image */}
                         <div className="relative sm:w-64 h-48 sm:h-auto flex-shrink-0">
-                          {club.coverImage ? (
-                            <Image
-                              src={club.coverImage}
-                              alt={`${club.name} cover`}
-                              fill
-                              className="object-cover group-hover:scale-105 transition-transform duration-500"
-                            />
-                          ) : (
-                            <div className="w-full h-full bg-gradient-to-br from-orange-400 to-red-400 flex items-center justify-center">
-                              <Building className="h-16 w-16 text-white/40" />
-                            </div>
-                          )}
+                          <Image
+                            src={getClubImage(club)}
+                            alt={`${club.name} cover`}
+                            fill
+                            className="object-cover group-hover:scale-105 transition-transform duration-500"
+                            sizes="(max-width: 640px) 100vw, 256px"
+                          />
 
                           {/* Status Badge */}
                           <div className="absolute top-4 right-4">
                             <span
-                              className={`px-3 py-1.5 text-xs font-bold rounded-full backdrop-blur-md ${
+                              className={`px-3 py-1.5 text-xs font-bold rounded-lg backdrop-blur-sm shadow-lg ${
                                 club.isActive
-                                  ? "bg-emerald-500/90 text-white"
-                                  : "bg-gray-500/90 text-white"
+                                  ? "bg-emerald-400/95 text-emerald-900"
+                                  : "bg-gray-400/95 text-gray-900"
                               }`}
                             >
-                              {club.isActive ? "● Active" : "● Inactive"}
+                              {club.isActive ? "Active" : "Inactive"}
                             </span>
                           </div>
                         </div>
+
+                        {/* Vertical Accent Line */}
+                        <div className="hidden sm:block absolute left-64 top-0 bottom-0 w-1 bg-gradient-to-b from-orange-400 to-red-400"></div>
 
                         {/* Content */}
                         <div className="flex-1 p-6">
