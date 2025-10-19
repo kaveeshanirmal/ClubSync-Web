@@ -19,7 +19,7 @@ interface Applicant {
   id: string;
   name: string;
   email: string;
-  status: "pending review" | "interview pending" | "approved" | "declined";
+  status: "pendingReview" | "interviewPending" | "approved" | "declined";
   submittedAt: string;
   motivation: string | null;
   relevantSkills: string[];
@@ -36,9 +36,9 @@ const getStatusColor = (status: string) => {
   switch (status) {
     case "approved":
       return "bg-green-100 text-green-800";
-    case "pending review":
+    case "pendingReview":
       return "bg-yellow-100 text-yellow-800";
-    case "interview pending":
+    case "interviewPending":
       return "bg-blue-100 text-blue-800";
     case "declined":
       return "bg-red-100 text-red-800";
@@ -141,9 +141,7 @@ const InterviewsTab: React.FC<InterviewsTabProps> = ({ clubId }) => {
       if (!response.ok) throw new Error("Failed to send invite");
       setApplicants((currentApplicants) =>
         currentApplicants.map((app) =>
-          app.id === applicantId
-            ? { ...app, status: "interview pending" }
-            : app,
+          app.id === applicantId ? { ...app, status: "interviewPending" } : app,
         ),
       );
     } catch (error) {
@@ -386,7 +384,7 @@ const InterviewsTab: React.FC<InterviewsTabProps> = ({ clubId }) => {
                 <tbody className="bg-white divide-y divide-gray-100">
                   {applicants.map((applicant) => {
                     const isSendingInvite = sendingInvites.has(applicant.id);
-                    const canSendInvite = applicant.status === "pending review";
+                    const canSendInvite = applicant.status === "pendingReview";
                     return (
                       <tr
                         key={applicant.id}
