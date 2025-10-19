@@ -1,5 +1,5 @@
 "use client";
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Activity,
   Clock,
@@ -9,50 +9,143 @@ import {
   ArrowUpRight,
   Users,
   Sparkles,
-  Globe
+  Globe,
+  AlertCircle
 } from 'lucide-react';
 import { XAxis, YAxis, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 
-const AnalyticsTab: React.FC = () => {
-  // Sample analytics data
-  const analyticsData = {
-    engagementMetrics: [
-      { metric: 'User Engagement', value: 87, target: 85 },
-      { metric: 'Event Attendance', value: 92, target: 90 },
-      { metric: 'Club Participation', value: 78, target: 80 },
-      { metric: 'Content Quality', value: 94, target: 85 },
-    ],
-    hourlyActivity: [
-      { hour: '6AM', users: 45 },
-      { hour: '9AM', users: 120 },
-      { hour: '12PM', users: 180 },
-      { hour: '3PM', users: 210 },
-      { hour: '6PM', users: 234 },
-      { hour: '9PM', users: 190 },
-      { hour: '12AM', users: 95 },
-    ],
-    topPerformers: [
-      { name: 'Tech Innovators Club', members: 156, events: 12, score: 94, growth: '+23%' },
-      { name: 'Creative Arts Hub', members: 134, events: 8, score: 89, growth: '+18%' },
-      { name: 'Future Leaders', members: 98, events: 15, score: 87, growth: '+31%' },
-      { name: 'Green Earth Society', members: 87, events: 6, score: 82, growth: '+12%' },
-    ],
-    monthlyGrowth: [
-      { month: 'Jul', newClubs: 12 },
-      { month: 'Aug', newClubs: 19 },
-      { month: 'Sep', newClubs: 25 },
-      { month: 'Oct', newClubs: 31 },
-      { month: 'Nov', newClubs: 28 },
-      { month: 'Dec', newClubs: 34 },
-    ],
-    geographicData: [
-      { region: 'North America', clubs: 156, color: '#f97316' },
-      { region: 'Europe', clubs: 134, color: '#ef4444' },
-      { region: 'Asia Pacific', clubs: 112, color: '#fb923c' },
-      { region: 'Latin America', clubs: 89, color: '#f87171' },
-      { region: 'Others', clubs: 33, color: '#fbbf24' },
-    ]
+interface EngagementMetric {
+  metric: string;
+  value: number;
+  target: number;
+}
+
+interface TopPerformer {
+  name: string;
+  members: number;
+  events: number;
+  score: number;
+  growth: string;
+}
+
+interface MonthlyGrowth {
+  month: string;
+  newClubs: number;
+}
+
+interface GeographicData {
+  region: string;
+  clubs: number;
+  color: string;
+}
+
+interface AnalyticsData {
+  liveMetrics: {
+    activeUsers: number;
+    concurrentSessions: number;
+    eventsToday: number;
+    avgResponseTime: number;
+    activeUsersChange: string;
+    sessionsChange: string;
+    eventsTodayChange: string;
+    responseTimeChange: string;
   };
+  systemHealth: {
+    overall: number;
+    serverUptime: number;
+    databasePerformance: number;
+    apiResponseRate: number;
+    userSatisfaction: number;
+  };
+  summaryStats: {
+    totalClubs: number;
+    totalEvents: number;
+    totalMembers: number;
+    totalAttendance: number;
+    clubGrowth: string;
+    eventGrowth: string;
+    attendanceGrowth: string;
+  };
+  engagementMetrics: EngagementMetric[];
+  performanceMetrics: {
+    userEngagement: { value: string; change: string; trend: string };
+    eventSuccessRate: { value: string; change: string; trend: string };
+    growthVelocity: { value: string; change: string; trend: string };
+  };
+  topPerformers: TopPerformer[];
+  monthlyGrowth: MonthlyGrowth[];
+  geographicData: GeographicData[];
+}
+
+const AnalyticsTab: React.FC = () => {
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+
+  useEffect(() => {
+    fetchAnalyticsData();
+  }, []);
+
+  const fetchAnalyticsData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await fetch('/api/admin/analytics');
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to fetch analytics data');
+      }
+
+      setAnalyticsData(result.data);
+      setLastUpdated(new Date());
+    } catch (err) {
+      console.error('Error fetching analytics data:', err);
+      setError(err instanceof Error ? err.message : 'An error occurred');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getTimeAgo = (date: Date | null) => {
+    if (!date) return 'Just now';
+    const seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000);
+    if (seconds < 60) return `${seconds} seconds ago`;
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+    const hours = Math.floor(minutes / 60);
+    return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+  };
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px]">
+        <div className="w-12 h-12 border-4 border-t-orange-500 border-orange-200 rounded-full animate-spin"></div>
+        <p className="mt-3 text-gray-600">Loading Analytics</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-8 text-center">
+        <AlertCircle className="w-12 h-12 text-red-500 mx-auto" />
+        <p className="mt-3 text-gray-600">{error}</p>
+        <button 
+          onClick={fetchAnalyticsData}
+          className="mt-4 bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-md"
+        >
+          Try Again
+        </button>
+      </div>
+    );
+  }
+
+  if (!analyticsData) {
+    return null;
+  }
 
   return (
     <div className="space-y-8">
@@ -189,10 +282,34 @@ const AnalyticsTab: React.FC = () => {
           
           <div className="space-y-6">
             {[
-              { label: 'Active Users', value: '1,247', change: '+23', color: 'text-orange-600', bgColor: 'bg-orange-50' },
-              { label: 'Concurrent Sessions', value: '89', change: '+12', color: 'text-red-600', bgColor: 'bg-red-50' },
-              { label: 'Events Today', value: '15', change: '+3', color: 'text-orange-600', bgColor: 'bg-orange-50' },
-              { label: 'Avg. Response Time', value: '120ms', change: '-15ms', color: 'text-red-600', bgColor: 'bg-red-50' },
+              { 
+                label: 'Active Users', 
+                value: analyticsData.liveMetrics.activeUsers.toLocaleString(), 
+                change: analyticsData.liveMetrics.activeUsersChange, 
+                color: 'text-orange-600', 
+                bgColor: 'bg-orange-50' 
+              },
+              { 
+                label: 'Concurrent Sessions', 
+                value: analyticsData.liveMetrics.concurrentSessions.toString(), 
+                change: analyticsData.liveMetrics.sessionsChange, 
+                color: 'text-red-600', 
+                bgColor: 'bg-red-50' 
+              },
+              { 
+                label: 'Events Today', 
+                value: analyticsData.liveMetrics.eventsToday.toString(), 
+                change: analyticsData.liveMetrics.eventsTodayChange, 
+                color: 'text-orange-600', 
+                bgColor: 'bg-orange-50' 
+              },
+              { 
+                label: 'Avg. Response Time', 
+                value: `${analyticsData.liveMetrics.avgResponseTime}ms`, 
+                change: analyticsData.liveMetrics.responseTimeChange, 
+                color: 'text-red-600', 
+                bgColor: 'bg-red-50' 
+              },
             ].map((metric, index) => (
               <div key={index} className="flex items-center justify-between">
                 <div>
@@ -219,36 +336,49 @@ const AnalyticsTab: React.FC = () => {
           </div>
         </div>
 
-        {/* Platform Health */}
+        {/* Regional Performance */}
         <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-gray-900">Platform Health</h3>
-            <div className="flex items-center space-x-2 text-sm text-gray-600">
-              <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
-              <span>Optimal</span>
-            </div>
+            <h3 className="text-lg font-semibold text-gray-900">Regional Distribution</h3>
+            <Globe className="w-5 h-5 text-orange-600" />
           </div>
           
           <div className="space-y-4">
-            {[
-              { name: 'Server Uptime', value: 99.9, color: 'from-orange-500 to-red-500' },
-              { name: 'Database Performance', value: 95.2, color: 'from-orange-500 to-red-500' },
-              { name: 'API Response Rate', value: 98.7, color: 'from-orange-500 to-red-500' },
-              { name: 'User Satisfaction', value: 96.1, color: 'from-orange-500 to-red-500' },
-            ].map((item, index) => (
+            {analyticsData.geographicData.map((region, index) => (
               <div key={index} className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-700">{item.name}</span>
-                  <span className="text-sm text-gray-600">{item.value}%</span>
+                  <span className="text-sm font-medium text-gray-700">{region.region}</span>
+                  <div className="flex items-center space-x-2">
+                    <span className="text-sm text-gray-600">{region.clubs}</span>
+                    <div className="w-6 h-6 rounded-md flex items-center justify-center text-xs font-semibold text-white"
+                         style={{ backgroundColor: region.color }}>
+                      {region.clubs}
+                    </div>
+                  </div>
                 </div>
+                
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div 
-                    className={`h-2 bg-gradient-to-r ${item.color} rounded-full transition-all duration-1000`}
-                    style={{ width: `${item.value}%` }}
+                    className="h-2 rounded-full transition-all duration-1000"
+                    style={{ 
+                      width: `${(region.clubs / 200) * 100}%`,
+                      backgroundColor: region.color
+                    }}
                   ></div>
                 </div>
               </div>
             ))}
+          </div>
+          
+          <div className="mt-6 p-4 bg-gradient-to-r from-orange-50 to-red-50 rounded-lg border border-orange-200">
+            <div className="text-center space-y-2">
+              <div className="flex items-center justify-center space-x-2">
+                <div className="w-2 h-2 bg-gradient-to-r from-orange-500 to-red-500 rounded-full"></div>
+                <span className="text-sm font-medium text-gray-900">Global Coverage</span>
+              </div>
+              <p className="text-xs text-gray-600">{analyticsData.summaryStats.totalClubs} organizations across 47 countries</p>
+              <p className="text-xs text-orange-600">Updated {getTimeAgo(lastUpdated)}</p>
+            </div>
           </div>
         </div>
       </div>
@@ -301,26 +431,26 @@ const AnalyticsTab: React.FC = () => {
           </div>
         </div>
 
-        {/* Trend Analysis Chart */}
+        {/* Growth Trends */}
         <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-gray-900">Activity Trends</h3>
+            <h3 className="text-lg font-semibold text-gray-900">Growth Analysis</h3>
             <div className="flex items-center space-x-2 text-sm text-gray-600">
-              <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
-              <span>Last 24 Hours</span>
+              <TrendingUp className="w-4 h-4" />
+              <span>6-Month Trend</span>
             </div>
           </div>
           
-          <ResponsiveContainer width="100%" height={280}>
-            <AreaChart data={analyticsData.hourlyActivity}>
+          <ResponsiveContainer width="100%" height={300}>
+            <AreaChart data={analyticsData.monthlyGrowth}>
               <defs>
-                <linearGradient id="activityGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#f97316" stopOpacity={0.3}/>
+                <linearGradient id="growthGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#f97316" stopOpacity={0.2}/>
                   <stop offset="100%" stopColor="#ef4444" stopOpacity={0.05}/>
                 </linearGradient>
               </defs>
               <XAxis 
-                dataKey="hour" 
+                dataKey="month" 
                 axisLine={false} 
                 tickLine={false}
                 tick={{ fontSize: 12, fill: '#6b7280' }}
@@ -340,23 +470,36 @@ const AnalyticsTab: React.FC = () => {
               />
               <Area 
                 type="monotone" 
-                dataKey="users" 
+                dataKey="newClubs" 
                 stroke="#f97316" 
                 strokeWidth={2}
-                fill="url(#activityGradient)"
+                fill="url(#growthGradient)"
                 animationDuration={1500}
               />
             </AreaChart>
           </ResponsiveContainer>
           
-          <div className="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-gray-100">
+          <div className="grid grid-cols-3 gap-4 mt-6 pt-4 border-t border-gray-100">
             <div className="text-center">
-              <div className="text-lg font-semibold text-gray-900">234</div>
-              <div className="text-xs text-gray-600">Peak Users</div>
+              <div className="text-lg font-semibold text-gray-900">
+                {parseFloat(analyticsData.summaryStats.clubGrowth) >= 0 ? '+' : ''}
+                {parseFloat(analyticsData.summaryStats.clubGrowth).toFixed(0)}%
+              </div>
+              <div className="text-xs text-gray-600 uppercase tracking-wide">Growth Rate</div>
             </div>
             <div className="text-center">
-              <div className="text-lg font-semibold text-gray-900">156</div>
-              <div className="text-xs text-gray-600">Avg/Hour</div>
+              <div className="text-lg font-semibold text-gray-900">
+                {analyticsData.summaryStats.totalMembers >= 1000 
+                  ? `${(analyticsData.summaryStats.totalMembers / 1000).toFixed(1)}k` 
+                  : analyticsData.summaryStats.totalMembers}
+              </div>
+              <div className="text-xs text-gray-600 uppercase tracking-wide">Total Members</div>
+            </div>
+            <div className="text-center">
+              <div className="text-lg font-semibold text-gray-900">
+                {Math.min(Math.round((analyticsData.summaryStats.totalAttendance / Math.max(analyticsData.summaryStats.totalEvents, 1)) / 50 * 100), 100)}%
+              </div>
+              <div className="text-xs text-gray-600 uppercase tracking-wide">Attendance Rate</div>
             </div>
           </div>
         </div>
@@ -451,119 +594,6 @@ const AnalyticsTab: React.FC = () => {
                 <p className="text-sm font-semibold text-gray-900">Key Insight</p>
                 <p className="text-sm text-gray-600 mt-1">Organizations with higher evening engagement show 23% better retention rates and increased member satisfaction scores.</p>
               </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Growth Analytics & Geographic Distribution */}
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-        {/* Growth Trends */}
-        <div className="lg:col-span-3 bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-gray-900">Growth Analysis</h3>
-            <div className="flex items-center space-x-2 text-sm text-gray-600">
-              <TrendingUp className="w-4 h-4" />
-              <span>6-Month Trend</span>
-            </div>
-          </div>
-          
-          <ResponsiveContainer width="100%" height={300}>
-            <AreaChart data={analyticsData.monthlyGrowth}>
-              <defs>
-                <linearGradient id="growthGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#f97316" stopOpacity={0.2}/>
-                  <stop offset="100%" stopColor="#ef4444" stopOpacity={0.05}/>
-                </linearGradient>
-              </defs>
-              <XAxis 
-                dataKey="month" 
-                axisLine={false} 
-                tickLine={false}
-                tick={{ fontSize: 12, fill: '#6b7280' }}
-              />
-              <YAxis 
-                axisLine={false} 
-                tickLine={false}
-                tick={{ fontSize: 12, fill: '#6b7280' }}
-              />
-              <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: 'white', 
-                  border: '1px solid #e5e7eb', 
-                  borderRadius: '8px', 
-                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                }} 
-              />
-              <Area 
-                type="monotone" 
-                dataKey="newClubs" 
-                stroke="#f97316" 
-                strokeWidth={2}
-                fill="url(#growthGradient)"
-                animationDuration={1500}
-              />
-            </AreaChart>
-          </ResponsiveContainer>
-          
-          <div className="grid grid-cols-3 gap-4 mt-6 pt-4 border-t border-gray-100">
-            <div className="text-center">
-              <div className="text-lg font-semibold text-gray-900">+156%</div>
-              <div className="text-xs text-gray-600 uppercase tracking-wide">Growth Rate</div>
-            </div>
-            <div className="text-center">
-              <div className="text-lg font-semibold text-gray-900">2.4k</div>
-              <div className="text-xs text-gray-600 uppercase tracking-wide">New Members</div>
-            </div>
-            <div className="text-center">
-              <div className="text-lg font-semibold text-gray-900">89%</div>
-              <div className="text-xs text-gray-600 uppercase tracking-wide">Retention</div>
-            </div>
-          </div>
-        </div>
-
-        {/* Regional Performance */}
-        <div className="lg:col-span-2 bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-gray-900">Regional Distribution</h3>
-            <Globe className="w-5 h-5 text-orange-600" />
-          </div>
-          
-          <div className="space-y-4">
-            {analyticsData.geographicData.map((region, index) => (
-              <div key={index} className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-700">{region.region}</span>
-                  <div className="flex items-center space-x-2">
-                    <span className="text-sm text-gray-600">{region.clubs}</span>
-                    <div className="w-6 h-6 rounded-md flex items-center justify-center text-xs font-semibold text-white"
-                         style={{ backgroundColor: region.color }}>
-                      {region.clubs}
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div 
-                    className="h-2 rounded-full transition-all duration-1000"
-                    style={{ 
-                      width: `${(region.clubs / 200) * 100}%`,
-                      backgroundColor: region.color
-                    }}
-                  ></div>
-                </div>
-              </div>
-            ))}
-          </div>
-          
-          <div className="mt-6 p-4 bg-gradient-to-r from-orange-50 to-red-50 rounded-lg border border-orange-200">
-            <div className="text-center space-y-2">
-              <div className="flex items-center justify-center space-x-2">
-                <div className="w-2 h-2 bg-gradient-to-r from-orange-500 to-red-500 rounded-full"></div>
-                <span className="text-sm font-medium text-gray-900">Global Coverage</span>
-              </div>
-              <p className="text-xs text-gray-600">524 organizations across 47 countries</p>
-              <p className="text-xs text-orange-600">Updated 2 minutes ago</p>
             </div>
           </div>
         </div>

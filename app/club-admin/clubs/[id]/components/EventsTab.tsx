@@ -1,4 +1,4 @@
-import { Calendar, Plus, Users, MapPin, Clock, Edit, Trash2 } from "lucide-react";
+import { Calendar, Plus, Users, MapPin, Edit, Trash2, Award } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import CreateEventModal from "./modals/CreateEventModal";
@@ -119,8 +119,9 @@ const EventsTab: React.FC = () => {
       
       const data = await response.json();
       setEvents(data.events || []);
-    } catch (err: any) {
-      setError(err.message || "Failed to load events");
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Failed to load events";
+      setError(errorMessage);
       console.error("Error fetching events:", err);
     } finally {
       setIsLoading(false);
@@ -131,6 +132,7 @@ const EventsTab: React.FC = () => {
     if (clubId) {
       fetchEvents();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clubId]);
 
   const handleCreateEvent = (newEvent: Event) => {
@@ -162,6 +164,29 @@ const EventsTab: React.FC = () => {
     showToast("Event deleted successfully!", "success");
     setIsDeleteModalOpen(false);
     setSelectedEvent(null);
+  };
+
+  const handleGenerateCertificates = async (eventId: string) => {
+    try {
+      const response = await fetch(`/api/events/${eventId}/generate-certificates`, {
+        method: 'POST',
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to generate certificates');
+      }
+
+      const data = await response.json();
+      showToast(
+        `Generated ${data.generated.length} certificates successfully!`,
+        'success'
+      );
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to generate certificates';
+      showToast(errorMessage, 'error');
+      console.error('Error generating certificates:', err);
+    }
   };
 
   if (isLoading) {
@@ -282,21 +307,34 @@ const EventsTab: React.FC = () => {
                   </p>
                 )}
 
-                <div className="flex space-x-2">
-                  <button 
-                    onClick={() => handleEditEvent(event)}
-                    className="flex-1 flex items-center justify-center space-x-1 px-3 py-2 text-sm text-blue-600 border-2 border-blue-200 rounded-xl hover:bg-blue-50 hover:border-blue-300 transition-all duration-300"
-                  >
-                    <Edit className="w-4 h-4" />
-                    <span>Edit</span>
-                  </button>
-                  <button 
-                    onClick={() => handleDeleteEvent(event)}
-                    className="flex-1 flex items-center justify-center space-x-1 px-3 py-2 text-sm text-red-600 border-2 border-red-200 rounded-xl hover:bg-red-50 hover:border-red-300 transition-all duration-300"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                    <span>Delete</span>
-                  </button>
+                <div className="space-y-2">
+                  {/* Show certificate generation button for completed events */}
+                  {status === "completed" && (
+                    <button
+                      onClick={() => handleGenerateCertificates(event.id)}
+                      className="w-full flex items-center justify-center space-x-1 px-3 py-2 text-sm text-green-600 border-2 border-green-200 rounded-xl hover:bg-green-50 hover:border-green-300 transition-all duration-300"
+                    >
+                      <Award className="w-4 h-4" />
+                      <span>Generate Certificates</span>
+                    </button>
+                  )}
+                  
+                  <div className="flex space-x-2">
+                    <button 
+                      onClick={() => handleEditEvent(event)}
+                      className="flex-1 flex items-center justify-center space-x-1 px-3 py-2 text-sm text-blue-600 border-2 border-blue-200 rounded-xl hover:bg-blue-50 hover:border-blue-300 transition-all duration-300"
+                    >
+                      <Edit className="w-4 h-4" />
+                      <span>Edit</span>
+                    </button>
+                    <button 
+                      onClick={() => handleDeleteEvent(event)}
+                      className="flex-1 flex items-center justify-center space-x-1 px-3 py-2 text-sm text-red-600 border-2 border-red-200 rounded-xl hover:bg-red-50 hover:border-red-300 transition-all duration-300"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      <span>Delete</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             );

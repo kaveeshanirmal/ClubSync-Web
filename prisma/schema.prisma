@@ -120,6 +120,15 @@ model User {
   JoinRequest        JoinRequest[]
   certificates       Certificate[]
   minutesCreated     MeetingMinute[]
+
+  @@index([isActive])
+  @@index([role])
+  @@index([lastLogin])
+  @@index([createdAt])
+  @@index([emailVerified])
+  @@index([isActive, role])
+  @@index([isActive, lastLogin])
+  @@index([isActive, createdAt])
 }
 
 model Club {
@@ -174,6 +183,8 @@ model ClubMember {
   joinedAt         DateTime         @default(now())
 
   @@unique([clubId, userId])
+  @@index([role])
+  @@index([clubId])
   @@map("club_members")
 }
 
@@ -431,7 +442,6 @@ model Certificate {
   eventId        String
   event          Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
   certificateId  String   @unique
-  certificateUrl String
   userName       String
   eventName      String
   clubName       String
