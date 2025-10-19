@@ -163,12 +163,12 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
   };
 
   const [formData, setFormData] = useState(initialFormData);
-  const [users, setUsers] = useState<User[]>([]);
+  const [clubMembers, setClubMembers] = useState<User[]>([]);
   const [selectedOrganizer, setSelectedOrganizer] = useState<User | null>(null);
   const [isOrganizerDropdownOpen, setIsOrganizerDropdownOpen] = useState(false);
   const [organizerSearch, setOrganizerSearch] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isLoadingUsers, setIsLoadingUsers] = useState(false);
+  const [isLoadingMembers, setIsLoadingMembers] = useState(false);
   const [error, setError] = useState("");
 
   const [addons, setAddons] = useState<EventAddon[]>([]);
@@ -192,34 +192,42 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
     { value: "other", label: "Other" },
   ];
 
-  const fetchUsers = useCallback(async () => {
+  const fetchClubMembers = useCallback(async () => {
     try {
-      setIsLoadingUsers(true);
-      const response = await fetch("/api/users/select");
+      setIsLoadingMembers(true);
+      const response = await fetch(`/api/clubs/${clubId}/members`);
 
       if (response.ok) {
         const data = await response.json();
-        setUsers(data.users || []);
+        // Transform the data to match User interface
+        const members = data.map((member: any) => ({
+          id: member.user.id,
+          firstName: member.user.firstName,
+          lastName: member.user.lastName,
+          email: member.user.email,
+          role: member.role // This is the club role, not the user role
+        }));
+        setClubMembers(members || []);
       }
     } catch (err) {
-      console.error("Failed to fetch users:", err);
+      console.error("Failed to fetch club members:", err);
     } finally {
-      setIsLoadingUsers(false);
+      setIsLoadingMembers(false);
     }
-  }, []);
+  }, [clubId]);
 
   useEffect(() => {
     if (isOpen) {
-      fetchUsers();
+      fetchClubMembers();
     }
-  }, [isOpen, fetchUsers]);
+  }, [isOpen, fetchClubMembers]);
 
-  const filteredUsers = users.filter(
-    (user) =>
-      `${user.firstName} ${user.lastName}`
+  const filteredMembers = clubMembers.filter(
+    (member) =>
+      `${member.firstName} ${member.lastName}`
         .toLowerCase()
         .includes(organizerSearch.toLowerCase()) ||
-      user.email.toLowerCase().includes(organizerSearch.toLowerCase()),
+      member.email.toLowerCase().includes(organizerSearch.toLowerCase()),
   );
 
   const handleInputChange = (
@@ -563,30 +571,35 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
 
                       {isOrganizerDropdownOpen && (
                         <div className="absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-xl shadow-lg max-h-48 overflow-y-auto animate-fade-in">
-                          {isLoadingUsers ? (
+                          {isLoadingMembers ? (
                             <div className="p-3 text-center text-gray-500 text-xs">
                               <div className="w-4 h-4 border-2 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-1" />
-                              Loading users...
+                              Loading club members...
                             </div>
-                          ) : filteredUsers.length > 0 ? (
-                            filteredUsers.map((user) => (
+                          ) : filteredMembers.length > 0 ? (
+                            filteredMembers.map((member) => (
                               <button
-                                key={user.id}
+                                key={member.id}
                                 type="button"
-                                onMouseDown={() => handleOrganizerSelect(user)}
+                                onMouseDown={() => handleOrganizerSelect(member)}
                                 className="w-full px-4 py-2 text-left hover:bg-gray-50 border-b border-gray-100 last:border-b-0 transition-colors duration-200"
                               >
                                 <div className="font-medium text-gray-900 text-sm">
-                                  {user.firstName} {user.lastName}
+                                  {member.firstName} {member.lastName}
                                 </div>
-                                <div className="text-xs text-gray-600">
-                                  {user.email}
+                                <div className="flex items-center">
+                                  <span className="text-xs text-gray-600">
+                                    {member.email}
+                                  </span>
+                                  <span className="ml-2 px-1.5 py-0.5 bg-blue-100 text-blue-800 text-xs rounded-md">
+                                    {member.role}
+                                  </span>
                                 </div>
                               </button>
                             ))
                           ) : (
                             <div className="p-3 text-center text-gray-500 text-sm">
-                              No users found
+                              No club members found
                             </div>
                           )}
                         </div>
