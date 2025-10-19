@@ -45,6 +45,8 @@ jobs:
             ${{ env.ECR_REGISTRY }}/${{ env.AWS_ACCOUNT_NAMESPACE }}/${{ env.ECR_REPOSITORY }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          build-args: |
+            RESEND_API_KEY=${{ secrets.RESEND_API_KEY }}
       
       - name: Output image URI
         id: image
