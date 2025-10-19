@@ -62,14 +62,7 @@ export async function GET(
       id: request.id,
       name: `${request.user.firstName} ${request.user.lastName}`,
       email: request.user.email,
-      status: request.status
-        .toLowerCase()
-        .replace(/([A-Z])/g, " $1")
-        .trim() as
-        | "pending review"
-        | "interview pending"
-        | "approved"
-        | "declined",
+      status: request.status,
       submittedAt: request.createdAt.toISOString(),
       motivation: request.motivation,
       relevantSkills: request.relevantSkills,
