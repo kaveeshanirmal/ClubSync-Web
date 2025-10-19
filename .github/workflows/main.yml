@@ -70,6 +70,7 @@ jobs:
           echo "NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}" >> .env.production
           echo "NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}" >> .env.production
           echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env.production
+          echo "RESEND_API_KEY=${{ secrets.RESEND_API_KEY }}" >> .env.production
       
       - name: Copy env file to EC2
         run: |
