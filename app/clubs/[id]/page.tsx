@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import BeautifulLoader from "../../../components/Loader";
@@ -85,12 +86,13 @@ interface Club {
 }
 
 export default function ClubPage() {
+  const params = useParams();
+  const clubId = params.id as string;
+  
   const [activeTab, setActiveTab] = useState("overview");
   const [club, setClub] = useState<Club | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  const clubId = "1"; // You can make this dynamic based on route params
 
   useEffect(() => {
     const fetchClubData = async () => {
