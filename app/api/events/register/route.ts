@@ -81,31 +81,31 @@ export async function POST(request: NextRequest) {
     });
 
     // ✨ NEW - Update volunteer stats
-    try {
-      const pointsToAdd = eventRole === 'organizer' ? 50 : 10;
-      const incrementField = eventRole === 'organizer' 
-        ? 'eventsOrganized' 
-        : 'eventsParticipated';
+    if (eventRole === 'organizer') {
+      try {
+        const pointsToAdd = 20; // Points for organizing an event
+        
+        await (prisma.volunteerStats as any).upsert({
+          where: { 
+            userId: user.id 
+          },
+          update: {
+            eventsOrganized: { increment: 1 },
+            totalPoints: { increment: pointsToAdd }
+          },
+          create: {
+            userId: user.id,
+            eventsParticipated: 0,
+            eventsOrganized: 1,
+            totalPoints: pointsToAdd
+          }
+        });
 
-      await (prisma.volunteerStats as any).upsert({
-        where: { 
-          userId: user.id 
-        },
-        update: {
-          [incrementField]: { increment: 1 },
-          totalPoints: { increment: pointsToAdd }
-        },
-        create: {
-          userId: user.id,
-          [incrementField]: 1,
-          totalPoints: pointsToAdd
-        }
-      });
-
-      console.log(`✅ Volunteer stats updated: +${pointsToAdd} points for ${session.user.email}`);
-    } catch (statsError) {
-      // Log error but don't fail the registration
-      console.error('⚠️ Failed to update volunteer stats:', statsError);
+        console.log(`✅ Registration: Organizer stats updated: +${pointsToAdd} points for user ${user.id}`);
+      } catch (statsError) {
+        // Log error but don't fail the registration
+        console.error('⚠️ Registration: Failed to update organizer stats:', statsError);
+      }
     }
 
     return NextResponse.json({

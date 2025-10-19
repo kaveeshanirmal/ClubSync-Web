@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/prisma/client";
-import { Prisma } from "@prisma/client";
 
 // Helper to format time strings for the GET response
 const formatTime = (date: Date): string => {

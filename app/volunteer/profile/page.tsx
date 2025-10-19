@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
 import {
   User,
@@ -23,15 +23,25 @@ import {
   Users,
   Shield,
   Activity,
+  Eye,
 } from "lucide-react";
 import { useVolunteerStats } from "@/app/hooks/useVolunteerStats";
 import VolunteerStats from "@/app/components/volunteer/VolunteerStats";
+import { Certificate as CertificateComponent } from "@/components/Certificate";
+import { generateCertificate } from "@/utils/generateCertificate";
 
 interface Certificate {
-  title: string;
-  eventName?: string;
-  dateAwarded: string;
-  url: string;
+  id: string;
+  certificateId: string;
+  userName: string;
+  eventName: string;
+  clubName: string;
+  eventDate: string;
+  issuedAt: string;
+  event: {
+    id: string;
+    title: string;
+  };
 }
 
 interface EventHistory {
@@ -63,6 +73,137 @@ interface ServiceLetter {
   downloadUrl?: string;
 }
 
+// Certificate Card Component
+function CertificateCard({ certificate }: { certificate: Certificate }) {
+  const [showPreview, setShowPreview] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const certificateRef = useRef<HTMLDivElement>(null);
+
+  const handleDownload = async () => {
+    if (!certificateRef.current) return;
+
+    setIsGenerating(true);
+    try {
+      const blob = await generateCertificate({
+        element: certificateRef.current,
+        fileName: certificate.certificateId,
+        format: 'pdf',
+      });
+
+      // Create download link
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${certificate.certificateId}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error generating certificate:', error);
+      alert('Failed to generate certificate. Please try again.');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handleView = () => {
+    setShowPreview(true);
+  };
+
+  return (
+    <>
+      <div className="border border-gray-200 rounded-xl p-6 hover:shadow-md transition-shadow">
+        <div className="flex items-start justify-between mb-4">
+          <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
+            <Award className="w-6 h-6 text-orange-600" />
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={handleView}
+              className="flex items-center gap-1 px-3 py-1 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors text-sm"
+            >
+              <Eye className="w-4 h-4" />
+              View
+            </button>
+            <button
+              onClick={handleDownload}
+              disabled={isGenerating}
+              className="flex items-center gap-1 px-3 py-1 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors text-sm disabled:opacity-50"
+            >
+              <Download className="w-4 h-4" />
+              {isGenerating ? 'Generating...' : 'Download'}
+            </button>
+          </div>
+        </div>
+        
+        <h3 className="font-bold text-gray-900 mb-2">{certificate.eventName}</h3>
+        <p className="text-sm text-gray-600 mb-3">{certificate.clubName}</p>
+        
+        <div className="space-y-2">
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-gray-500">Certificate ID</span>
+            <span className="font-mono text-gray-700">{certificate.certificateId.substring(0, 12)}...</span>
+          </div>
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-gray-500">Event Date</span>
+            <span className="text-gray-700">{certificate.eventDate}</span>
+          </div>
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-gray-500">Issued</span>
+            <span className="text-gray-700">{new Date(certificate.issuedAt).toLocaleDateString()}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Certificate Preview Modal */}
+      {showPreview && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl max-w-6xl w-full max-h-[90vh] flex flex-col overflow-hidden">
+            {/* Header - Fixed at top */}
+            <div className="p-6 border-b border-gray-200 flex items-center justify-between bg-white z-10">
+              <h2 className="text-xl font-bold text-gray-900">Certificate Preview</h2>
+              <div className="flex gap-3">
+                <button
+                  onClick={handleDownload}
+                  disabled={isGenerating}
+                  className="flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-50"
+                >
+                  <Download className="w-4 h-4" />
+                  {isGenerating ? 'Generating...' : 'Download PDF'}
+                </button>
+                <button
+                  onClick={() => setShowPreview(false)}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+            {/* Certificate Container - Scrollable */}
+            <div className="flex-1 overflow-auto bg-gray-50 p-8">
+              <div className="flex justify-center">
+                <div className="transform scale-75 origin-top">
+                  <div style={{ display: showPreview ? 'block' : 'none' }}>
+                    <CertificateComponent
+                      ref={certificateRef}
+                      userName={certificate.userName}
+                      eventName={certificate.eventName}
+                      clubName={certificate.clubName}
+                      eventDate={certificate.eventDate}
+                      certificateId={certificate.certificateId}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
 export default function VolunteerProfile() {
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState("activity");
@@ -84,36 +225,7 @@ export default function VolunteerProfile() {
     totalEvents: 0,
     completedEvents: 0,
     upcomingEvents: 0,
-    certificates: [
-      { 
-        title: "Leadership Workshop Certificate", 
-        eventName: "Leadership Development Program 2024",
-        dateAwarded: "2024-10-15",
-        url: "#",
-        issuer: "UCSC Leadership Center"
-      },
-      { 
-        title: "Event Volunteer Certificate", 
-        eventName: "TechFest 2024",
-        dateAwarded: "2024-10-12",
-        url: "#",
-        issuer: "Technical Society"
-      },
-      { 
-        title: "Community Service Certificate", 
-        eventName: "Community Clean-up Drive",
-        dateAwarded: "2024-06-15",
-        url: "#",
-        issuer: "Environmental Club"
-      },
-      { 
-        title: "Blood Donation Certificate", 
-        eventName: "Blood Donation Camp",
-        dateAwarded: "2024-06-01",
-        url: "#",
-        issuer: "Health Services"
-      },
-    ],
+    certificates: [] as Certificate[],
     eventHistory: [] as EventHistory[],
     eventStats: {
       totalEvents: 0,
@@ -204,6 +316,28 @@ export default function VolunteerProfile() {
     };
 
     fetchEventHistory();
+  }, [session?.user?.id]);
+
+  // Fetch certificates data
+  useEffect(() => {
+    const fetchCertificates = async () => {
+      if (session?.user?.id) {
+        try {
+          const response = await fetch('/api/certificates');
+          if (response.ok) {
+            const data = await response.json();
+            setUser(prevUser => ({
+              ...prevUser,
+              certificates: data.certificates || [],
+            }));
+          }
+        } catch (error) {
+          console.error("Error fetching certificates:", error);
+        }
+      }
+    };
+
+    fetchCertificates();
   }, [session?.user?.id]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -547,36 +681,25 @@ export default function VolunteerProfile() {
         {activeTab === "certificates" && (
           <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-8">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">Professional Certifications</h2>
+              <h2 className="text-2xl font-bold text-gray-900">My Certificates</h2>
               <span className="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-medium">
                 {user.certificates.length} Certificates
               </span>
             </div>
             
-            <div className="grid md:grid-cols-2 gap-6">
-              {user.certificates.map((certificate, index) => (
-                <div key={index} className="border border-gray-200 rounded-xl p-6 hover:shadow-md transition-shadow">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center">
-                      <Award className="w-6 h-6 text-gray-600" />
-                    </div>
-                    <button className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors text-sm">
-                      <Download className="w-4 h-4" />
-                      Download
-                    </button>
-                  </div>
-                  
-                  <h3 className="font-bold text-gray-900 mb-2">{certificate.title}</h3>
-                  {certificate.eventName && (
-                    <p className="text-sm text-gray-600 mb-2">{certificate.eventName}</p>
-                  )}
-                  <div className="flex items-center justify-between text-xs text-gray-500">
-                    <span>Issued by {certificate.issuer}</span>
-                    <span>{new Date(certificate.dateAwarded).toLocaleDateString()}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
+            {user.certificates.length === 0 ? (
+              <div className="text-center py-12">
+                <Award className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No certificates yet</h3>
+                <p className="text-gray-600 mb-4">Participate in events to earn certificates!</p>
+              </div>
+            ) : (
+              <div className="grid md:grid-cols-2 gap-6">
+                {user.certificates.map((certificate) => (
+                  <CertificateCard key={certificate.id} certificate={certificate} />
+                ))}
+              </div>
+            )}
           </div>
         )}
 

@@ -393,7 +393,7 @@ const ClubsTab: React.FC<ClubsTabProps> = () => {
       {loading ? (
         <div className="p-8 text-center">
           <div className="w-12 h-12 border-4 border-t-orange-500 border-orange-200 rounded-full animate-spin mx-auto"></div>
-          <p className="mt-3 text-gray-600">Loading data...</p>
+          <p className="mt-3 text-gray-600">Loading Data</p>
         </div>
       ) : error ? (
         <div className="p-8 text-center">

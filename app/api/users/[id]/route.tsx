@@ -11,6 +11,11 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
+    
+    // Check if we need to include certificates
+    const url = new URL(request.url);
+    const includeCertificates = url.searchParams.get('includeCertificates') === 'true';
+    
     const user = await prisma.user.findUnique({
       where: { id },
       select: {
@@ -22,6 +27,26 @@ export async function GET(
         phone: true,
         createdAt: true,
         updatedAt: true,
+        ...(includeCertificates && {
+          certificates: {
+            orderBy: {
+              issuedAt: 'desc',
+            },
+            include: {
+              event: {
+                select: {
+                  id: true,
+                  title: true,
+                  club: {
+                    select: {
+                      name: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        }),
       },
     });
 
@@ -60,7 +85,13 @@ export async function PUT(
     }
 
     // Prepare update data
-    const updateData: any = {};
+    const updateData: {
+      firstName?: string;
+      lastName?: string;
+      email?: string;
+      phone?: string;
+      password?: string;
+    } = {};
     if (firstName) updateData.firstName = firstName;
     if (lastName) updateData.lastName = lastName;
     if (email) updateData.email = email;

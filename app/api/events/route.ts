@@ -114,6 +114,34 @@ export async function POST(request: NextRequest) {
         registrations: true, // Include registrations in the response
       },
     });
+    
+    // --- 6. Update volunteer stats for the organizer ---
+    if (eventOrganizerId) {
+      try {
+        const pointsToAdd = 20; // Points for organizing an event (increased from 15)
+        
+        await prisma.volunteerStats.upsert({
+          where: { 
+            userId: eventOrganizerId 
+          },
+          update: {
+            eventsOrganized: { increment: 1 },
+            totalPoints: { increment: pointsToAdd }
+          },
+          create: {
+            userId: eventOrganizerId,
+            eventsParticipated: 0,
+            eventsOrganized: 1,
+            totalPoints: pointsToAdd
+          }
+        });
+
+        console.log(`✅ Event Creation: Organizer stats updated: +${pointsToAdd} points for user ${eventOrganizerId}`);
+      } catch (statsError) {
+        // Log error but don't fail the event creation
+        console.error('⚠️ Event Creation: Failed to update organizer stats:', statsError);
+      }
+    }
 
     return NextResponse.json({
       message: "Event created successfully",
