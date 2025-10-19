@@ -63,24 +63,27 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Certificate data comes from client (already generated blob URL)
-    // We need to convert it to a proper URL and upload to Cloudinary
-    const { certificateUrl } = certificateData;
-
     // Generate unique certificate ID
     const certificateId = `CERT-${Date.now()}-${userId.slice(0, 8).toUpperCase()}`;
 
+    // Format event date
+    const eventDate = new Date(event.startDateTime).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+
     // Create certificate record in database
+    // Certificate PDF will be generated on-demand from this data
     const certificate = await prisma.certificate.create({
       data: {
         userId,
         eventId,
         certificateId,
-        certificateUrl, // This will be updated after Cloudinary upload
         userName: `${user.firstName} ${user.lastName}`,
         eventName: event.title,
         clubName: event.club.name,
-        eventDate: event.startDateTime,
+        eventDate: eventDate,
       },
     });
 

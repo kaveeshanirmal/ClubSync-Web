@@ -442,7 +442,6 @@ model Certificate {
   eventId        String
   event          Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
   certificateId  String   @unique
-  certificateUrl String
   userName       String
   eventName      String
   clubName       String
