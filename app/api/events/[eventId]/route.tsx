@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/prisma/client";
-import { Prisma } from "@prisma/client";
 
 // Helper to format time strings for the GET response
 const formatTime = (date: Date): string => {
@@ -14,11 +13,14 @@ const formatTime = (date: Date): string => {
 // GET - Fetch a single event with all relations for the detail page
 export async function GET(
   request: NextRequest,
-  { params }: { params: { eventId: string } },
+  context: { params: Promise<{ eventId: string }> },
 ) {
   try {
+    const params = await context.params;
+    const { eventId } = params;
+    
     const event = await prisma.event.findUniqueOrThrow({
-      where: { id: params.eventId, isDeleted: false },
+      where: { id: eventId, isDeleted: false },
       include: {
         club: true,
         addons: true,

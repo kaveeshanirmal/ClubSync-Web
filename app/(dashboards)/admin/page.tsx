@@ -30,6 +30,49 @@ const AdminDashboardContent = () => {
   const searchParams = useSearchParams();
   const [selectedTab, setSelectedTab] = useState("overview");
   const [notifications] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  
+  // State for dashboard data
+  const [dashboardStats, setDashboardStats] = useState([
+    {
+      title: "Total Clubs",
+      value: "0",
+      change: "0%",
+      trend: "up" as const,
+      icon: <Users className="w-6 h-6" />,
+      color: "from-orange-500 to-red-500",
+    },
+    {
+      title: "Active Events",
+      value: "0",
+      change: "0%",
+      trend: "up" as const,
+      icon: <Calendar className="w-6 h-6" />,
+      color: "from-red-500 to-orange-500",
+    },
+    {
+      title: "Certificates Issued",
+      value: "0",
+      change: "0%",
+      trend: "up" as const,
+      icon: <Award className="w-6 h-6" />,
+      color: "from-orange-600 to-red-600",
+    },
+    {
+      title: "Growth Rate",
+      value: "0%",
+      change: "0%",
+      trend: "up" as const,
+      icon: <TrendingUp className="w-6 h-6" />,
+      color: "from-red-600 to-orange-500",
+    },
+  ]);
+
+  const [chartData, setChartData] = useState<Array<{ name: string; clubs: number; events: number; certificates: number }>>([]);
+  const [pieData, setPieData] = useState<Array<{ name: string; value: number; color: string }>>([]);
+  const [activeUsersCount, setActiveUsersCount] = useState(0);
+  const [platformHealthScore, setPlatformHealthScore] = useState(0);
 
   // Get tab from URL on mount and when URL changes
   useEffect(() => {
@@ -37,67 +80,126 @@ const AdminDashboardContent = () => {
     setSelectedTab(tab);
   }, [searchParams]);
 
+  // Fetch dashboard data
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        // Fetch stats
+        const statsRes = await fetch("/api/admin/stats");
+        const statsData = await statsRes.json();
+
+        if (!statsData.success) {
+          throw new Error(statsData.error || "Failed to fetch stats");
+        }
+
+        // Update dashboard stats
+        setDashboardStats([
+          {
+            title: "Total Clubs",
+            value: statsData.data.totalClubs.value.toString(),
+            change: statsData.data.totalClubs.change,
+            trend: statsData.data.totalClubs.trend,
+            icon: <Users className="w-6 h-6" />,
+            color: "from-orange-500 to-red-500",
+          },
+          {
+            title: "Active Events",
+            value: statsData.data.activeEvents.value.toString(),
+            change: statsData.data.activeEvents.change,
+            trend: statsData.data.activeEvents.trend,
+            icon: <Calendar className="w-6 h-6" />,
+            color: "from-red-500 to-orange-500",
+          },
+          {
+            title: "Certificates Issued",
+            value: statsData.data.certificatesIssued.value.toLocaleString(),
+            change: statsData.data.certificatesIssued.change,
+            trend: statsData.data.certificatesIssued.trend,
+            icon: <Award className="w-6 h-6" />,
+            color: "from-orange-600 to-red-600",
+          },
+          {
+            title: "Growth Rate",
+            value: statsData.data.growthRate.value,
+            change: statsData.data.growthRate.change,
+            trend: statsData.data.growthRate.trend,
+            icon: <TrendingUp className="w-6 h-6" />,
+            color: "from-red-600 to-orange-500",
+          },
+        ]);
+
+        setActiveUsersCount(statsData.data.activeUsers);
+        setPlatformHealthScore(statsData.data.platformHealthScore);
+
+        // Fetch analytics
+        const analyticsRes = await fetch("/api/admin/analytics");
+        const analyticsData = await analyticsRes.json();
+
+        if (!analyticsData.success) {
+          throw new Error(analyticsData.error || "Failed to fetch analytics");
+        }
+
+        setChartData(analyticsData.data);
+
+        // Fetch club distribution
+        const distributionRes = await fetch("/api/admin/club-distribution");
+        const distributionData = await distributionRes.json();
+
+        if (!distributionData.success) {
+          throw new Error(distributionData.error || "Failed to fetch distribution");
+        }
+
+        setPieData(distributionData.data);
+      } catch (err) {
+        console.error("Error fetching dashboard data:", err);
+        setError(err instanceof Error ? err.message : "Failed to load dashboard data");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
   // Update URL when tab changes
   const handleTabChange = (tab: string) => {
     setSelectedTab(tab);
     router.push(`/admin?tab=${tab}`, { scroll: false });
   };
 
-  // Sample data
-  const dashboardStats = [
-    {
-      title: "Total Clubs",
-      value: "524",
-      change: "+12%",
-      trend: "up" as const,
-      icon: <Users className="w-6 h-6" />,
-      color: "from-orange-500 to-red-500",
-    },
-    {
-      title: "Active Events",
-      value: "89",
-      change: "+8%",
-      trend: "up" as const,
-      icon: <Calendar className="w-6 h-6" />,
-      color: "from-red-500 to-orange-500",
-    },
-    {
-      title: "Certificates Issued",
-      value: "1,247",
-      change: "+23%",
-      trend: "up" as const,
-      icon: <Award className="w-6 h-6" />,
-      color: "from-orange-600 to-red-600",
-    },
-    {
-      title: "Growth Rate",
-      value: "15.8%",
-      change: "+2.1%",
-      trend: "up" as const,
-      icon: <TrendingUp className="w-6 h-6" />,
-      color: "from-red-600 to-orange-500",
-    },
-  ];
-
-  const chartData = [
-    { name: "Jan", clubs: 400, events: 240, certificates: 800 },
-    { name: "Feb", clubs: 420, events: 280, certificates: 900 },
-    { name: "Mar", clubs: 450, events: 320, certificates: 1100 },
-    { name: "Apr", clubs: 480, events: 380, certificates: 1200 },
-    { name: "May", clubs: 500, events: 420, certificates: 1300 },
-    { name: "Jun", clubs: 524, events: 450, certificates: 1400 },
-  ];
-
-  const pieData = [
-    { name: "Education", value: 35, color: "#f97316" },
-    { name: "Technology", value: 28, color: "#ef4444" },
-    { name: "Arts", value: 15, color: "#fb923c" },
-    { name: "Sports", value: 12, color: "#f87171" },
-    { name: "Other", value: 10, color: "#fbbf24" },
-  ];
-
   // Render current tab content
   const renderTabContent = () => {
+    if (loading && selectedTab === "overview") {
+      return (
+        <div className="flex items-center justify-center h-96">
+          <div className="text-center">
+            <div className="w-16 h-16 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-gray-600 font-medium">Loading dashboard data...</p>
+          </div>
+        </div>
+      );
+    }
+
+    if (error && selectedTab === "overview") {
+      return (
+        <div className="flex items-center justify-center h-96">
+          <div className="text-center">
+            <div className="text-red-500 text-lg font-semibold mb-2">Error Loading Data</div>
+            <p className="text-gray-600">{error}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="mt-4 px-6 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg hover:shadow-lg transition-all"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      );
+    }
+
     switch (selectedTab) {
       case "overview":
         return (
@@ -105,6 +207,7 @@ const AdminDashboardContent = () => {
             dashboardStats={dashboardStats}
             chartData={chartData}
             pieData={pieData}
+            platformHealthScore={platformHealthScore}
           />
         );
       case "clubs":
@@ -121,6 +224,7 @@ const AdminDashboardContent = () => {
             dashboardStats={dashboardStats}
             chartData={chartData}
             pieData={pieData}
+            platformHealthScore={platformHealthScore}
           />
         );
     }
@@ -245,13 +349,13 @@ const AdminDashboardContent = () => {
               <div className="flex items-center space-x-2 bg-green-50 px-3 py-2 rounded-lg border border-green-200">
                 <Activity className="w-4 h-4 text-green-600" />
                 <span className="text-sm font-medium text-green-700">
-                  524 Active
+                  {activeUsersCount} Active
                 </span>
               </div>
               <div className="flex items-center space-x-2 bg-blue-50 px-3 py-2 rounded-lg border border-blue-200">
                 <Globe className="w-4 h-4 text-blue-600" />
                 <span className="text-sm font-medium text-blue-700">
-                  Online
+                  All Systems Operational
                 </span>
               </div>
             </div>

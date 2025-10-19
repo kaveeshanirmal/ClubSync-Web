@@ -5,7 +5,7 @@ import { prisma } from "@/prisma/client";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -13,7 +13,7 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const clubId = params.id;
+    const { id: clubId } = await params;
 
     // Verify user has permission to view this club's requests
     const clubMember = await prisma.clubMember.findFirst({
@@ -62,14 +62,7 @@ export async function GET(
       id: request.id,
       name: `${request.user.firstName} ${request.user.lastName}`,
       email: request.user.email,
-      status: request.status
-        .toLowerCase()
-        .replace(/([A-Z])/g, " $1")
-        .trim() as
-        | "pending review"
-        | "interview pending"
-        | "approved"
-        | "declined",
+      status: request.status,
       submittedAt: request.createdAt.toISOString(),
       motivation: request.motivation,
       relevantSkills: request.relevantSkills,
@@ -82,6 +75,66 @@ export async function GET(
     console.error("Error fetching join requests:", error);
     return NextResponse.json(
       { error: "Failed to fetch join requests" },
+      { status: 500 },
+    );
+  }
+}
+
+export async function POST(
+  request: NextRequest,
+  { params }: { params: { id: string } },
+) {
+  try {
+    const { id: clubId } = params;
+    const body = await request.json();
+    // 1. Get userId directly from the request body instead of the session
+    const { motivation, relevantSkills, socialLinks, userId } = body;
+
+    // 2. Add a check to ensure userId was sent
+    if (!userId) {
+      return NextResponse.json(
+        { error: "User ID is missing" },
+        { status: 400 },
+      );
+    }
+
+    if (!motivation) {
+      return NextResponse.json(
+        { error: "A motivation is required to join." },
+        { status: 400 },
+      );
+    }
+
+    const existingRequest = await prisma.joinRequest.findFirst({
+      where: {
+        clubId: clubId,
+        userId: userId,
+      },
+    });
+
+    if (existingRequest) {
+      return NextResponse.json(
+        { error: "You have already submitted a join request for this club." },
+        { status: 409 },
+      );
+    }
+
+    const newJoinRequest = await prisma.joinRequest.create({
+      data: {
+        clubId,
+        userId,
+        motivation,
+        relevantSkills: relevantSkills || [],
+        socialLinks: socialLinks || [],
+        status: "pendingReview",
+      },
+    });
+
+    return NextResponse.json(newJoinRequest, { status: 201 });
+  } catch (error) {
+    console.error("Error creating join request:", error);
+    return NextResponse.json(
+      { error: "Failed to create join request" },
       { status: 500 },
     );
   }

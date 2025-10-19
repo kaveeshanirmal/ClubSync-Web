@@ -1,7 +1,6 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { 
-  Plus,
   Filter,
   Download,
   Eye,
@@ -28,6 +27,11 @@ interface Club {
   isDeleted: boolean;
   createdAt: string;
   clubType?: string;
+  motto?: string;
+  headquarters?: string;
+  email?: string;
+  phone?: string;
+  website?: string;
   _count?: {
     members: number;
   }
@@ -56,8 +60,8 @@ interface ClubRequest {
 }
 
 interface ClubsTabProps {
-  // We'll ignore this prop as we'll fetch data directly
-  recentClubs?: any[];
+  // Optional prop, not used as we fetch data directly
+  recentClubs?: Club[];
 }
 
 const ClubsTab: React.FC<ClubsTabProps> = () => {
@@ -73,6 +77,9 @@ const ClubsTab: React.FC<ClubsTabProps> = () => {
   const [filterCategory, setFilterCategory] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [editingClub, setEditingClub] = useState<Club | null>(null);
+  const [deletingClubId, setDeletingClubId] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   useEffect(() => {
     fetchData();
@@ -151,6 +158,97 @@ const ClubsTab: React.FC<ClubsTabProps> = () => {
       setError('Failed to update request status');
       // If there was an error, refresh to get correct data
       fetchData();
+    }
+  };
+  
+  // Handle club deletion
+  const handleDeleteClub = async (clubId: string) => {
+    try {
+      setIsSubmitting(true);
+      const response = await fetch(`/api/clubs/${clubId}`, {
+        method: 'DELETE',
+      });
+      
+      if (response.ok) {
+        // Remove club from local state
+        setClubs(prevClubs => prevClubs.filter(club => club.id !== clubId));
+        setDeletingClubId(null);
+        // Refresh data to get updated counts
+        fetchData();
+      } else {
+        setError('Failed to delete club');
+      }
+    } catch (err) {
+      console.error("Error deleting club:", err);
+      setError('Failed to delete club');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+  
+  // Handle club edit
+  const handleEditClub = async (clubData: Partial<Club>) => {
+    if (!editingClub) return;
+    
+    try {
+      setIsSubmitting(true);
+      const response = await fetch(`/api/clubs/${editingClub.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(clubData),
+      });
+      
+      if (response.ok) {
+        const updatedClub = await response.json();
+        // Update club in local state
+        setClubs(prevClubs => 
+          prevClubs.map(club => 
+            club.id === editingClub.id ? { ...club, ...updatedClub } : club
+          )
+        );
+        setEditingClub(null);
+        // Refresh data
+        fetchData();
+      } else {
+        setError('Failed to update club');
+      }
+    } catch (err) {
+      console.error("Error updating club:", err);
+      setError('Failed to update club');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+  
+  // Toggle club active status
+  const handleToggleClubStatus = async (clubId: string, currentStatus: boolean) => {
+    try {
+      const response = await fetch(`/api/clubs/${clubId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ isActive: !currentStatus }),
+      });
+      
+      if (response.ok) {
+        // Update club in local state
+        setClubs(prevClubs => 
+          prevClubs.map(club => 
+            club.id === clubId ? { ...club, isActive: !currentStatus } : club
+          )
+        );
+        if (selectedClub && selectedClub.id === clubId) {
+          setSelectedClub({ ...selectedClub, isActive: !currentStatus });
+        }
+      } else {
+        setError('Failed to update club status');
+      }
+    } catch (err) {
+      console.error("Error updating club status:", err);
+      setError('Failed to update club status');
     }
   };
   
@@ -295,7 +393,7 @@ const ClubsTab: React.FC<ClubsTabProps> = () => {
       {loading ? (
         <div className="p-8 text-center">
           <div className="w-12 h-12 border-4 border-t-orange-500 border-orange-200 rounded-full animate-spin mx-auto"></div>
-          <p className="mt-3 text-gray-600">Loading data...</p>
+          <p className="mt-3 text-gray-600">Loading Data</p>
         </div>
       ) : error ? (
         <div className="p-8 text-center">
@@ -379,12 +477,14 @@ const ClubsTab: React.FC<ClubsTabProps> = () => {
                             <Eye className="w-4 h-4" />
                           </button>
                           <button 
+                            onClick={() => setEditingClub(club)}
                             className="text-gray-600 hover:text-gray-900 p-1 rounded transition-colors duration-200"
                             title="Edit Club"
                           >
                             <Edit className="w-4 h-4" />
                           </button>
                           <button 
+                            onClick={() => setDeletingClubId(club.id)}
                             className="text-red-600 hover:text-red-900 p-1 rounded transition-colors duration-200"
                             title="Delete Club"
                           >
@@ -485,8 +585,7 @@ const ClubsTab: React.FC<ClubsTabProps> = () => {
                               setSelectedRequest({
                                 ...request, 
                                 // If status is pending, change to underReview in the UI immediately 
-                                requestStatus: request.requestStatus === 'pending' ? 'underReview' : request.requestStatus,
-                                status: request.requestStatus === 'pending' ? 'underReview' : request.status
+                                requestStatus: request.requestStatus === 'pending' ? 'underReview' : request.requestStatus
                               });
                               
                               // Then update in database if currently pending
@@ -612,18 +711,36 @@ const ClubsTab: React.FC<ClubsTabProps> = () => {
             <div className="space-y-4">
               <h4 className="font-medium">Actions</h4>
               <div className="flex space-x-3">
-                <button className="px-4 py-2 bg-orange-100 text-orange-600 rounded-md hover:bg-orange-200 transition-colors">
+                <button 
+                  onClick={() => setEditingClub(selectedClub)}
+                  className="px-4 py-2 bg-orange-100 text-orange-600 rounded-md hover:bg-orange-200 transition-colors"
+                >
                   Edit Details
                 </button>
                 {selectedClub.isActive ? (
-                  <button className="px-4 py-2 bg-gray-100 text-gray-600 rounded-md hover:bg-gray-200 transition-colors">
+                  <button 
+                    onClick={() => handleToggleClubStatus(selectedClub.id, selectedClub.isActive)}
+                    className="px-4 py-2 bg-gray-100 text-gray-600 rounded-md hover:bg-gray-200 transition-colors"
+                  >
                     Deactivate Club
                   </button>
                 ) : (
-                  <button className="px-4 py-2 bg-green-100 text-green-600 rounded-md hover:bg-green-200 transition-colors">
+                  <button 
+                    onClick={() => handleToggleClubStatus(selectedClub.id, selectedClub.isActive)}
+                    className="px-4 py-2 bg-green-100 text-green-600 rounded-md hover:bg-green-200 transition-colors"
+                  >
                     Activate Club
                   </button>
                 )}
+                <button 
+                  onClick={() => {
+                    setSelectedClub(null);
+                    setDeletingClubId(selectedClub.id);
+                  }}
+                  className="px-4 py-2 bg-red-100 text-red-600 rounded-md hover:bg-red-200 transition-colors"
+                >
+                  Delete Club
+                </button>
               </div>
             </div>
           </div>
@@ -765,6 +882,181 @@ const ClubsTab: React.FC<ClubsTabProps> = () => {
                 </div>
               </div>
             )}
+          </div>
+        </div>
+      </div>
+    )}
+    
+    {/* Edit Club Modal */}
+    {editingClub && (
+      <div className="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+          <div className="p-6 border-b border-gray-200">
+            <div className="flex justify-between items-center">
+              <h3 className="text-xl font-bold text-gray-900">Edit {editingClub.name}</h3>
+              <button 
+                onClick={() => setEditingClub(null)}
+                className="text-gray-400 hover:text-gray-500"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              const formData = new FormData(e.currentTarget);
+              const clubData = {
+                name: formData.get('name') as string,
+                about: formData.get('about') as string,
+                motto: formData.get('motto') as string,
+                headquarters: formData.get('headquarters') as string,
+                email: formData.get('email') as string,
+                phone: formData.get('phone') as string,
+                website: formData.get('website') as string,
+              };
+              handleEditClub(clubData);
+            }}
+            className="p-6 space-y-4"
+          >
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Club Name *
+              </label>
+              <input
+                type="text"
+                name="name"
+                defaultValue={editingClub.name}
+                required
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Motto
+              </label>
+              <input
+                type="text"
+                name="motto"
+                defaultValue={editingClub.motto || ''}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                About
+              </label>
+              <textarea
+                name="about"
+                defaultValue={editingClub.about || ''}
+                rows={4}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Headquarters
+              </label>
+              <input
+                type="text"
+                name="headquarters"
+                defaultValue={editingClub.headquarters || ''}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              />
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  defaultValue={editingClub.email || ''}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Phone
+                </label>
+                <input
+                  type="tel"
+                  name="phone"
+                  defaultValue={editingClub.phone || ''}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Website
+              </label>
+              <input
+                type="url"
+                name="website"
+                defaultValue={editingClub.website || ''}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              />
+            </div>
+            
+            <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+              <button
+                type="button"
+                onClick={() => setEditingClub(null)}
+                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSubmitting ? 'Saving...' : 'Save Changes'}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    )}
+    
+    {/* Delete Confirmation Modal */}
+    {deletingClubId && (
+      <div className="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-xl shadow-xl max-w-md w-full">
+          <div className="p-6">
+            <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 bg-red-100 rounded-full">
+              <AlertCircle className="w-6 h-6 text-red-600" />
+            </div>
+            <h3 className="text-lg font-bold text-gray-900 text-center mb-2">
+              Delete Club
+            </h3>
+            <p className="text-gray-600 text-center mb-6">
+              Are you sure you want to delete this club? This action cannot be undone. All club data will be marked as deleted.
+            </p>
+            <div className="flex space-x-3">
+              <button
+                onClick={() => setDeletingClubId(null)}
+                disabled={isSubmitting}
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleDeleteClub(deletingClubId)}
+                disabled={isSubmitting}
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSubmitting ? 'Deleting...' : 'Delete'}
+              </button>
+            </div>
           </div>
         </div>
       </div>
