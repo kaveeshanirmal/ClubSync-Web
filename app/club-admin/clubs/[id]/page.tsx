@@ -42,7 +42,7 @@ import ElectionsTab from "./components/ElectionsTab";
 import EventsTab from "./components/EventsTab";
 import MinutesTab from "./components/MinutesTab";
 import ServiceLettersTab from "./components/ServiceLettersTab";
-import CandidatesTab from "./components/CandidatesTab";
+import MembersTab from "./components/MembersTab";
 import FeedBackTab from "./components/FeedBackTab";
 import BeautifulLoader from "@/components/Loader";
 
@@ -368,8 +368,8 @@ export default function ClubDetailPage() {
     { id: "elections", label: "Elections", icon: Award },
     { id: "events", label: "Events", icon: Calendar },
     { id: "minutes", label: "Minutes", icon: FileText },
-    { id: "service-letters", label: "Service Letters", icon: CheckCircle },
-    { id: "candidates", label: "Candidates", icon: Star },
+  { id: "service-letters", label: "Service Letters", icon: CheckCircle },
+  { id: "members", label: "Members", icon: Star },
     { id: "feedback", label: "Feedback", icon: MessageSquare },
   ];
 
@@ -387,8 +387,8 @@ export default function ClubDetailPage() {
         return <MinutesTab clubId={clubId} />;
       case "service-letters":
         return <ServiceLettersTab />;
-      case "candidates":
-        return <CandidatesTab />;
+      case "members":
+        return <MembersTab clubId={clubId} />;
       case "feedback":
         return <FeedBackTab />;
       default:
