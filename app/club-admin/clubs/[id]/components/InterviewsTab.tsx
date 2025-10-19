@@ -5,16 +5,12 @@ import {
   Link as LinkIcon,
   Settings,
   Eye,
-  Mail,
   AlertCircle,
-  Loader2,
 } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import BeautifulLoader from "@/components/Loader";
-// Import the new modal component
 import { ApplicantProfileModal } from "./modals/ApplicantProfileModal";
 
-// Updated Applicant interface to match the full API response
 interface Applicant {
   id: string;
   name: string;
@@ -27,7 +23,6 @@ interface Applicant {
   userImage: string;
 }
 
-// The component now only needs the clubId to fetch its own data
 interface InterviewsTabProps {
   clubId: string;
 }
@@ -57,7 +52,6 @@ const formatDate = (dateString: string) => {
 };
 
 const InterviewsTab: React.FC<InterviewsTabProps> = ({ clubId }) => {
-  // Data state
   const [interviewScheduleUrl, setInterviewScheduleUrl] = useState<
     string | null
   >(null);
@@ -69,14 +63,12 @@ const InterviewsTab: React.FC<InterviewsTabProps> = ({ clubId }) => {
   const [urlInput, setUrlInput] = useState("");
   const [isEditingUrl, setIsEditingUrl] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [sendingInvites, setSendingInvites] = useState<Set<string>>(new Set());
 
   // State for managing the profile modal
   const [selectedApplicant, setSelectedApplicant] = useState<Applicant | null>(
     null,
   );
 
-  // Data fetching on component mount
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
@@ -110,7 +102,6 @@ const InterviewsTab: React.FC<InterviewsTabProps> = ({ clubId }) => {
     }
   }, [clubId]);
 
-  // API call to save the URL
   const handleSaveUrl = async () => {
     if (!urlInput.trim()) return;
     setIsSaving(true);
@@ -131,27 +122,32 @@ const InterviewsTab: React.FC<InterviewsTabProps> = ({ clubId }) => {
     }
   };
 
-  // API call to send an invite (updates status)
-  const handleSendInvite = async (applicantId: string) => {
-    setSendingInvites((prev) => new Set(prev).add(applicantId));
+  // ✅ This function now also closes the modal on success
+  const handleUpdateStatus = async (
+    applicantId: string,
+    action: "invite" | "approve" | "decline",
+  ) => {
     try {
-      const response = await fetch(`/api/join-requests/${applicantId}/invite`, {
-        method: "POST",
-      });
-      if (!response.ok) throw new Error("Failed to send invite");
-      setApplicants((currentApplicants) =>
-        currentApplicants.map((app) =>
-          app.id === applicantId ? { ...app, status: "interviewPending" } : app,
+      const response = await fetch(
+        `/api/join-requests/${applicantId}/${action}`,
+        {
+          method: "POST",
+        },
+      );
+      if (!response.ok) throw new Error(`Failed to ${action} request`);
+
+      const newStatus = action === "invite" ? "interviewPending" : action;
+      setApplicants((current) =>
+        current.map((app) =>
+          app.id === applicantId
+            ? { ...app, status: newStatus as Applicant["status"] }
+            : app,
         ),
       );
+      // ✅ Close the modal after a successful action
+      setSelectedApplicant(null);
     } catch (error) {
-      console.error("Failed to send invite:", error);
-    } finally {
-      setSendingInvites((prev) => {
-        const next = new Set(prev);
-        next.delete(applicantId);
-        return next;
-      });
+      console.error(`Failed to ${action} request:`, error);
     }
   };
 
@@ -176,7 +172,6 @@ const InterviewsTab: React.FC<InterviewsTabProps> = ({ clubId }) => {
     );
   }
 
-  // Setup View - Rendered if URL is not set
   if (!interviewScheduleUrl) {
     return (
       <div className="space-y-6">
@@ -288,7 +283,6 @@ const InterviewsTab: React.FC<InterviewsTabProps> = ({ clubId }) => {
     );
   }
 
-  // Operational View - Applicant list with invite functionality
   return (
     <>
       <div className="space-y-6">
@@ -346,7 +340,6 @@ const InterviewsTab: React.FC<InterviewsTabProps> = ({ clubId }) => {
             </p>
           </div>
         )}
-
         <div className="relative overflow-hidden bg-white rounded-2xl shadow-sm border-2 border-gray-100">
           <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full -mr-8 -mt-8 opacity-30" />
           {applicants.length === 0 ? (
@@ -382,108 +375,70 @@ const InterviewsTab: React.FC<InterviewsTabProps> = ({ clubId }) => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-100">
-                  {applicants.map((applicant) => {
-                    const isSendingInvite = sendingInvites.has(applicant.id);
-                    const canSendInvite = applicant.status === "pendingReview";
-                    return (
-                      <tr
-                        key={applicant.id}
-                        className="hover:bg-gray-50/50 transition-colors duration-200"
-                      >
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center space-x-3">
-                            <img
-                              src={
-                                applicant.userImage ||
-                                `https://ui-avatars.com/api/?name=${applicant.name}`
-                              }
-                              alt={applicant.name}
-                              className="w-10 h-10 rounded-full"
-                            />
-                            <div>
-                              <div className="text-sm font-semibold text-gray-900">
-                                {applicant.name}
-                              </div>
-                              <div className="text-xs text-gray-500">
-                                {applicant.email}
-                              </div>
+                  {applicants.map((applicant) => (
+                    <tr
+                      key={applicant.id}
+                      className="hover:bg-gray-50/50 transition-colors duration-200"
+                    >
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center space-x-3">
+                          <img
+                            src={
+                              applicant.userImage ||
+                              `https://ui-avatars.com/api/?name=${applicant.name}`
+                            }
+                            alt={applicant.name}
+                            className="w-10 h-10 rounded-full"
+                          />
+                          <div>
+                            <div className="text-sm font-semibold text-gray-900">
+                              {applicant.name}
+                            </div>
+                            <div className="text-xs text-gray-500">
+                              {applicant.email}
                             </div>
                           </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-700">
-                            {formatDate(applicant.submittedAt)}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span
-                            className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(applicant.status)}`}
-                          >
-                            {applicant.status.charAt(0).toUpperCase() +
-                              applicant.status.slice(1)}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                          <button
-                            onClick={() => setSelectedApplicant(applicant)}
-                            className="group px-3 py-1.5 bg-gradient-to-b from-white to-gray-50 border border-gray-200 rounded-lg hover:from-gray-50 hover:to-gray-100 hover:border-gray-300 hover:shadow-sm transition-all duration-300 text-gray-700 hover:text-gray-900"
-                          >
-                            <span className="flex items-center space-x-1.5 group-hover:scale-105 transition-transform duration-300">
-                              <Eye className="w-3.5 h-3.5" />
-                              <span>View Profile</span>
-                            </span>
-                          </button>
-                          <button
-                            onClick={() => handleSendInvite(applicant.id)}
-                            disabled={!canSendInvite || isSendingInvite}
-                            className={`group px-3 py-1.5 rounded-lg transition-all duration-300 ${canSendInvite ? "bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white hover:shadow-md" : "bg-gray-100 text-gray-400 cursor-not-allowed"}`}
-                          >
-                            <span className="flex items-center space-x-1.5 group-hover:scale-105 transition-transform duration-300">
-                              {isSendingInvite ? (
-                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                              ) : (
-                                <Mail className="w-3.5 h-3.5" />
-                              )}
-                              <span>
-                                {isSendingInvite
-                                  ? "Sending..."
-                                  : "Send Interview Invite"}
-                              </span>
-                            </span>
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-700">
+                          {formatDate(applicant.submittedAt)}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span
+                          className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(applicant.status)}`}
+                        >
+                          {applicant.status.charAt(0).toUpperCase() +
+                            applicant.status.slice(1)}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <button
+                          onClick={() => setSelectedApplicant(applicant)}
+                          className="group flex items-center justify-center space-x-1.5 px-3 py-1.5 bg-gradient-to-b from-white to-gray-50 border border-gray-200 rounded-lg hover:from-gray-50 hover:to-gray-100 hover:border-gray-300 hover:shadow-sm transition-all duration-300 text-gray-700 hover:text-gray-900"
+                        >
+                          <Eye className="w-4 h-4" />
+                          <span>Review</span>
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
           )}
         </div>
-        <div className="bg-blue-50 rounded-xl p-4 border border-blue-100">
-          <div className="flex items-start space-x-3">
-            <AlertCircle className="w-5 h-5 text-blue-600 mt-0.5" />
-            <div className="flex-1">
-              <h4 className="text-sm font-semibold text-blue-900 mb-1">
-                How It Works
-              </h4>
-              <p className="text-xs text-blue-700">
-                When you click &quot;Send Interview Invite&quot;, the
-                applicant&apos;s status is updated to &apos;Interview
-                pending&apos;. The email functionality to send the booking link
-                can be integrated next.
-              </p>
-            </div>
-          </div>
-        </div>
       </div>
 
-      {/* RENDER THE MODAL */}
       {selectedApplicant && (
         <ApplicantProfileModal
           applicant={selectedApplicant}
           isOpen={!!selectedApplicant}
           onClose={() => setSelectedApplicant(null)}
+          onSendInvite={(id) => handleUpdateStatus(id, "invite")}
+          onApprove={(id) => handleUpdateStatus(id, "approve")}
+          onDecline={(id) => handleUpdateStatus(id, "decline")}
         />
       )}
     </>
