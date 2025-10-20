@@ -155,6 +155,7 @@ export async function GET(request: NextRequest) {
       credentialId: cert.certificateId,
       title: cert.eventName,
       issuer: cert.clubName,
+      userName: cert.userName,
       dateEarned: cert.issuedAt.toISOString(),
       description: `Participation certificate for ${cert.eventName}`,
       status: 'Issued',
