@@ -1,18 +1,56 @@
 import { AlertCircle, Calendar, Users } from "lucide-react";
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 const OverviewTab: React.FC<{
   club: {
-    memberCount: number;
-    upcomingEvents: number;
-    pendingRequests: number;
+    id?: string;
+    memberCount?: number;
+    upcomingEvents?: number;
+    pendingRequests?: number;
   };
-}> = ({ club }) => (
-  <div className="space-y-6">
+}> = ({ club }) => {
+  const [counts, setCounts] = useState({
+    memberCount: club.memberCount ?? 0,
+    upcomingEvents: club.upcomingEvents ?? 0,
+    pendingRequests: club.pendingRequests ?? 0,
+  });
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!club?.id) return;
+    let cancelled = false;
+    const fetchOverview = async () => {
+      setLoading(true);
+      try {
+        const idStr = String(club.id);
+        const res = await fetch(`/api/clubs/${encodeURIComponent(idStr)}/overview`, { cache: "no-store" });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (cancelled) return;
+        setCounts({
+          memberCount: typeof data.memberCount === "number" ? data.memberCount : counts.memberCount,
+          upcomingEvents: typeof data.upcomingEvents === "number" ? data.upcomingEvents : counts.upcomingEvents,
+          pendingRequests: typeof data.pendingRequests === "number" ? data.pendingRequests : counts.pendingRequests,
+        });
+      } catch (e) {
+        // keep existing counts on error
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    fetchOverview();
+    return () => {
+      cancelled = true;
+    };
+  }, [club?.id]);
+
+  return (
+    <div className="space-y-6">
     {/* Enhanced Stats Cards with Admin Dashboard Theme */}
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       {/* Members Card */}
-      <div className="relative overflow-hidden bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-all duration-300">
+    <div className="relative overflow-hidden bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-all duration-300">
         <div className="absolute top-0 right-0 w-20 h-20 bg-orange-100 rounded-full -mr-10 -mt-10 opacity-50"></div>
         <div className="relative flex items-center">
           <div className="p-3 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl shadow-lg">
@@ -20,7 +58,7 @@ const OverviewTab: React.FC<{
           </div>
           <div className="ml-4">
             <p className="text-sm font-medium text-gray-600">Total Members</p>
-            <p className="text-2xl font-bold text-black">{club.memberCount}</p>
+            <p className="text-2xl font-bold text-black">{counts.memberCount}</p>
             <p className="text-xs text-green-600 mt-1">+5% this month</p>
           </div>
         </div>
@@ -35,7 +73,7 @@ const OverviewTab: React.FC<{
           </div>
           <div className="ml-4">
             <p className="text-sm font-medium text-gray-600">Upcoming Events</p>
-            <p className="text-2xl font-bold text-black">{club.upcomingEvents}</p>
+            <p className="text-2xl font-bold text-black">{counts.upcomingEvents}</p>
             <p className="text-xs text-blue-600 mt-1">+2 this week</p>
           </div>
         </div>
@@ -50,7 +88,7 @@ const OverviewTab: React.FC<{
           </div>
           <div className="ml-4">
             <p className="text-sm font-medium text-gray-600">Pending Requests</p>
-            <p className="text-2xl font-bold text-black">{club.pendingRequests}</p>
+            <p className="text-2xl font-bold text-black">{counts.pendingRequests}</p>
             <p className="text-xs text-amber-600 mt-1">Needs attention</p>
           </div>
         </div>
@@ -77,7 +115,7 @@ const OverviewTab: React.FC<{
           </div>
           <div className="flex-1">
             <span className="text-sm font-medium text-gray-900">New member joined - Alex Turner</span>
-            <p className="text-xs text-gray-600">Member count increased to {club.memberCount}</p>
+            <p className="text-xs text-gray-600">Member count increased to {counts.memberCount}</p>
           </div>
           <span className="text-xs text-gray-500 bg-white px-2 py-1 rounded-full">2 hours ago</span>
         </div>
@@ -107,5 +145,7 @@ const OverviewTab: React.FC<{
     </div>
   </div>
 );
+
+};
 
 export default OverviewTab;
