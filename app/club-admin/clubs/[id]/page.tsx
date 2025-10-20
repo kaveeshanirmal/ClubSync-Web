@@ -498,7 +498,7 @@ export default function ClubDetailPage() {
                       <div className="absolute inset-0 rounded-full border-2 border-blue-100"></div>
                     </div>
                     <span className="ml-4 text-gray-700 font-medium">
-                      Loading members...
+                      Loading Members
                     </span>
                   </div>
                 ) : (
@@ -772,7 +772,7 @@ export default function ClubDetailPage() {
                 {clubCompletionLoading ? (
                   <>
                     <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
-                    <span>Checking...</span>
+                    <span>Checking</span>
                   </>
                 ) : isClubDetailsComplete ? (
                   <>
@@ -860,7 +860,7 @@ export default function ClubDetailPage() {
           </div>
         </div>
 
-        <Suspense fallback={<div>Loading content...</div>}>
+        <Suspense fallback={<div>Loading Content</div>}>
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
             {renderTabContent()}
           </div>

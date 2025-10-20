@@ -570,7 +570,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                           {isLoadingMembers ? (
                             <div className="p-3 text-center text-gray-500 text-xs">
                               <div className="w-4 h-4 border-2 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-1" />
-                              Loading club members...
+                              Loading Club Members
                             </div>
                           ) : filteredMembers.length > 0 ? (
                             filteredMembers.map((member) => (
@@ -1057,7 +1057,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                 {isLoading ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
-                    <span>Creating...</span>
+                    <span>Creating</span>
                   </>
                 ) : (
                   <>

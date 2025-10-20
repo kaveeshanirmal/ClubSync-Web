@@ -303,7 +303,7 @@ const EditMinuteModal: React.FC<EditMinuteModalProps> = ({
                 {isSubmitting ? (
                   <>
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    <span>Updating...</span>
+                    <span>Updating</span>
                   </>
                 ) : (
                   <span>Update Minute</span>

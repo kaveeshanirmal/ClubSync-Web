@@ -259,7 +259,7 @@ const CreateMinuteModal: React.FC<CreateMinuteModalProps> = ({
                   <div className="border border-gray-200 rounded-xl p-4 max-h-48 overflow-y-auto">
                     {loadingMembers ? (
                       <div className="text-center py-4 text-gray-500">
-                        Loading members...
+                        Loading Members
                       </div>
                     ) : clubMembers.length === 0 ? (
                       <div className="text-center py-4 text-gray-500">
@@ -394,7 +394,7 @@ const CreateMinuteModal: React.FC<CreateMinuteModalProps> = ({
                 {isSubmitting ? (
                   <>
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    <span>Creating...</span>
+                    <span>Creating</span>
                   </>
                 ) : (
                   <span>Create Minute</span>

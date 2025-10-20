@@ -177,7 +177,7 @@ const AdminDashboardContent = () => {
         <div className="flex items-center justify-center h-96">
           <div className="text-center">
             <div className="w-16 h-16 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-gray-600 font-medium">Loading dashboard data...</p>
+            <p className="text-gray-600 font-medium">Loading Dashboard Data</p>
           </div>
         </div>
       );
@@ -392,7 +392,7 @@ const AdminDashboard = () => {
         <div className="flex h-screen items-center justify-center bg-gray-50">
           <div className="text-center">
             <div className="w-16 h-16 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-gray-600 font-medium">Loading dashboard...</p>
+            <p className="text-gray-600 font-medium">Loading Dashboard</p>
           </div>
         </div>
       }

@@ -175,7 +175,7 @@ const ElectionsTab: React.FC = () => {
   };
 
   if (loading) {
-    return <BeautifulLoader type="morphing" message="Loading elections..." />;
+    return <BeautifulLoader type="morphing" message="Loading Elections" />;
   }
 
   if (error) {

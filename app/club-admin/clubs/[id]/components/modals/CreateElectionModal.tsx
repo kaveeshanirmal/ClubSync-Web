@@ -642,7 +642,7 @@ const CreateElectionModal: React.FC<CreateElectionModalProps> = ({
                 {loading ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
-                    <span>Creating...</span>
+                    <span>Creating</span>
                   </>
                 ) : (
                   <>
