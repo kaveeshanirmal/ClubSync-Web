@@ -274,7 +274,7 @@ const InterviewsTab: React.FC<InterviewsTabProps> = ({ clubId }) => {
                 className="w-full mt-6 group flex items-center justify-center space-x-2 px-6 py-4 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl hover:from-orange-600 hover:to-red-600 transition-all duration-300 transform hover:scale-[1.02] hover:shadow-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
               >
                 <Calendar className="w-5 h-5 group-hover:rotate-12 transition-transform duration-300" />
-                <span>{isSaving ? "Saving..." : "Save and Continue"}</span>
+                <span>{isSaving ? "Saving" : "Save and Continue"}</span>
               </button>
             </div>
           </div>
@@ -329,7 +329,7 @@ const InterviewsTab: React.FC<InterviewsTabProps> = ({ clubId }) => {
                 }
                 className="px-6 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl hover:from-orange-600 hover:to-red-600 transition-all duration-300 font-semibold text-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isSaving ? "Saving..." : "Update"}
+                {isSaving ? "Saving" : "Update"}
               </button>
             </div>
             <p className="mt-2 text-xs text-gray-600">

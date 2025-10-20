@@ -1019,7 +1019,7 @@ const ClubsTab: React.FC<ClubsTabProps> = () => {
                 disabled={isSubmitting}
                 className="px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isSubmitting ? 'Saving...' : 'Save Changes'}
+                {isSubmitting ? 'Saving' : 'Save Changes'}
               </button>
             </div>
           </form>

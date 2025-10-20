@@ -619,7 +619,7 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
                           {isLoadingUsers ? (
                             <div className="p-3 text-center text-gray-500 text-xs">
                               <div className="w-4 h-4 border-2 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-1" />
-                              Loading users...
+                              Loading Users
                             </div>
                           ) : filteredUsers.length > 0 ? (
                             filteredUsers.map((user) => (
@@ -1095,7 +1095,7 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
                 {isLoading ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
-                    <span>Updating...</span>
+                    <span>Updating</span>
                   </>
                 ) : (
                   <>

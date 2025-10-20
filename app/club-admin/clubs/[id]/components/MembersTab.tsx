@@ -131,7 +131,7 @@ const MembersTab: React.FC<{ clubId: string }> = ({ clubId }) => {
                 <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-orange-500"></div>
                 <div className="absolute inset-0 rounded-full border-2 border-orange-100"></div>
               </div>
-              <span className="ml-4 text-gray-700 font-medium">Loading members...</span>
+              <span className="ml-4 text-gray-700 font-medium">Loading Members</span>
             </div>
           ) : (
             <div className="space-y-6">

@@ -286,7 +286,7 @@ const UsersTab: React.FC = () => {
             disabled={loadingAll}
             className="text-red-600 hover:text-orange-600 text-sm font-medium transition-colors disabled:opacity-50"
           >
-            {loadingAll ? 'Loading...' : 'View All'}
+            {loadingAll ? 'Loading' : 'View All'}
           </button>
         </div>
         <div className="space-y-3">

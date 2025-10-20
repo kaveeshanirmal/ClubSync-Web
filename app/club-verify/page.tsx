@@ -275,7 +275,7 @@ const FileUpload = ({
             />
           </label>
           <p className="mt-2 text-gray-500 font-medium">or drag and drop</p>
-          {uploading && <span className="text-xs text-orange-500 ml-2">Uploading...</span>}
+          {uploading && <span className="text-xs text-orange-500 ml-2">Uploading</span>}
           <p className="text-xs text-gray-500 mt-2">
             {values && typeof values[name] === 'string' && values[name]
               ? 'File uploaded!'
