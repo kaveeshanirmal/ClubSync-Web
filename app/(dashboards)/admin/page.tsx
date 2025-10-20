@@ -38,6 +38,7 @@ const AdminDashboardContent = () => {
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [initialLoad, setInitialLoad] = useState(true);
   
   // State for dashboard data
   const [dashboardStats, setDashboardStats] = useState([
@@ -104,16 +105,19 @@ const AdminDashboardContent = () => {
     };
   }, [showProfileDropdown]);
 
-  // Fetch dashboard data
-  useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
+  // Fetch dashboard data function
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
 
-        // Fetch stats
-        const statsRes = await fetch("/api/admin/stats");
-        const statsData = await statsRes.json();
+      console.log("Fetching admin dashboard data...");
+
+      // Fetch stats
+      const statsRes = await fetch("/api/admin/stats");
+      const statsData = await statsRes.json();
+
+      console.log("Stats response:", statsData);
 
         if (!statsData.success) {
           throw new Error(statsData.error || "Failed to fetch stats");
@@ -158,35 +162,65 @@ const AdminDashboardContent = () => {
         setActiveUsersCount(statsData.data.activeUsers);
         setPlatformHealthScore(statsData.data.platformHealthScore);
 
+        console.log("Fetching analytics...");
+
         // Fetch analytics
         const analyticsRes = await fetch("/api/admin/analytics");
         const analyticsData = await analyticsRes.json();
+
+        console.log("Analytics response:", analyticsData);
 
         if (!analyticsData.success) {
           throw new Error(analyticsData.error || "Failed to fetch analytics");
         }
 
-        setChartData(analyticsData.data);
+        // Transform monthly growth data for the chart
+        const transformedChartData = analyticsData.data.monthlyGrowth.map((item: { month: string; newClubs: number; newEvents: number }) => ({
+          name: item.month,
+          clubs: item.newClubs,
+          events: item.newEvents
+        }));
+        
+        setChartData(transformedChartData);
+
+        console.log("Fetching club distribution...");
 
         // Fetch club distribution
         const distributionRes = await fetch("/api/admin/club-distribution");
         const distributionData = await distributionRes.json();
+
+        console.log("Distribution response:", distributionData);
 
         if (!distributionData.success) {
           throw new Error(distributionData.error || "Failed to fetch distribution");
         }
 
         setPieData(distributionData.data);
+        
+        console.log("Dashboard data loaded successfully");
       } catch (err) {
         console.error("Error fetching dashboard data:", err);
         setError(err instanceof Error ? err.message : "Failed to load dashboard data");
       } finally {
+        console.log("Setting loading to false");
         setLoading(false);
       }
     };
 
+  // Fetch dashboard data on mount
+  useEffect(() => {
     fetchDashboardData();
   }, []);
+
+  // Refetch data when switching back to overview tab (but not on initial mount)
+  useEffect(() => {
+    if (selectedTab === "overview" && !initialLoad) {
+      fetchDashboardData();
+    }
+    if (initialLoad) {
+      setInitialLoad(false);
+    }
+  }, [selectedTab, initialLoad]);
 
   // Update URL when tab changes
   const handleTabChange = (tab: string) => {

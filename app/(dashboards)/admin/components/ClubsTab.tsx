@@ -293,10 +293,6 @@ const ClubsTab: React.FC<ClubsTabProps> = () => {
                 <Users className="w-4 h-4" />
                 <span className="text-sm">{clubsCount} Total Clubs</span>
               </div>
-              <div className="flex items-center space-x-2">
-                <Users className="w-4 h-4" />
-                <span className="text-sm">{membersCount} Active Members</span>
-              </div>
             </div>
           </div>
           <div className="flex space-x-3">

@@ -19,9 +19,12 @@ export async function GET(
       recentJoinRequests,
       recentCertificates,
     ] = await Promise.all([
-      // 1️⃣ Get total members
+      // 1️⃣ Get total members (all statuses except banned)
       prisma.clubMember.count({
-        where: { clubId, membershipStatus: "active" },
+        where: { 
+          clubId,
+          membershipStatus: { not: "banned" }
+        },
       }),
 
       // 2️⃣ Get upcoming events
@@ -39,15 +42,16 @@ export async function GET(
         where: { clubId, status: "pendingReview" },
       }),
 
-      // 4️⃣ Recent member joins (last 10)
+      // 4️⃣ Recent member joins (last 10, all statuses except banned)
       prisma.clubMember.findMany({
         where: {
           clubId,
-          membershipStatus: "active",
+          membershipStatus: { not: "banned" },
         },
         select: {
           id: true,
           joinedAt: true,
+          membershipStatus: true,
           user: {
             select: {
               firstName: true,
