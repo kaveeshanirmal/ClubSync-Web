@@ -1,10 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Zap, Menu, X, User, Mail, Award } from "lucide-react";
+import { Zap, Menu, X, User, Mail } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
-import { useVolunteerStats } from "@/app/hooks/useVolunteerStats";
-import { calculatePoints } from "@/app/lib/volunteerUtils";
 
 export default function Navbar() {
   const [scrollY, setScrollY] = useState(0);
@@ -14,7 +12,6 @@ export default function Navbar() {
   const [tooltipTimeout, setTooltipTimeout] = useState<NodeJS.Timeout | null>(null);
 
   const { status, data: session } = useSession();
-  const { stats: volunteerStats } = useVolunteerStats(session?.user?.id);
 
   // Generate consistent fallback avatar based on user email/name
   const getFallbackAvatar = () => {
@@ -129,29 +126,13 @@ export default function Navbar() {
                       </div>
 
                       <div className="flex-1">
-                        <div className="flex items-center justify-between mb-2">
-                          <div>
-                            <h3 className="text-lg font-bold text-gray-900">
-                              {session.user?.name || "User"}
-                            </h3>
-                            <p className="text-sm text-gray-600">
-                              Senior Volunteer
-                            </p>
-                          </div>
-                          <div className="text-right">
-                            <div className="flex items-center gap-1 text-sm text-orange-600 font-medium">
-                              <Award className="w-4 h-4" />
-                              <span>
-                                {volunteerStats 
-                                  ? calculatePoints(
-                                      volunteerStats.eventsParticipated,
-                                      volunteerStats.eventsOrganized
-                                    )
-                                  : 0
-                                } Points
-                              </span>
-                            </div>
-                          </div>
+                        <div className="mb-2">
+                          <h3 className="text-lg font-bold text-gray-900">
+                            {session.user?.name || "User"}
+                          </h3>
+                          <p className="text-sm text-gray-600">
+                            Senior Volunteer
+                          </p>
                         </div>
 
                         <div className="flex items-center justify-between text-sm">

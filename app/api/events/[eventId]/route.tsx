@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/prisma/client";
+import { Prisma } from "@prisma/client";
 
 // Helper to format time strings for the GET response
 const formatTime = (date: Date): string => {
@@ -99,9 +100,10 @@ export async function GET(
 // PUT - Update an event and its nested relations
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { eventId: string } },
+  context: { params: Promise<{ eventId: string }> },
 ) {
   try {
+    const params = await context.params;
     const body = await request.json();
     const {
       title,
@@ -118,63 +120,71 @@ export async function PUT(
       resourcePersons,
     } = body;
 
-    // Use a transaction to ensure all updates succeed or fail together
-    const updatedEvent = await prisma.$transaction(async (tx) => {
-      // 1. Delete existing nested data that is managed by the form
-      await tx.eventAddon.deleteMany({ where: { eventId: params.eventId } });
-      await tx.eventAgenda.deleteMany({ where: { eventId: params.eventId } });
-      await tx.eventResourcePerson.deleteMany({
-        where: { eventId: params.eventId },
-      });
+    // Use a transaction with increased timeout to ensure all updates succeed or fail together
+    const updatedEvent = await prisma.$transaction(
+      async (tx) => {
+        // 1. Delete existing nested data in parallel for better performance
+        await Promise.all([
+          tx.eventAddon.deleteMany({ where: { eventId: params.eventId } }),
+          tx.eventAgenda.deleteMany({ where: { eventId: params.eventId } }),
+          tx.eventResourcePerson.deleteMany({
+            where: { eventId: params.eventId },
+          }),
+        ]);
 
-      // 2. Update the main event record
-      const event = await tx.event.update({
-        where: { id: params.eventId },
-        data: {
-          title,
-          subtitle: subtitle || null,
-          category,
-          description: description || null,
-          startDateTime: new Date(startDateTime),
-          endDateTime: endDateTime ? new Date(endDateTime) : null,
-          venue: venue || null,
-          maxParticipants: maxParticipants
-            ? parseInt(maxParticipants, 10)
-            : null,
-          // 3. Re-create the nested data from the form's current state
-          addons: {
-            create: addons.map((addon: any) => ({
-              receivables: addon.receivables,
-              requirements: addon.requirements,
-              tags: addon.tags,
-            })),
+        // 2. Update the main event record
+        const event = await tx.event.update({
+          where: { id: params.eventId },
+          data: {
+            title,
+            subtitle: subtitle || null,
+            category,
+            description: description || null,
+            startDateTime: new Date(startDateTime),
+            endDateTime: endDateTime ? new Date(endDateTime) : null,
+            venue: venue || null,
+            maxParticipants: maxParticipants
+              ? parseInt(maxParticipants, 10)
+              : null,
+            // 3. Re-create the nested data from the form's current state
+            addons: {
+              create: addons.map((addon: any) => ({
+                receivables: addon.receivables,
+                requirements: addon.requirements,
+                tags: addon.tags,
+              })),
+            },
+            agenda: {
+              create: agenda.map((item: any) => ({
+                startTime: new Date(item.startTime),
+                endTime: new Date(item.endTime),
+                agendaTitle: item.agendaTitle,
+                agendaDescription: item.agendaDescription,
+              })),
+            },
+            resourcePersons: {
+              create: resourcePersons.map((person: any) => ({
+                name: person.name,
+                designation: person.designation,
+                about: person.about,
+                profileImg: person.profileImg,
+              })),
+            },
           },
-          agenda: {
-            create: agenda.map((item: any) => ({
-              startTime: new Date(item.startTime),
-              endTime: new Date(item.endTime),
-              agendaTitle: item.agendaTitle,
-              agendaDescription: item.agendaDescription,
-            })),
+          include: {
+            club: true,
+            addons: true,
+            agenda: true,
+            resourcePersons: true,
           },
-          resourcePersons: {
-            create: resourcePersons.map((person: any) => ({
-              name: person.name,
-              designation: person.designation,
-              about: person.about,
-              profileImg: person.profileImg,
-            })),
-          },
-        },
-        include: {
-          club: true,
-          addons: true,
-          agenda: true,
-          resourcePersons: true,
-        },
-      });
-      return event;
-    });
+        });
+        return event;
+      },
+      {
+        maxWait: 10000, // Maximum time to wait to acquire a connection (10 seconds)
+        timeout: 15000, // Maximum time for the transaction to complete (15 seconds)
+      }
+    );
 
     return NextResponse.json({
       message: "Event updated successfully",
@@ -182,8 +192,25 @@ export async function PUT(
     });
   } catch (error) {
     console.error("Error updating event:", error);
+    
+    // Provide more detailed error message
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === 'P2028') {
+        return NextResponse.json(
+          { 
+            error: "Transaction timeout - the update took too long. Please try again.",
+            details: error.message 
+          },
+          { status: 408 },
+        );
+      }
+    }
+    
     return NextResponse.json(
-      { error: "Internal server error" },
+      { 
+        error: "Internal server error",
+        details: error instanceof Error ? error.message : "Unknown error"
+      },
       { status: 500 },
     );
   }
@@ -192,9 +219,10 @@ export async function PUT(
 // DELETE - Soft delete an event using Prisma Client
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { eventId: string } },
+  context: { params: Promise<{ eventId: string }> },
 ) {
   try {
+    const params = await context.params;
     await prisma.event.update({
       where: {
         id: params.eventId,
