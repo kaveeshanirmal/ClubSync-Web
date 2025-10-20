@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from 'react';
+import BeautifulLoader from '@/components/Loader';
 import { 
   Filter,
   Download,
@@ -391,10 +392,11 @@ const ClubsTab: React.FC<ClubsTabProps> = () => {
       </div>
       
       {loading ? (
-        <div className="p-8 text-center">
-          <div className="w-12 h-12 border-4 border-t-orange-500 border-orange-200 rounded-full animate-spin mx-auto"></div>
-          <p className="mt-3 text-gray-600">Loading Data</p>
-        </div>
+        <BeautifulLoader
+          message="Loading Clubs Data"
+          subMessage="Fetching all clubs and verification requests"
+          type="morphing"
+        />
       ) : error ? (
         <div className="p-8 text-center">
           <AlertCircle className="w-12 h-12 text-red-500 mx-auto" />

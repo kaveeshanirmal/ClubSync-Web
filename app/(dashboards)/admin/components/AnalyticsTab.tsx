@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from 'react';
+import BeautifulLoader from '@/components/Loader';
 import { 
   Activity,
   Clock,
@@ -119,10 +120,11 @@ const AnalyticsTab: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px]">
-        <div className="w-12 h-12 border-4 border-t-orange-500 border-orange-200 rounded-full animate-spin"></div>
-        <p className="mt-3 text-gray-600">Loading Analytics</p>
-      </div>
+      <BeautifulLoader
+        message="Loading Analytics Data"
+        subMessage="Fetching platform insights and metrics"
+        type="morphing"
+      />
     );
   }
 

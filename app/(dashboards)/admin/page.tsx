@@ -3,6 +3,7 @@ import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
+import BeautifulLoader from "@/components/Loader";
 import {
   Users,
   Calendar,
@@ -195,18 +196,17 @@ const AdminDashboardContent = () => {
 
   // Render current tab content
   const renderTabContent = () => {
-    if (loading && selectedTab === "overview") {
+    if (loading) {
       return (
-        <div className="flex items-center justify-center h-96">
-          <div className="text-center">
-            <div className="w-16 h-16 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-gray-600 font-medium">Loading Dashboard Data</p>
-          </div>
-        </div>
+        <BeautifulLoader
+          message="Preparing your Admin Dashboard"
+          subMessage="Fetching platform data and analytics"
+          type="morphing"
+        />
       );
     }
 
-    if (error && selectedTab === "overview") {
+    if (error) {
       return (
         <div className="flex items-center justify-center h-96">
           <div className="text-center">
@@ -447,12 +447,11 @@ const AdminDashboard = () => {
   return (
     <Suspense
       fallback={
-        <div className="flex h-screen items-center justify-center bg-gray-50">
-          <div className="text-center">
-            <div className="w-16 h-16 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-gray-600 font-medium">Loading Dashboard</p>
-          </div>
-        </div>
+        <BeautifulLoader
+          message="Loading Admin Dashboard"
+          subMessage="Please wait while we prepare everything"
+          type="morphing"
+        />
       }
     >
       <AdminDashboardContent />

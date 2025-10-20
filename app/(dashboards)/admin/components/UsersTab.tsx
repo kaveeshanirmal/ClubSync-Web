@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
+import BeautifulLoader from '@/components/Loader';
 import { 
   Users,
   UserCheck,
@@ -112,10 +113,11 @@ const UsersTab: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px]">
-        <div className="w-12 h-12 border-4 border-t-orange-500 border-orange-200 rounded-full animate-spin"></div>
-        <p className="mt-3 text-gray-600">Loading Data</p>
-      </div>
+      <BeautifulLoader
+        message="Loading Users Data"
+        subMessage="Fetching user statistics and activities"
+        type="morphing"
+      />
     );
   }
 
