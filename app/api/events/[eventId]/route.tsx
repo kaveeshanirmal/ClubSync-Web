@@ -46,7 +46,7 @@ export async function GET(
       location: event.venue || "To be announced",
       venue: event.club?.name || "Unknown Venue",
       address: event.club?.headquarters || "No address specified",
-      coverImage: event.club?.coverImage || undefined,
+      coverImage: undefined, // No event-specific cover image, will use category fallback
       category: event.category,
       maxCapacity: event.maxParticipants || undefined,
       registeredCount: event._count.registrations,
