@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { X, Plus, Trash2, Save, Calendar, Users } from "lucide-react";
+import { X, Plus, Trash2, Save, Calendar, Users, Vote, FileText } from "lucide-react";
 
 interface Position {
   id: string;
@@ -203,13 +203,10 @@ const CreateElectionModal: React.FC<CreateElectionModalProps> = ({
             <div className="space-y-1">
               <h2 className="text-xl font-bold text-gray-900 flex items-center space-x-3">
                 <div className="w-7 h-7 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center">
-                  <span className="text-white text-sm">🗳️</span>
+                  <Vote className="w-4 h-4 text-white" />
                 </div>
                 <span>Create New Election</span>
               </h2>
-              <p className="text-gray-700 font-medium ml-10 text-sm">
-                Design your democratic process with style and precision
-              </p>
             </div>
             <button
               onClick={handleClose}
@@ -219,10 +216,6 @@ const CreateElectionModal: React.FC<CreateElectionModalProps> = ({
               <X className="w-5 h-5 text-gray-700 group-hover:text-gray-900 transition-colors duration-300" />
             </button>
           </div>
-
-          {/* Decorative elements */}
-          <div className="absolute top-3 right-16 w-2 h-2 bg-orange-300 rounded-full animate-bounce" />
-          <div className="absolute bottom-3 left-16 w-2 h-2 bg-red-300 rounded-full animate-pulse" />
         </div>
 
         {/* Content with Scrollable Area */}
@@ -240,13 +233,13 @@ const CreateElectionModal: React.FC<CreateElectionModalProps> = ({
             {/* Basic Information Section */}
             <div className="space-y-5">
               <div className="flex items-center space-x-3 mb-4">
-                <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center transform hover:rotate-12 transition-transform duration-300">
-                  <span className="text-white text-sm">📋</span>
+                <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center transform hover:rotate-12 transition-transform duration-300">
+                  <FileText className="w-4 h-4 text-white" />
                 </div>
                 <h3 className="text-lg font-bold text-gray-900">
                   Basic Information
                 </h3>
-                <div className="h-px bg-gradient-to-r from-blue-500 to-indigo-600 flex-1 opacity-30" />
+                <div className="h-px bg-gradient-to-r from-orange-500 to-red-500 flex-1 opacity-30" />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -328,13 +321,13 @@ const CreateElectionModal: React.FC<CreateElectionModalProps> = ({
             {/* Voting Schedule Section */}
             <div className="space-y-5">
               <div className="flex items-center space-x-3 mb-4">
-                <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl flex items-center justify-center transform hover:rotate-12 transition-transform duration-300">
+                <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center transform hover:rotate-12 transition-transform duration-300">
                   <Calendar className="w-4 h-4 text-white" />
                 </div>
                 <h3 className="text-lg font-bold text-gray-900">
                   Voting Schedule
                 </h3>
-                <div className="h-px bg-gradient-to-r from-green-500 to-emerald-600 flex-1 opacity-30" />
+                <div className="h-px bg-gradient-to-r from-orange-500 to-red-500 flex-1 opacity-30" />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -351,7 +344,7 @@ const CreateElectionModal: React.FC<CreateElectionModalProps> = ({
                         votingStart: e.target.value,
                       })
                     }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all duration-300 bg-white text-gray-900 text-sm"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-300 bg-white text-gray-900 text-sm"
                     required
                   />
                 </div>
@@ -366,7 +359,7 @@ const CreateElectionModal: React.FC<CreateElectionModalProps> = ({
                     onChange={(e) =>
                       setFormData({ ...formData, votingEnd: e.target.value })
                     }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all duration-300 bg-white text-gray-900 text-sm"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-300 bg-white text-gray-900 text-sm"
                     required
                   />
                 </div>
@@ -377,13 +370,13 @@ const CreateElectionModal: React.FC<CreateElectionModalProps> = ({
             <div className="space-y-5">
               <div className="flex justify-between items-center">
                 <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center transform hover:rotate-12 transition-transform duration-300">
+                  <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center transform hover:rotate-12 transition-transform duration-300">
                     <Users className="w-4 h-4 text-white" />
                   </div>
                   <h3 className="text-lg font-bold text-gray-900">
                     Positions & Candidates
                   </h3>
-                  <div className="h-px bg-gradient-to-r from-purple-500 to-indigo-600 flex-1 opacity-30" />
+                  <div className="h-px bg-gradient-to-r from-orange-500 to-red-500 flex-1 opacity-30" />
                 </div>
                 <button
                   type="button"
@@ -417,7 +410,7 @@ const CreateElectionModal: React.FC<CreateElectionModalProps> = ({
 
                       <div className="relative flex justify-between items-start mb-4">
                         <div className="flex items-center space-x-3">
-                          <div className="w-7 h-7 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center text-white font-bold text-sm">
+                          <div className="w-7 h-7 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center text-white font-bold text-sm">
                             {positionIndex + 1}
                           </div>
                           <h4 className="font-bold text-gray-900 text-base">
@@ -449,7 +442,7 @@ const CreateElectionModal: React.FC<CreateElectionModalProps> = ({
                                 e.target.value,
                               )
                             }
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-300 bg-white text-gray-900 placeholder-gray-500 text-sm"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-300 bg-white text-gray-900 placeholder-gray-500 text-sm"
                             placeholder="President, Vice President, Secretary..."
                             required
                           />
@@ -469,7 +462,7 @@ const CreateElectionModal: React.FC<CreateElectionModalProps> = ({
                                 e.target.value,
                               )
                             }
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-300 bg-white text-gray-900 placeholder-gray-500 text-sm"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-300 bg-white text-gray-900 placeholder-gray-500 text-sm"
                             placeholder="Brief description of responsibilities"
                           />
                         </div>

@@ -156,7 +156,7 @@ const InterviewsTab: React.FC<InterviewsTabProps> = ({ clubId }) => {
       <div>
         <BeautifulLoader
           type="morphing"
-          message="Loading interviews"
+          message="Loading Interviews"
           subMessage="Please wait a moment while we fetch the data."
         />
       </div>
@@ -176,22 +176,22 @@ const InterviewsTab: React.FC<InterviewsTabProps> = ({ clubId }) => {
     return (
       <div className="space-y-6">
         <div className="flex items-center space-x-3 mb-4">
-          <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center transform hover:rotate-12 transition-transform duration-300">
+          <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center transform hover:rotate-12 transition-transform duration-300">
             <Calendar className="w-4 h-4 text-white" />
           </div>
           <h3 className="text-lg font-bold text-gray-900">
             Interview Management
           </h3>
-          <div className="h-px bg-gradient-to-r from-blue-500 to-indigo-600 flex-1 opacity-30" />
+          <div className="h-px bg-gradient-to-r from-orange-500 to-red-500 flex-1 opacity-30" />
         </div>
 
         <div className="max-w-3xl mx-auto">
-          <div className="relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-indigo-50 rounded-2xl shadow-lg border-2 border-blue-100 p-8">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-200 to-indigo-200 rounded-full -mr-16 -mt-16 opacity-20" />
-            <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-indigo-200 to-blue-200 rounded-full -ml-12 -mb-12 opacity-20" />
+          <div className="relative overflow-hidden bg-gradient-to-br from-orange-50 via-white to-red-50 rounded-2xl shadow-lg border-2 border-orange-100 p-8">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-orange-200 to-red-200 rounded-full -mr-16 -mt-16 opacity-20" />
+            <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-red-200 to-orange-200 rounded-full -ml-12 -mb-12 opacity-20" />
             <div className="relative z-10">
               <div className="flex items-center justify-center mb-6">
-                <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
+                <div className="w-16 h-16 bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl flex items-center justify-center shadow-lg">
                   <Calendar className="w-8 h-8 text-white" />
                 </div>
               </div>
@@ -203,8 +203,8 @@ const InterviewsTab: React.FC<InterviewsTabProps> = ({ clubId }) => {
                 streamline the interview process.
               </p>
               <div className="space-y-6 mb-8">
-                <div className="flex items-start space-x-4 bg-white rounded-xl p-4 border border-blue-100 shadow-sm">
-                  <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                <div className="flex items-start space-x-4 bg-white rounded-xl p-4 border border-orange-100 shadow-sm">
+                  <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
                     1
                   </div>
                   <div>
@@ -217,8 +217,8 @@ const InterviewsTab: React.FC<InterviewsTabProps> = ({ clubId }) => {
                     </p>
                   </div>
                 </div>
-                <div className="flex items-start space-x-4 bg-white rounded-xl p-4 border border-blue-100 shadow-sm">
-                  <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                <div className="flex items-start space-x-4 bg-white rounded-xl p-4 border border-orange-100 shadow-sm">
+                  <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
                     2
                   </div>
                   <div>
@@ -231,8 +231,8 @@ const InterviewsTab: React.FC<InterviewsTabProps> = ({ clubId }) => {
                     </p>
                   </div>
                 </div>
-                <div className="flex items-start space-x-4 bg-white rounded-xl p-4 border border-blue-100 shadow-sm">
-                  <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                <div className="flex items-start space-x-4 bg-white rounded-xl p-4 border border-orange-100 shadow-sm">
+                  <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
                     3
                   </div>
                   <div>
@@ -246,10 +246,10 @@ const InterviewsTab: React.FC<InterviewsTabProps> = ({ clubId }) => {
                   </div>
                 </div>
               </div>
-              <div className="bg-white rounded-xl p-6 border border-blue-100 shadow-sm">
+              <div className="bg-white rounded-xl p-6 border border-orange-100 shadow-sm">
                 <label className="block text-sm font-semibold text-gray-700 mb-3">
                   <div className="flex items-center space-x-2 mb-2">
-                    <LinkIcon className="w-4 h-4 text-blue-600" />
+                    <LinkIcon className="w-4 h-4 text-orange-600" />
                     <span>Google Calendar Booking Page Link</span>
                   </div>
                 </label>
@@ -258,7 +258,7 @@ const InterviewsTab: React.FC<InterviewsTabProps> = ({ clubId }) => {
                   value={urlInput}
                   onChange={(e) => setUrlInput(e.target.value)}
                   placeholder="https://calendar.app.google/..."
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50"
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 bg-gray-50"
                 />
                 <p className="mt-2 text-xs text-gray-500 flex items-center space-x-1">
                   <AlertCircle className="w-3 h-3" />
@@ -271,7 +271,7 @@ const InterviewsTab: React.FC<InterviewsTabProps> = ({ clubId }) => {
               <button
                 onClick={handleSaveUrl}
                 disabled={!urlInput.trim() || isSaving}
-                className="w-full mt-6 group flex items-center justify-center space-x-2 px-6 py-4 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 transform hover:scale-[1.02] hover:shadow-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                className="w-full mt-6 group flex items-center justify-center space-x-2 px-6 py-4 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl hover:from-orange-600 hover:to-red-600 transition-all duration-300 transform hover:scale-[1.02] hover:shadow-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
               >
                 <Calendar className="w-5 h-5 group-hover:rotate-12 transition-transform duration-300" />
                 <span>{isSaving ? "Saving..." : "Save and Continue"}</span>
@@ -288,7 +288,7 @@ const InterviewsTab: React.FC<InterviewsTabProps> = ({ clubId }) => {
       <div className="space-y-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center transform hover:rotate-12 transition-transform duration-300">
+            <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center transform hover:rotate-12 transition-transform duration-300">
               <Calendar className="w-4 h-4 text-white" />
             </div>
             <h3 className="text-lg font-bold text-gray-900">
@@ -297,7 +297,7 @@ const InterviewsTab: React.FC<InterviewsTabProps> = ({ clubId }) => {
           </div>
           <button
             onClick={() => setIsEditingUrl(!isEditingUrl)}
-            className="group flex items-center space-x-2 px-4 py-2 bg-white border-2 border-gray-200 text-gray-700 rounded-xl hover:border-blue-300 hover:bg-blue-50 transition-all duration-300 transform hover:scale-105 font-medium text-sm"
+            className="group flex items-center space-x-2 px-4 py-2 bg-white border-2 border-gray-200 text-gray-700 rounded-xl hover:border-orange-300 hover:bg-orange-50 transition-all duration-300 transform hover:scale-105 font-medium text-sm"
           >
             <Settings className="w-4 h-4 group-hover:rotate-90 transition-transform duration-300" />
             <span>Schedule Settings</span>
@@ -305,10 +305,10 @@ const InterviewsTab: React.FC<InterviewsTabProps> = ({ clubId }) => {
         </div>
 
         {isEditingUrl && (
-          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border-2 border-blue-100 shadow-sm animate-fadeIn">
+          <div className="bg-gradient-to-br from-orange-50 to-red-50 rounded-xl p-6 border-2 border-orange-100 shadow-sm animate-fadeIn">
             <label className="block text-sm font-semibold text-gray-700 mb-3">
               <div className="flex items-center space-x-2 mb-2">
-                <LinkIcon className="w-4 h-4 text-blue-600" />
+                <LinkIcon className="w-4 h-4 text-orange-600" />
                 <span>Update Google Calendar Booking Link</span>
               </div>
             </label>
@@ -318,7 +318,7 @@ const InterviewsTab: React.FC<InterviewsTabProps> = ({ clubId }) => {
                 value={urlInput}
                 onChange={(e) => setUrlInput(e.target.value)}
                 placeholder="https://calendar.google.com/calendar/appointments/..."
-                className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white"
+                className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 bg-white"
               />
               <button
                 onClick={handleSaveUrl}
@@ -327,21 +327,21 @@ const InterviewsTab: React.FC<InterviewsTabProps> = ({ clubId }) => {
                   isSaving ||
                   urlInput === interviewScheduleUrl
                 }
-                className="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 font-semibold text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl hover:from-orange-600 hover:to-red-600 transition-all duration-300 font-semibold text-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSaving ? "Saving..." : "Update"}
               </button>
             </div>
             <p className="mt-2 text-xs text-gray-600">
               Current link:{" "}
-              <span className="font-mono text-blue-600 truncate">
+              <span className="font-mono text-orange-600 truncate">
                 {interviewScheduleUrl}
               </span>
             </p>
           </div>
         )}
         <div className="relative overflow-hidden bg-white rounded-2xl shadow-sm border-2 border-gray-100">
-          <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full -mr-8 -mt-8 opacity-30" />
+          <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-orange-100 to-red-100 rounded-full -mr-8 -mt-8 opacity-30" />
           {applicants.length === 0 ? (
             <div className="py-16 text-center">
               <div className="w-16 h-16 bg-gray-100 rounded-full mx-auto mb-4 flex items-center justify-center">
