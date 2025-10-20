@@ -390,7 +390,7 @@ export default function ClubDetailPage() {
       case "members":
         return <MembersTab clubId={clubId} />;
       case "feedback":
-        return <FeedBackTab />;
+        return <FeedBackTab clubId={clubId}/>;
       default:
         return <OverviewTab club={clubData} />;
     }
