@@ -154,15 +154,15 @@ export default function BeautifulLoader({
     return (
       <div className="min-h-screen bg-gradient-to-br from-orange-50 via-red-50 to-yellow-50 pt-16 flex items-center justify-center">
         <div className="flex flex-col items-center justify-center">
-          <div className="relative mb-8">
-            <div className="w-20 h-20 bg-gradient-to-r from-orange-400 to-red-500 rounded-lg animate-spin shadow-2xl"
+          <div className="relative mb-8 w-20 h-20">
+            <div className="absolute inset-0 w-20 h-20 bg-gradient-to-r from-orange-400 to-red-500 rounded-lg shadow-2xl"
                  style={{ 
-                   animation: 'morphShape 2s ease-in-out infinite, rotateMorph 4s linear infinite',
+                   animation: 'morphShape 2s ease-in-out infinite',
                  }}
             ></div>
             <div className="absolute inset-0 w-20 h-20 bg-gradient-to-r from-red-400 to-orange-500 rounded-full opacity-60"
                  style={{ 
-                   animation: 'morphShape2 2s ease-in-out infinite reverse, rotateMorph 3s linear infinite reverse',
+                   animation: 'morphShape2 2s ease-in-out infinite reverse',
                  }}
             ></div>
           </div>
@@ -184,7 +184,7 @@ export default function BeautifulLoader({
         <style jsx>{`
           @keyframes morphShape {
             0%, 100% { 
-              border-radius: 10%; 
+              border-radius: 20%; 
               transform: rotate(0deg) scale(1); 
             }
             25% { 
@@ -192,7 +192,7 @@ export default function BeautifulLoader({
               transform: rotate(90deg) scale(0.8); 
             }
             50% { 
-              border-radius: 20%; 
+              border-radius: 30%; 
               transform: rotate(180deg) scale(1.1); 
             }
             75% { 
@@ -203,16 +203,14 @@ export default function BeautifulLoader({
           @keyframes morphShape2 {
             0%, 100% { 
               border-radius: 50%; 
-              transform: rotate(0deg) scale(0.5); 
+              transform: rotate(0deg) scale(0.6); 
+              opacity: 0.6;
             }
             50% { 
-              border-radius: 10%; 
+              border-radius: 20%; 
               transform: rotate(180deg) scale(0.8); 
+              opacity: 0.8;
             }
-          }
-          @keyframes rotateMorph {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
           }
         `}</style>
       </div>

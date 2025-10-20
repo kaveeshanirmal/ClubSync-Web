@@ -1,12 +1,11 @@
 "use client";
 import React, { useState, useEffect } from 'react';
+import BeautifulLoader from '@/components/Loader';
 import { 
   Activity,
   Clock,
   Target,
   TrendingUp,
-  TrendingDown,
-  ArrowUpRight,
   Users,
   Sparkles,
   Globe,
@@ -121,10 +120,11 @@ const AnalyticsTab: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px]">
-        <div className="w-12 h-12 border-4 border-t-orange-500 border-orange-200 rounded-full animate-spin"></div>
-        <p className="mt-3 text-gray-600">Loading Analytics</p>
-      </div>
+      <BeautifulLoader
+        message="Loading Analytics Data"
+        subMessage="Fetching platform insights and metrics"
+        type="morphing"
+      />
     );
   }
 
@@ -191,82 +191,7 @@ const AnalyticsTab: React.FC = () => {
         </div>
       </div>
 
-      {/* Professional Metrics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {[
-          { 
-            title: "User Engagement", 
-            value: "87.2%", 
-            change: "+12.5%", 
-            trend: "up", 
-            icon: <Activity className="w-5 h-5" />,
-            color: "from-orange-600 to-red-600",
-            bgColor: "bg-orange-50",
-            percentage: 87
-          },
-          { 
-            title: "Event Success Rate", 
-            value: "94.7%", 
-            change: "+7.2%", 
-            trend: "up", 
-            icon: <Target className="w-5 h-5" />,
-            color: "from-red-600 to-orange-600",
-            bgColor: "bg-red-50",
-            percentage: 95
-          },
-          { 
-            title: "Growth Velocity", 
-            value: "23.4%", 
-            change: "+8.1%", 
-            trend: "up", 
-            icon: <TrendingUp className="w-5 h-5" />,
-            color: "from-red-500 to-orange-500",
-            bgColor: "bg-red-50",
-            percentage: 78
-          }
-        ].map((metric, index) => (
-          <div 
-            key={index} 
-            className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-all duration-300 group"
-          >
-            <div className="flex items-start justify-between mb-4">
-              <div className={`${metric.bgColor} p-3 rounded-lg`}>
-                <div className={`text-white bg-gradient-to-r ${metric.color} p-2 rounded-md`}>
-                  {metric.icon}
-                </div>
-              </div>
-              <div className={`flex items-center space-x-1 px-2 py-1 rounded-md text-xs font-medium ${
-                metric.trend === 'up' 
-                  ? 'bg-emerald-100 text-emerald-700' 
-                  : 'bg-red-100 text-red-700'
-              }`}>
-                {metric.trend === 'up' ? (
-                  <ArrowUpRight className="w-3 h-3" />
-                ) : (
-                  <TrendingDown className="w-3 h-3" />
-                )}
-                <span>{metric.change}</span>
-              </div>
-            </div>
-            
-            <div className="space-y-2">
-              <h3 className="text-sm font-medium text-gray-600 uppercase tracking-wide">{metric.title}</h3>
-              <p className="text-2xl font-bold text-gray-900">{metric.value}</p>
-              
-              {/* Progress indicator */}
-              <div className="flex items-center space-x-2 mt-3">
-                <div className="flex-1 bg-gray-200 rounded-full h-1.5">
-                  <div 
-                    className={`h-1.5 bg-gradient-to-r ${metric.color} rounded-full transition-all duration-1000`}
-                    style={{ width: `${metric.percentage}%` }}
-                  ></div>
-                </div>
-                <span className="text-xs text-gray-500 font-medium">{metric.percentage}%</span>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
+      
 
       {/* Real-time Metrics Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

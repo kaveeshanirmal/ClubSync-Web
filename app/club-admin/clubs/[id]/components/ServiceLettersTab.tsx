@@ -17,17 +17,17 @@ const getStatusColor = (status: string) => {
 const ServiceLettersTab: React.FC = () => (
   <div className="space-y-6">
     <div className="flex items-center space-x-3 mb-4">
-      <div className="w-8 h-8 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center transform hover:rotate-12 transition-transform duration-300">
+      <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center transform hover:rotate-12 transition-transform duration-300">
         <FileText className="w-4 h-4 text-white" />
       </div>
       <h3 className="text-lg font-bold text-gray-900">
         Service Letter Requests
       </h3>
-      <div className="h-px bg-gradient-to-r from-indigo-500 to-purple-600 flex-1 opacity-30" />
+      <div className="h-px bg-gradient-to-r from-orange-500 to-red-500 flex-1 opacity-30" />
     </div>
 
     <div className="relative overflow-hidden bg-white rounded-2xl shadow-sm border-2 border-gray-100">
-      <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full -mr-8 -mt-8 opacity-30" />
+      <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-orange-100 to-red-100 rounded-full -mr-8 -mt-8 opacity-30" />
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead className="bg-gradient-to-br from-gray-50 to-white">

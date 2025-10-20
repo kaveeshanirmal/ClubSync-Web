@@ -71,7 +71,7 @@ export async function GET(request: NextRequest) {
           select: {
             members: {
               where: {
-                membershipStatus: "active",
+                membershipStatus: { not: "banned" },
               },
             },
           },

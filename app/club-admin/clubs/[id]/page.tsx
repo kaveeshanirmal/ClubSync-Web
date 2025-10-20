@@ -42,7 +42,7 @@ import ElectionsTab from "./components/ElectionsTab";
 import EventsTab from "./components/EventsTab";
 import MinutesTab from "./components/MinutesTab";
 import ServiceLettersTab from "./components/ServiceLettersTab";
-import CandidatesTab from "./components/CandidatesTab";
+import MembersTab from "./components/MembersTab";
 import FeedBackTab from "./components/FeedBackTab";
 import BeautifulLoader from "@/components/Loader";
 
@@ -53,7 +53,7 @@ interface Club {
   memberCount: number;
   upcomingEvents: number;
   pendingRequests: number;
-  status: string;
+  isActive?: boolean;
   createdAt?: string;
   [key: string]: unknown;
 }
@@ -273,12 +273,6 @@ export default function ClubDetailPage() {
       color: "text-green-600 hover:bg-green-50",
     },
     {
-      icon: Edit,
-      label: "Edit Club Info",
-      action: () => console.log("Edit club"),
-      color: "text-orange-600 hover:bg-orange-50",
-    },
-    {
       icon: Archive,
       label: "Archive Club",
       action: () => console.log("Archive club"),
@@ -306,28 +300,11 @@ export default function ClubDetailPage() {
     memberCount: 0,
     upcomingEvents: 0,
     pendingRequests: 0,
-    status: "inactive",
+    isActive: false,
     createdAt: "Unknown",
   };
 
   const clubData = club ?? fallbackClub;
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "active":
-      case "approved":
-      case "published":
-        return "bg-green-100 text-green-800";
-      case "pending":
-        return "bg-yellow-100 text-yellow-800";
-      case "draft":
-        return "bg-gray-100 text-gray-800";
-      case "completed":
-        return "bg-blue-100 text-blue-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
 
   const roleIcons = {
     member: Users,
@@ -368,8 +345,8 @@ export default function ClubDetailPage() {
     { id: "elections", label: "Elections", icon: Award },
     { id: "events", label: "Events", icon: Calendar },
     { id: "minutes", label: "Minutes", icon: FileText },
-    { id: "service-letters", label: "Service Letters", icon: CheckCircle },
-    { id: "candidates", label: "Candidates", icon: Star },
+  { id: "service-letters", label: "Service Letters", icon: CheckCircle },
+  { id: "members", label: "Members", icon: Star },
     { id: "feedback", label: "Feedback", icon: MessageSquare },
   ];
 
@@ -384,13 +361,13 @@ export default function ClubDetailPage() {
       case "events":
         return <EventsTab />;
       case "minutes":
-        return <MinutesTab />;
+        return <MinutesTab clubId={clubId} />;
       case "service-letters":
         return <ServiceLettersTab />;
-      case "candidates":
-        return <CandidatesTab />;
+      case "members":
+        return <MembersTab clubId={clubId} />;
       case "feedback":
-        return <FeedBackTab />;
+        return <FeedBackTab clubId={clubId}/>;
       default:
         return <OverviewTab club={clubData} />;
     }
@@ -434,7 +411,7 @@ export default function ClubDetailPage() {
   if (loading) {
     return (
       <BeautifulLoader
-        message="Fetching club details..."
+        message="Fetching Club Details"
         subMessage="Please wait a moment while we load the information."
         type="morphing"
       />
@@ -521,7 +498,7 @@ export default function ClubDetailPage() {
                       <div className="absolute inset-0 rounded-full border-2 border-blue-100"></div>
                     </div>
                     <span className="ml-4 text-gray-700 font-medium">
-                      Loading members...
+                      Loading Members
                     </span>
                   </div>
                 ) : (
@@ -765,14 +742,17 @@ export default function ClubDetailPage() {
               </div>
             </div>
             <div className="flex items-center space-x-3">
-              <span
-                className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(
-                  String(clubData.status),
-                )}`}
-              >
-                {String(clubData.status).charAt(0).toUpperCase() +
-                  String(clubData.status).slice(1)}
-              </span>
+              {clubData.isActive !== undefined && (
+                <span
+                  className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+                    clubData.isActive
+                      ? "bg-green-100 text-green-800"
+                      : "bg-gray-100 text-gray-800"
+                  }`}
+                >
+                  {clubData.isActive ? "Active" : "Inactive"}
+                </span>
+              )}
 
               {/* Complete Club Details Button */}
               <button
@@ -792,7 +772,7 @@ export default function ClubDetailPage() {
                 {clubCompletionLoading ? (
                   <>
                     <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
-                    <span>Checking...</span>
+                    <span>Checking</span>
                   </>
                 ) : isClubDetailsComplete ? (
                   <>
@@ -880,7 +860,7 @@ export default function ClubDetailPage() {
           </div>
         </div>
 
-        <Suspense fallback={<div>Loading content...</div>}>
+        <Suspense fallback={<div>Loading Content</div>}>
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
             {renderTabContent()}
           </div>

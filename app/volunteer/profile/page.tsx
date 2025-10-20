@@ -11,7 +11,6 @@ import {
   Download,
   Badge,
   MapPin,
-  IdCard,
   Clock,
   CheckCircle,
   X,
@@ -19,7 +18,6 @@ import {
   Star,
   Camera,
   Briefcase,
-  BookOpen,
   Users,
   Shield,
   Activity,
@@ -29,6 +27,7 @@ import { useVolunteerStats } from "@/app/hooks/useVolunteerStats";
 import VolunteerStats from "@/app/components/volunteer/VolunteerStats";
 import { Certificate as CertificateComponent } from "@/components/Certificate";
 import { generateCertificate } from "@/utils/generateCertificate";
+import { calculateBadgeLevel, type BadgeLevel } from "@/app/lib/volunteerUtils";
 
 interface Certificate {
   id: string;
@@ -209,19 +208,23 @@ export default function VolunteerProfile() {
   const [activeTab, setActiveTab] = useState("activity");
   const { data: session } = useSession();
   
+  // Generate consistent fallback avatar based on user email/name
+  const getFallbackAvatar = () => {
+    const seed = session?.user?.email || session?.user?.name || 'default';
+    return `https://api.dicebear.com/7.x/pixel-art/png?seed=${encodeURIComponent(seed)}`;
+  };
+  
   // Fetch volunteer stats
   const { stats: volunteerStats, loading: statsLoading, error: statsError } = useVolunteerStats(session?.user?.id);
   
   const [user, setUser] = useState({
     name: "Loading...", // This will be fetched from database
     email: "Loading...", // This will be fetched from database
-    universityId: "2022IS066",
     mobile: "Loading...", // This will be fetched from database
-    role: "Senior Volunteer",
-    department: "Computer Science",
+    role: "Volunteer", // This will be fetched from database
     profilePicture: null,
-    level: "Silver",
-    joinedDate: "2024-01-15",
+    level: "bronze", // This will be calculated from volunteer stats
+    joinedDate: new Date().toISOString(), // This will be fetched from database
     totalEvents: 0,
     completedEvents: 0,
     upcomingEvents: 0,
@@ -252,7 +255,6 @@ export default function VolunteerProfile() {
     name: user.name,
     email: user.email,
     mobile: user.mobile,
-    universityId: user.universityId,
   });
 
   // Fetch user data from database
@@ -264,17 +266,28 @@ export default function VolunteerProfile() {
           if (response.ok) {
             const userData = await response.json();
             const fullName = `${userData.firstName} ${userData.lastName}`;
+            
+            // Format role for display
+            const roleDisplay = userData.role === 'volunteer' 
+              ? 'Volunteer' 
+              : userData.role === 'systemAdmin' 
+              ? 'System Admin' 
+              : 'User';
+            
             setUser(prevUser => ({
               ...prevUser,
               name: fullName,
               email: userData.email,
-              mobile: userData.phone
+              mobile: userData.phone || "Not provided",
+              profilePicture: userData.image || null,
+              role: roleDisplay,
+              joinedDate: userData.createdAt || prevUser.joinedDate,
             }));
             setEditData(prevEditData => ({
               ...prevEditData,
               name: fullName,
               email: userData.email,
-              mobile: userData.phone
+              mobile: userData.phone || "Not provided"
             }));
           }
         } catch (error) {
@@ -340,6 +353,18 @@ export default function VolunteerProfile() {
     fetchCertificates();
   }, [session?.user?.id]);
 
+  // Update badge level when volunteer stats change
+  useEffect(() => {
+    if (volunteerStats) {
+      const totalEvents = volunteerStats.eventsParticipated + volunteerStats.eventsOrganized;
+      const badgeLevel = calculateBadgeLevel(totalEvents);
+      setUser(prevUser => ({
+        ...prevUser,
+        level: badgeLevel,
+      }));
+    }
+  }, [volunteerStats]);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setEditData((prev) => ({
@@ -376,7 +401,6 @@ export default function VolunteerProfile() {
           name: editData.name,
           email: editData.email,
           mobile: editData.mobile,
-          universityId: editData.universityId,
         }));
         setIsEditing(false);
         
@@ -398,7 +422,6 @@ export default function VolunteerProfile() {
       name: user.name,
       email: user.email,
       mobile: user.mobile,
-      universityId: user.universityId,
     });
     setIsEditing(false);
   };
@@ -423,10 +446,14 @@ export default function VolunteerProfile() {
   };
 
   const getLevelBadge = (level: string) => {
-    switch (level) {
-      case "Bronze": return { icon: <Shield className="w-4 h-4 text-orange-600" />, text: "Bronze Member" };
-      case "Silver": return { icon: <Star className="w-4 h-4 text-orange-600" />, text: "Silver Member" };
-      case "Gold": return { icon: <Award className="w-4 h-4 text-orange-600" />, text: "Gold Member" };
+    // Capitalize the level for display
+    const capitalizedLevel = level.charAt(0).toUpperCase() + level.slice(1);
+    
+    switch (level.toLowerCase()) {
+      case "bronze": return { icon: <Shield className="w-4 h-4 text-orange-600" />, text: `${capitalizedLevel} Member` };
+      case "silver": return { icon: <Star className="w-4 h-4 text-orange-600" />, text: `${capitalizedLevel} Member` };
+      case "gold": return { icon: <Award className="w-4 h-4 text-orange-600" />, text: `${capitalizedLevel} Member` };
+      case "platinum": return { icon: <Badge className="w-4 h-4 text-orange-600" />, text: `${capitalizedLevel} Member` };
       default: return { icon: <Badge className="w-4 h-4 text-orange-600" />, text: "Member" };
     }
   };
@@ -442,11 +469,11 @@ export default function VolunteerProfile() {
               <div className="flex flex-col items-center">
                 <div className="relative">
                   <div className="w-32 h-32 rounded-full bg-gray-100 border-3 border-orange-300 shadow-lg flex items-center justify-center overflow-hidden">
-                    {user.profilePicture ? (
-                      <img src={user.profilePicture} alt="Profile" className="w-full h-full object-cover" />
-                    ) : (
-                      <User className="w-16 h-16 text-gray-400" />
-                    )}
+                    <img 
+                      src={user.profilePicture || getFallbackAvatar()} 
+                      alt="Profile" 
+                      className="w-full h-full object-cover" 
+                    />
                   </div>
                   <button className="absolute bottom-2 right-2 w-8 h-8 bg-gray-600 hover:bg-gray-700 rounded-full flex items-center justify-center text-white transition-colors">
                     <Camera className="w-4 h-4" />
@@ -470,10 +497,6 @@ export default function VolunteerProfile() {
                       {user.role}
                     </span>
                     <span className="flex items-center gap-2">
-                      <BookOpen className="w-4 h-4" />
-                      {user.department}
-                    </span>
-                    <span className="flex items-center gap-2">
                       <Calendar className="w-4 h-4" />
                       Joined {new Date(user.joinedDate).toLocaleDateString()}
                     </span>
@@ -481,19 +504,12 @@ export default function VolunteerProfile() {
                 </div>
 
                 {/* Contact Information */}
-                <div className="grid md:grid-cols-3 gap-4 mb-6">
+                <div className="grid md:grid-cols-2 gap-4 mb-6">
                   <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                     <Mail className="w-5 h-5 text-gray-500" />
                     <div>
                       <p className="text-xs text-gray-500 uppercase tracking-wide">Email</p>
                       <p className="text-sm font-medium text-gray-900">{user.email}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                    <IdCard className="w-5 h-5 text-gray-500" />
-                    <div>
-                      <p className="text-xs text-gray-500 uppercase tracking-wide">Student ID</p>
-                      <p className="text-sm font-medium text-gray-900">{user.universityId}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
@@ -620,16 +636,6 @@ export default function VolunteerProfile() {
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
                     />
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">University ID</label>
-                    <input
-                      type="text"
-                      name="universityId"
-                      value={editData.universityId}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
-                    />
-                  </div>
                 </div>
                 
                 <div className="flex gap-4 pt-8">
@@ -683,7 +689,7 @@ export default function VolunteerProfile() {
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-gray-900">My Certificates</h2>
               <span className="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-medium">
-                {user.certificates.length} Certificates
+                {user.certificates.length} Certificate(s)
               </span>
             </div>
             

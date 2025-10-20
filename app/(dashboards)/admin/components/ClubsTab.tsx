@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from 'react';
+import BeautifulLoader from '@/components/Loader';
 import { 
   Filter,
   Download,
@@ -292,10 +293,6 @@ const ClubsTab: React.FC<ClubsTabProps> = () => {
                 <Users className="w-4 h-4" />
                 <span className="text-sm">{clubsCount} Total Clubs</span>
               </div>
-              <div className="flex items-center space-x-2">
-                <Users className="w-4 h-4" />
-                <span className="text-sm">{membersCount} Active Members</span>
-              </div>
             </div>
           </div>
           <div className="flex space-x-3">
@@ -391,10 +388,11 @@ const ClubsTab: React.FC<ClubsTabProps> = () => {
       </div>
       
       {loading ? (
-        <div className="p-8 text-center">
-          <div className="w-12 h-12 border-4 border-t-orange-500 border-orange-200 rounded-full animate-spin mx-auto"></div>
-          <p className="mt-3 text-gray-600">Loading Data</p>
-        </div>
+        <BeautifulLoader
+          message="Loading Clubs Data"
+          subMessage="Fetching all clubs and verification requests"
+          type="morphing"
+        />
       ) : error ? (
         <div className="p-8 text-center">
           <AlertCircle className="w-12 h-12 text-red-500 mx-auto" />
@@ -1019,7 +1017,7 @@ const ClubsTab: React.FC<ClubsTabProps> = () => {
                 disabled={isSubmitting}
                 className="px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isSubmitting ? 'Saving...' : 'Save Changes'}
+                {isSubmitting ? 'Saving' : 'Save Changes'}
               </button>
             </div>
           </form>

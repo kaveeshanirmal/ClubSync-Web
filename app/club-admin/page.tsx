@@ -47,6 +47,7 @@ export default function ClubAdminDashboard() {
     type: "success" | "error";
     message: string;
   } | null>(null);
+  const [inquirySubmitted, setInquirySubmitted] = useState(false);
   const [clubs, setClubs] = useState<Club[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -74,6 +75,15 @@ export default function ClubAdminDashboard() {
   useEffect(() => {
     fetchClubs();
   }, [session?.user?.id]);
+
+  // Reset inquiry modal state when opened
+  useEffect(() => {
+    if (showInquiryModal) {
+      setInquirySubmitted(false);
+      setInquiryNotice(null);
+      setInquiry({ subject: "", type: "general", message: "" });
+    }
+  }, [showInquiryModal]);
 
   // Mocked feedback data
   const recentFeedback = [
@@ -172,7 +182,7 @@ export default function ClubAdminDashboard() {
     return (
       <BeautifulLoader
         message="Preparing your Club Admin Dashboard"
-        subMessage="Fetching your clubs and data..."
+        subMessage="Fetching your clubs and data"
         type="morphing"
       />
     );
@@ -345,79 +355,87 @@ export default function ClubAdminDashboard() {
               </div>
 
               <div className="space-y-6">
-                {clubs.map((club, index) => (
-                  <div key={club.id} className="mb-10 last:mb-0">
-                    <Link href={getClubLink(club)}>
-                      <div className="group bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl p-6 hover:from-orange-50 hover:to-red-50 transition-all duration-300 cursor-pointer border border-gray-200 hover:border-orange-300 hover:shadow-lg">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-4">
-                            <div
-                              className={`w-16 h-16 bg-gradient-to-br ${
-                                club.status === "pending"
-                                  ? "from-yellow-500 to-orange-500"
-                                  : index % 3 === 0
-                                    ? "from-orange-500 to-red-500"
-                                    : index % 3 === 1
-                                      ? "from-blue-500 to-indigo-500"
-                                      : "from-purple-500 to-pink-500"
-                              } rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-lg group-hover:scale-110 transition-transform duration-300`}
-                            >
-                              {club.name.charAt(0)}
-                            </div>
-                            <div className="flex-1">
-                              <h3 className="text-lg font-semibold text-black group-hover:text-orange-700 transition-colors">
-                                {club.name}
-                                {club.type === "request" && (
-                                  <span className="ml-2 text-xs text-yellow-600 bg-yellow-100 px-2 py-1 rounded-full">
-                                    Request
-                                  </span>
-                                )}
-                              </h3>
-                              <p className="text-gray-600 text-sm mb-2">
-                                {club.description}
-                              </p>
-                              <div className="flex items-center space-x-4">
-                                {club.type !== "request" && (
-                                  <>
-                                    <span className="text-xs text-gray-500 flex items-center bg-white px-2 py-1 rounded-full">
-                                      <Users className="w-3 h-3 mr-1" />
-                                      {club.memberCount} members
-                                    </span>
-                                    <span className="text-xs text-gray-500 flex items-center bg-white px-2 py-1 rounded-full">
-                                      <Calendar className="w-3 h-3 mr-1" />
-                                      {club.upcomingEvents} events
-                                    </span>
-                                  </>
-                                )}
-                                {club.pendingRequests > 0 && (
-                                  <span className="text-xs text-yellow-600 flex items-center bg-yellow-50 px-2 py-1 rounded-full border border-yellow-200">
-                                    <AlertCircle className="w-3 h-3 mr-1" />
-                                    {club.pendingRequests} pending
-                                  </span>
-                                )}
-                              </div>
-                            </div>
+                {clubs.map((club, index) => {
+                  const isClickable = club.status !== "pending" && club.status !== "underReview" && club.status !== "needsMoreInfo";
+                  const clubContent = (
+                    <div className={`group bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl p-6 ${isClickable ? 'hover:from-orange-50 hover:to-red-50 cursor-pointer hover:border-orange-300 hover:shadow-lg' : 'opacity-70 cursor-not-allowed'} transition-all duration-300 border border-gray-200`}>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-4">
+                          <div
+                            className={`w-16 h-16 bg-gradient-to-br ${
+                              club.status === "pending"
+                                ? "from-yellow-500 to-orange-500"
+                                : index % 3 === 0
+                                  ? "from-orange-500 to-red-500"
+                                  : index % 3 === 1
+                                    ? "from-blue-500 to-indigo-500"
+                                    : "from-purple-500 to-pink-500"
+                            } rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-lg ${isClickable ? 'group-hover:scale-110' : ''} transition-transform duration-300`}
+                          >
+                            {club.name.charAt(0)}
                           </div>
-                          <div className="text-right">
-                            <span
-                              className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium shadow-sm ${getStatusColor(club.status)}`}
-                            >
-                              {getStatusIcon(club.status, club.type)}
-                              {club.status === "underReview"
-                                ? "Under Review"
-                                : club.status === "needsMoreInfo"
-                                  ? "Needs More Info"
-                                  : club.status}
-                            </span>
-                            <div className="mt-2">
-                              <TrendingUp className="w-4 h-4 text-green-500 group-hover:scale-110 transition-transform duration-300" />
+                          <div className="flex-1">
+                            <h3 className={`text-lg font-semibold text-black ${isClickable ? 'group-hover:text-orange-700' : ''} transition-colors`}>
+                              {club.name}
+                              {club.type === "request" && (
+                                <span className="ml-2 text-xs text-yellow-600 bg-yellow-100 px-2 py-1 rounded-full">
+                                  Request
+                                </span>
+                              )}
+                            </h3>
+                            <div className="flex items-center space-x-4 mt-2">
+                              {club.type !== "request" && (
+                                <>
+                                  <span className="text-xs text-gray-500 flex items-center bg-white px-2 py-1 rounded-full">
+                                    <Users className="w-3 h-3 mr-1" />
+                                    {club.memberCount} members
+                                  </span>
+                                  <span className="text-xs text-gray-500 flex items-center bg-white px-2 py-1 rounded-full">
+                                    <Calendar className="w-3 h-3 mr-1" />
+                                    {club.upcomingEvents} events
+                                  </span>
+                                </>
+                              )}
+                              {club.pendingRequests > 0 && (
+                                <span className="text-xs text-yellow-600 flex items-center bg-yellow-50 px-2 py-1 rounded-full border border-yellow-200">
+                                  <AlertCircle className="w-3 h-3 mr-1" />
+                                  {club.pendingRequests} pending
+                                </span>
+                              )}
                             </div>
                           </div>
                         </div>
+                        <div className="text-right">
+                          <span
+                            className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium shadow-sm ${getStatusColor(club.status)}`}
+                          >
+                            {getStatusIcon(club.status, club.type)}
+                            {club.status === "underReview"
+                              ? "Under Review"
+                              : club.status === "needsMoreInfo"
+                                ? "Needs More Info"
+                                : club.status}
+                          </span>
+                          <div className="mt-2">
+                            <TrendingUp className="w-4 h-4 text-green-500 group-hover:scale-110 transition-transform duration-300" />
+                          </div>
+                        </div>
                       </div>
-                    </Link>
-                  </div>
-                ))}
+                    </div>
+                  );
+
+                  return (
+                    <div key={club.id} className="mb-10 last:mb-0">
+                      {isClickable ? (
+                        <Link href={getClubLink(club)}>
+                          {clubContent}
+                        </Link>
+                      ) : (
+                        clubContent
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -578,8 +596,8 @@ export default function ClubAdminDashboard() {
         </div>
       )}
       {showInquiryModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 relative animate-fadeIn">
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-6 lg:p-8 relative animate-fadeIn overflow-hidden">
             <button
               className="absolute top-4 right-4 text-gray-400 hover:text-orange-500 transition-colors text-xl font-bold"
               onClick={() => setShowInquiryModal(false)}
@@ -587,111 +605,155 @@ export default function ClubAdminDashboard() {
             >
               ×
             </button>
-            <div className="text-center mb-6">
-              <div className="mx-auto flex items-center justify-center h-14 w-14 rounded-full bg-gradient-to-br from-orange-100 to-red-100 mb-4 shadow">
-                <MessageSquare className="h-7 w-7 text-orange-600" />
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="hidden lg:flex lg:flex-col lg:items-center lg:justify-center lg:space-y-4 bg-gradient-to-br from-orange-50 to-red-50 p-6 rounded-xl border border-orange-100">
+                <div className="flex items-center justify-center h-16 w-16 rounded-full bg-gradient-to-br from-orange-100 to-red-100 shadow">
+                  <MessageSquare className="h-8 w-8 text-orange-600" />
+                </div>
+                <div className="text-center">
+                  <h3 className="text-lg font-semibold text-black">Send an Inquiry</h3>
+                  <p className="text-xs text-gray-600 mt-1">Our team will get back within 24-48 hours.</p>
+                </div>
+                <div className="text-xs text-gray-500 text-center">
+                  <div className="bg-white px-3 py-1 rounded-full shadow-sm">Fast Response</div>
+                </div>
               </div>
-              <h3 className="text-2xl font-semibold text-black mb-1">
-                Send an Inquiry
-              </h3>
-              <p className="text-sm text-gray-500">
-                Let us know your concern or question.
-              </p>
-            </div>
-            {inquiryNotice && (
-              <div
-                className={`mb-4 px-4 py-3 rounded-lg text-sm font-medium flex items-center gap-2 transition-all duration-300 ${inquiryNotice.type === "success" ? "bg-green-50 text-green-700 border border-green-200" : "bg-red-50 text-red-700 border border-red-200"}`}
-              >
-                {inquiryNotice.type === "success" ? (
-                  <CheckCircle className="w-5 h-5 text-green-500" />
+
+              <div className="lg:col-span-2">
+                <div className="mb-4 text-center lg:text-left">
+                  <h4 className="text-xl font-semibold text-black">Need Assistance?</h4>
+                  <p className="text-sm text-gray-500">Describe your issue and we'll route it to the right team.</p>
+                </div>
+
+                {inquirySubmitted && inquiryNotice?.type === "success" ? (
+                  <div className="mb-4 p-6 rounded-xl bg-gradient-to-r from-green-50 to-green-100 border border-green-200 flex items-start gap-4 shadow-sm">
+                    <div className="flex-shrink-0">
+                      <div className="h-14 w-14 rounded-full bg-white flex items-center justify-center shadow">
+                        <CheckCircle className="h-7 w-7 text-green-600" />
+                      </div>
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-md font-semibold text-green-800">Thanks — your inquiry is submitted</p>
+                      <p className="text-sm text-gray-700 mt-1">{inquiryNotice?.message}</p>
+                      <p className="text-xs text-gray-500 mt-3">Our team will reply within 24–48 hours. You can close this dialog when ready.</p>
+                    </div>
+                    <div className="flex-shrink-0">
+                      <button
+                        onClick={() => {
+                          setShowInquiryModal(false);
+                          setInquiryNotice(null);
+                          setInquirySubmitted(false);
+                        }}
+                        className="inline-flex items-center px-4 py-2 bg-white border border-green-200 text-green-700 rounded-lg shadow-sm hover:bg-green-50 transition"
+                      >
+                        Close
+                      </button>
+                    </div>
+                  </div>
                 ) : (
-                  <AlertCircle className="w-5 h-5 text-red-500" />
+                  <>
+                    {inquiryNotice?.type === "success" && (
+                      <div className="mb-4 p-4 rounded-xl bg-gradient-to-r from-green-50 to-green-100 border border-green-200 flex items-start gap-4 shadow-sm">
+                        <div className="flex-shrink-0">
+                          <div className="h-10 w-10 rounded-full bg-white flex items-center justify-center shadow">
+                            <CheckCircle className="h-5 w-5 text-green-600" />
+                          </div>
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-green-800">{inquiryNotice.message}</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {inquiryNotice?.type === "error" && (
+                      <div className="mb-4 px-4 py-3 rounded-lg text-sm font-medium flex items-center gap-2 transition-all duration-500 bg-red-50 text-red-700 border border-red-200">
+                        <AlertCircle className="w-5 h-5 text-red-500" />
+                        {inquiryNotice.message}
+                      </div>
+                    )}
+
+                    <form
+                      className="space-y-4"
+                      onSubmit={async (e) => {
+                        e.preventDefault();
+                        setInquiryNotice(null);
+                        const res = await fetch("/api/inquiries", {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({
+                            subject: inquiry.subject,
+                            type: inquiry.type,
+                            message: inquiry.message,
+                            userId: session?.user?.id,
+                          }),
+                        });
+                        if (res.ok) {
+                          setInquiryNotice({
+                            type: "success",
+                            message: "Inquiry submitted — we'll follow up soon.",
+                          });
+                          setInquiry({ subject: "", type: "general", message: "" });
+                          setInquirySubmitted(true);
+                        } else {
+                          setInquiryNotice({
+                            type: "error",
+                            message: "Failed to submit inquiry. Please try again.",
+                          });
+                        }
+                      }}
+                    >
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                        <input
+                          type="text"
+                          className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-200 transition bg-white placeholder-gray-400"
+                          placeholder="Subject"
+                          value={inquiry.subject}
+                          onChange={(e) => setInquiry({ ...inquiry, subject: e.target.value })}
+                          required
+                        />
+                        <select
+                          className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-200 transition bg-white text-gray-700"
+                          value={inquiry.type}
+                          onChange={(e) => setInquiry({ ...inquiry, type: e.target.value })}
+                        >
+                          <option value="general">General</option>
+                          <option value="technicalSupport">Technical Support</option>
+                          <option value="partnership">Partnership</option>
+                          <option value="feedback">Feedback</option>
+                          <option value="other">Other</option>
+                        </select>
+                      </div>
+
+                      <textarea
+                        rows={5}
+                        className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-200 transition bg-white resize-none placeholder-gray-400"
+                        placeholder="Your message..."
+                        value={inquiry.message}
+                        onChange={(e) => setInquiry({ ...inquiry, message: e.target.value })}
+                        required
+                      />
+
+                      <div className="flex items-center justify-between gap-3">
+                        <button
+                          type="button"
+                          onClick={() => setShowInquiryModal(false)}
+                          className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="submit"
+                          className="inline-flex items-center gap-2 px-5 py-2 text-sm font-semibold text-white bg-gradient-to-r from-orange-500 to-red-500 rounded-lg hover:from-orange-600 hover:to-red-600 transition-all duration-200 shadow"
+                        >
+                          <span>Submit</span>
+                        </button>
+                      </div>
+                    </form>
+                  </>
                 )}
-                {inquiryNotice.message}
               </div>
-            )}
-            <form
-              className="space-y-5"
-              onSubmit={async (e) => {
-                e.preventDefault();
-                setInquiryNotice(null);
-                const res = await fetch("/api/inquiries", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({
-                    subject: inquiry.subject,
-                    type: inquiry.type,
-                    message: inquiry.message,
-                    userId: session?.user?.id,
-                  }),
-                });
-                if (res.ok) {
-                  setInquiryNotice({
-                    type: "success",
-                    message: "Inquiry submitted successfully!",
-                  });
-                  setInquiry({ subject: "", type: "general", message: "" });
-                  setTimeout(() => {
-                    setShowInquiryModal(false);
-                    setInquiryNotice(null);
-                  }, 1800);
-                } else {
-                  setInquiryNotice({
-                    type: "error",
-                    message: "Failed to submit inquiry. Please try again.",
-                  });
-                }
-              }}
-            >
-              <input
-                type="text"
-                className="w-full px-4 py-3 border border-orange-200 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-orange-400 transition placeholder-gray-400 bg-orange-50"
-                placeholder="Subject"
-                value={inquiry.subject}
-                onChange={(e) =>
-                  setInquiry({ ...inquiry, subject: e.target.value })
-                }
-                required
-              />
-              <select
-                className="w-full px-4 py-3 border border-orange-200 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-orange-400 transition bg-orange-50 text-gray-700"
-                value={inquiry.type}
-                onChange={(e) =>
-                  setInquiry({ ...inquiry, type: e.target.value })
-                }
-              >
-                <option value="general">General</option>
-                <option value="technicalSupport">Technical Support</option>
-                <option value="partnership">Partnership</option>
-                <option value="feedback">Feedback</option>
-                <option value="other">Other</option>
-              </select>
-              <textarea
-                rows={4}
-                className="w-full px-4 py-3 border border-orange-200 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-orange-400 transition placeholder-gray-400 bg-orange-50 resize-none"
-                placeholder="Your message..."
-                value={inquiry.message}
-                onChange={(e) =>
-                  setInquiry({ ...inquiry, message: e.target.value })
-                }
-                required
-              />
-              <div className="flex space-x-3 mt-2">
-                <button
-                  type="button"
-                  onClick={() => setShowInquiryModal(false)}
-                  className="flex-1 px-4 py-2 text-base font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 px-4 py-2 text-base font-medium text-white bg-gradient-to-r from-orange-500 to-red-500 rounded-lg hover:from-orange-600 hover:to-red-600 transition-all duration-200 shadow-sm"
-                >
-                  Submit
-                </button>
-              </div>
-            </form>
+            </div>
           </div>
         </div>
       )}

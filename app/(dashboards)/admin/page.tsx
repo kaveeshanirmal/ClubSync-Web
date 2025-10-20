@@ -1,12 +1,14 @@
 "use client";
 import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { signOut, useSession } from "next-auth/react";
+import Image from "next/image";
+import BeautifulLoader from "@/components/Loader";
 import {
   Users,
   Calendar,
   Award,
   TrendingUp,
-  Bell,
   Settings,
   Search,
   Activity,
@@ -15,6 +17,9 @@ import {
   PieChart,
   Globe,
   Sparkles,
+  LogOut,
+  User,
+  ChevronDown,
 } from "lucide-react";
 
 // Import tab components
@@ -28,10 +33,12 @@ import AnalyticsTab from "./components/AnalyticsTab";
 const AdminDashboardContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { data: session } = useSession();
   const [selectedTab, setSelectedTab] = useState("overview");
-  const [notifications] = useState(1);
+  const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [initialLoad, setInitialLoad] = useState(true);
   
   // State for dashboard data
   const [dashboardStats, setDashboardStats] = useState([
@@ -80,16 +87,37 @@ const AdminDashboardContent = () => {
     setSelectedTab(tab);
   }, [searchParams]);
 
-  // Fetch dashboard data
+  // Close dropdown when clicking outside
   useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest(".profile-dropdown-container")) {
+        setShowProfileDropdown(false);
+      }
+    };
 
-        // Fetch stats
-        const statsRes = await fetch("/api/admin/stats");
-        const statsData = await statsRes.json();
+    if (showProfileDropdown) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showProfileDropdown]);
+
+  // Fetch dashboard data function
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      console.log("Fetching admin dashboard data...");
+
+      // Fetch stats
+      const statsRes = await fetch("/api/admin/stats");
+      const statsData = await statsRes.json();
+
+      console.log("Stats response:", statsData);
 
         if (!statsData.success) {
           throw new Error(statsData.error || "Failed to fetch stats");
@@ -134,35 +162,65 @@ const AdminDashboardContent = () => {
         setActiveUsersCount(statsData.data.activeUsers);
         setPlatformHealthScore(statsData.data.platformHealthScore);
 
+        console.log("Fetching analytics...");
+
         // Fetch analytics
         const analyticsRes = await fetch("/api/admin/analytics");
         const analyticsData = await analyticsRes.json();
+
+        console.log("Analytics response:", analyticsData);
 
         if (!analyticsData.success) {
           throw new Error(analyticsData.error || "Failed to fetch analytics");
         }
 
-        setChartData(analyticsData.data);
+        // Transform monthly growth data for the chart
+        const transformedChartData = analyticsData.data.monthlyGrowth.map((item: { month: string; newClubs: number; newEvents: number }) => ({
+          name: item.month,
+          clubs: item.newClubs,
+          events: item.newEvents
+        }));
+        
+        setChartData(transformedChartData);
+
+        console.log("Fetching club distribution...");
 
         // Fetch club distribution
         const distributionRes = await fetch("/api/admin/club-distribution");
         const distributionData = await distributionRes.json();
+
+        console.log("Distribution response:", distributionData);
 
         if (!distributionData.success) {
           throw new Error(distributionData.error || "Failed to fetch distribution");
         }
 
         setPieData(distributionData.data);
+        
+        console.log("Dashboard data loaded successfully");
       } catch (err) {
         console.error("Error fetching dashboard data:", err);
         setError(err instanceof Error ? err.message : "Failed to load dashboard data");
       } finally {
+        console.log("Setting loading to false");
         setLoading(false);
       }
     };
 
+  // Fetch dashboard data on mount
+  useEffect(() => {
     fetchDashboardData();
   }, []);
+
+  // Refetch data when switching back to overview tab (but not on initial mount)
+  useEffect(() => {
+    if (selectedTab === "overview" && !initialLoad) {
+      fetchDashboardData();
+    }
+    if (initialLoad) {
+      setInitialLoad(false);
+    }
+  }, [selectedTab, initialLoad]);
 
   // Update URL when tab changes
   const handleTabChange = (tab: string) => {
@@ -172,18 +230,17 @@ const AdminDashboardContent = () => {
 
   // Render current tab content
   const renderTabContent = () => {
-    if (loading && selectedTab === "overview") {
+    if (loading) {
       return (
-        <div className="flex items-center justify-center h-96">
-          <div className="text-center">
-            <div className="w-16 h-16 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-gray-600 font-medium">Loading dashboard data...</p>
-          </div>
-        </div>
+        <BeautifulLoader
+          message="Preparing your Admin Dashboard"
+          subMessage="Fetching platform data and analytics"
+          type="morphing"
+        />
       );
     }
 
-    if (error && selectedTab === "overview") {
+    if (error) {
       return (
         <div className="flex items-center justify-center h-96">
           <div className="text-center">
@@ -313,18 +370,6 @@ const AdminDashboardContent = () => {
             onClick={handleTabChange}
           />
         </nav>
-
-        {/* Sidebar Footer */}
-        <div className="p-4 border-t border-gray-200">
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
-            <div className="flex-1">
-              <p className="text-sm font-medium text-gray-900">Admin User</p>
-              <p className="text-xs text-gray-500">admin@clubsync.com</p>
-            </div>
-            <Settings className="w-5 h-5 text-gray-400" />
-          </div>
-        </div>
       </aside>
 
       {/* Main Content */}
@@ -362,15 +407,62 @@ const AdminDashboardContent = () => {
 
             {/* User Controls */}
             <div className="flex items-center space-x-4 ml-4">
-              <button className="relative p-2 text-gray-400 hover:text-gray-600 transition-colors duration-200">
-                <Bell className="w-5 h-5" />
-                {notifications > 0 && (
-                  <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full text-xs text-white flex items-center justify-center">
-                    {notifications}
+              <div className="relative profile-dropdown-container">
+                <button
+                  onClick={() => setShowProfileDropdown(!showProfileDropdown)}
+                  className="flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+                >
+                  {session?.user?.image ? (
+                    <Image
+                      src={session.user.image}
+                      alt="Profile"
+                      width={32}
+                      height={32}
+                      className="w-8 h-8 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                      {session?.user?.firstName?.[0] || session?.user?.name?.[0] || "A"}
+                    </div>
+                  )}
+                  <span className="text-sm font-medium text-gray-700">
+                    {session?.user?.firstName && session?.user?.lastName 
+                      ? `${session.user.firstName} ${session.user.lastName}`
+                      : session?.user?.name || "Admin"}
                   </span>
+                  <ChevronDown className="w-4 h-4 text-gray-600" />
+                </button>
+
+                {/* Profile Dropdown */}
+                {showProfileDropdown && (
+                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-50">
+                    <div className="px-4 py-3 border-b border-gray-100">
+                      <p className="text-sm font-semibold text-gray-900">
+                        {session?.user?.firstName && session?.user?.lastName 
+                      ? `${session.user.firstName} ${session.user.lastName}`
+                      : session?.user?.name || "Admin"}
+                      </p>
+                      <p className="text-xs text-gray-500 truncate">
+                        {session?.user?.email || "admin@clubsync.com"}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => router.push("/volunteer/profile")}
+                      className="w-full flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                    >
+                      <User className="w-4 h-4" />
+                      <span>View Profile</span>
+                    </button>
+                    <button
+                      onClick={() => signOut({ callbackUrl: "/login" })}
+                      className="w-full flex items-center space-x-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      <span>Sign Out</span>
+                    </button>
+                  </div>
                 )}
-              </button>
-              <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded-full"></div>
+              </div>
             </div>
           </div>
         </header>
@@ -389,12 +481,11 @@ const AdminDashboard = () => {
   return (
     <Suspense
       fallback={
-        <div className="flex h-screen items-center justify-center bg-gray-50">
-          <div className="text-center">
-            <div className="w-16 h-16 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-gray-600 font-medium">Loading dashboard...</p>
-          </div>
-        </div>
+        <BeautifulLoader
+          message="Loading Admin Dashboard"
+          subMessage="Please wait while we prepare everything"
+          type="morphing"
+        />
       }
     >
       <AdminDashboardContent />

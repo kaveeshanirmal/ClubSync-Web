@@ -1,37 +1,54 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { getServerSession } from "next-auth";
+import { headers } from "next/headers";
+import jwt from "jsonwebtoken";
 
 const prisma = new PrismaClient();
 
+interface UserJwtPayload {
+  id: string;
+  email: string;
+  iat: number;
+  exp: number;
+}
+
+async function authorizeRequest() {
+  const session = await getServerSession();
+  if (session) return true;
+
+  const authHeader = (await headers()).get("authorization");
+  if (authHeader && authHeader.startsWith("Bearer ")) {
+    const token = authHeader.substring(7);
+    try {
+      const decoded = jwt.verify(
+        token,
+        process.env.JWT_SECRET!,
+      ) as UserJwtPayload;
+      return !!decoded;
+    } catch {
+      return false;
+    }
+  }
+  return false;
+}
+
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
+  { params }: { params: { id: string } },
 ) {
   try {
-    const session = await getServerSession();
-
-    if (!session) {
+    if (!(await authorizeRequest())) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { id: electionId } = await params;
-
+    const { id: electionId } = params;
     const election = await prisma.election.findUnique({
       where: { id: electionId },
       include: {
         club: true,
-        positions: {
-          include: {
-            candidates: true,
-          },
-          orderBy: { name: "asc" },
-        },
-        _count: {
-          select: {
-            tokens: true,
-          },
-        },
+        positions: { include: { candidates: true }, orderBy: { name: "asc" } },
+        _count: { select: { tokens: true } },
       },
     });
 
@@ -42,7 +59,6 @@ export async function GET(
       );
     }
 
-    // Transform dates to ISO strings for frontend
     const transformedElection = {
       ...election,
       votingStart: election.votingStart.toISOString(),
@@ -63,19 +79,15 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
+  { params }: { params: { id: string } },
 ) {
   try {
-    const session = await getServerSession();
-
-    if (!session) {
+    if (!(await authorizeRequest())) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const electionId = (await params).id;
+    const { id: electionId } = params;
     const body = await request.json();
-
-    // Verify election exists
     const existingElection = await prisma.election.findUnique({
       where: { id: electionId },
       include: { club: true },
@@ -88,7 +100,6 @@ export async function PUT(
       );
     }
 
-    // Check if voting has started (prevent major changes to active elections)
     const now = new Date();
     const hasStarted = now >= existingElection.votingStart;
 
@@ -99,7 +110,6 @@ export async function PUT(
       );
     }
 
-    // Validate dates if provided
     const votingStart = body.votingStart
       ? new Date(body.votingStart)
       : existingElection.votingStart;
@@ -114,10 +124,8 @@ export async function PUT(
       );
     }
 
-    // Update election in a transaction
-    const updatedElection = await prisma.$transaction(async (tx) => {
-      // Update basic election details
-      const election = await tx.election.update({
+    await prisma.$transaction(async (tx) => {
+      await tx.election.update({
         where: { id: electionId },
         data: {
           title: body.title || existingElection.title,
@@ -135,22 +143,12 @@ export async function PUT(
         },
       });
 
-      // Update positions and candidates if provided and election hasn't started
       if (body.positions && !hasStarted) {
-        // Delete existing positions and candidates
         await tx.candidate.deleteMany({
-          where: {
-            position: {
-              electionId: electionId,
-            },
-          },
+          where: { position: { electionId: electionId } },
         });
+        await tx.position.deleteMany({ where: { electionId: electionId } });
 
-        await tx.position.deleteMany({
-          where: { electionId: electionId },
-        });
-
-        // Create new positions and candidates
         for (const position of body.positions) {
           const createdPosition = await tx.position.create({
             data: {
@@ -160,7 +158,6 @@ export async function PUT(
             },
           });
 
-          // Create candidates for this position
           if (position.candidates && Array.isArray(position.candidates)) {
             for (const candidate of position.candidates) {
               await tx.candidate.create({
@@ -176,29 +173,16 @@ export async function PUT(
           }
         }
       }
-
-      return election;
     });
 
-    // Fetch the complete updated election data
     const completeElection = await prisma.election.findUnique({
       where: { id: electionId },
       include: {
-        positions: {
-          include: {
-            candidates: true,
-          },
-          orderBy: { name: "asc" },
-        },
-        _count: {
-          select: {
-            tokens: true,
-          },
-        },
+        positions: { include: { candidates: true }, orderBy: { name: "asc" } },
+        _count: { select: { tokens: true } },
       },
     });
 
-    // Transform dates for frontend
     const transformedElection = {
       ...completeElection,
       votingStart: completeElection!.votingStart.toISOString(),
@@ -219,18 +203,14 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
+  { params }: { params: { id: string } },
 ) {
   try {
-    const session = await getServerSession();
-
-    if (!session) {
+    if (!(await authorizeRequest())) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const electionId = (await params).id;
-
-    // Verify election exists
+    const { id: electionId } = params;
     const election = await prisma.election.findUnique({
       where: { id: electionId },
       include: { club: true },
@@ -243,7 +223,6 @@ export async function DELETE(
       );
     }
 
-    // Check if voting is active (prevent deletion of active elections)
     const now = new Date();
     if (now >= election.votingStart && now <= election.votingEnd) {
       return NextResponse.json(
@@ -252,36 +231,14 @@ export async function DELETE(
       );
     }
 
-    // Delete in correct order due to foreign key constraints
     await prisma.$transaction(async (tx) => {
-      // Delete votes first
-      await tx.vote.deleteMany({
-        where: { electionId: electionId },
-      });
-
-      // Delete voting tokens
-      await tx.votingToken.deleteMany({
-        where: { electionId: electionId },
-      });
-
-      // Delete candidates
+      await tx.vote.deleteMany({ where: { electionId: electionId } });
+      await tx.votingToken.deleteMany({ where: { electionId: electionId } });
       await tx.candidate.deleteMany({
-        where: {
-          position: {
-            electionId: electionId,
-          },
-        },
+        where: { position: { electionId: electionId } },
       });
-
-      // Delete positions
-      await tx.position.deleteMany({
-        where: { electionId: electionId },
-      });
-
-      // Finally delete the election
-      await tx.election.delete({
-        where: { id: electionId },
-      });
+      await tx.position.deleteMany({ where: { electionId: electionId } });
+      await tx.election.delete({ where: { id: electionId } });
     });
 
     return NextResponse.json({ message: "Election deleted successfully" });

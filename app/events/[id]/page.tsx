@@ -73,7 +73,6 @@ export default function EventPage({
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isRegistered, setIsRegistered] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
 
@@ -127,11 +126,6 @@ export default function EventPage({
     });
   };
 
-  const handleRegister = () => {
-    setIsRegistered(!isRegistered);
-    // TODO: Implement API call to register/unregister
-  };
-
   const handleBookmark = () => {
     setIsBookmarked(!isBookmarked);
     // TODO: Implement API call to bookmark/unbookmark
@@ -156,7 +150,7 @@ export default function EventPage({
     return (
       <BeautifulLoader
         message="Loading Event Details"
-        subMessage="Getting the latest information..."
+        subMessage="Getting the latest information"
         type="morphing"
       />
     );
@@ -190,85 +184,104 @@ export default function EventPage({
     ? Math.round(((event.registeredCount || 0) / event.maxCapacity) * 100)
     : 0;
 
+  // Category-specific fallback images (same as events list page)
+  const categoryImages: { [key: string]: string } = {
+    'workshop': 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=1200&h=800&fit=crop',
+    'seminar': 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=1200&h=800&fit=crop',
+    'conference': 'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=1200&h=800&fit=crop',
+    'lecture': 'https://images.unsplash.com/photo-1523580494863-6f3031224c94?w=1200&h=800&fit=crop',
+    'training': 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=1200&h=800&fit=crop',
+    'party': 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1200&h=800&fit=crop',
+    'celebration': 'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=1200&h=800&fit=crop',
+    'concert': 'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=1200&h=800&fit=crop',
+    'music': 'https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=1200&h=800&fit=crop',
+    'festival': 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=1200&h=800&fit=crop',
+    'sports': 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=1200&h=800&fit=crop',
+    'fitness': 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1200&h=800&fit=crop',
+    'tournament': 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=1200&h=800&fit=crop',
+    'meeting': 'https://images.unsplash.com/photo-1511578314322-379afb476865?w=1200&h=800&fit=crop',
+    'networking': 'https://images.unsplash.com/photo-1528605248644-14dd04022da1?w=1200&h=800&fit=crop',
+    'business': 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=1200&h=800&fit=crop',
+    'art': 'https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?w=1200&h=800&fit=crop',
+    'exhibition': 'https://images.unsplash.com/photo-1531243269054-5ebf6f34081e?w=1200&h=800&fit=crop',
+    'performance': 'https://images.unsplash.com/photo-1507676184212-d03ab07a01bf?w=1200&h=800&fit=crop',
+    'technology': 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=1200&h=800&fit=crop',
+    'competition': 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=1200&h=800&fit=crop',
+    'social': 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=1200&h=800&fit=crop',
+    'volunteer': 'https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=1200&h=800&fit=crop',
+    'charity': 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=1200&h=800&fit=crop',
+    'default': 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1200&h=800&fit=crop',
+  };
+
+  const normalizedCategory = event.category?.toLowerCase().replace(/\s+/g, '-') || 'default';
+  const backgroundImage = event.coverImage || categoryImages[normalizedCategory] || categoryImages['default'];
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-orange-50/30 pt-16">
-      {/* Back Button */}
-      <div className="max-w-7xl mx-auto px-6 py-4">
-        <button
-          onClick={() => window.history.back()}
-          className="flex items-center gap-2 text-orange-600 hover:text-orange-700 transition-colors"
-        >
-          <ArrowLeft className="w-5 h-5" />
-          Back to Events
-        </button>
-      </div>
-
       {/* Hero Section */}
       <div className="relative bg-gradient-to-l from-orange-500 to-red-500 text-white overflow-hidden">
         <div className="absolute inset-0 bg-black/20"></div>
-        {event.coverImage && (
-          <div
-            className="absolute inset-0 bg-cover bg-center opacity-30"
-            style={{ backgroundImage: `url(${event.coverImage})` }}
-          ></div>
-        )}
+        <div
+          className="absolute inset-0 bg-cover bg-center opacity-30"
+          style={{ backgroundImage: `url(${backgroundImage})` }}
+        ></div>
 
-        <div className="relative z-10 max-w-7xl mx-auto px-6 py-16">
-          <div className="flex flex-col lg:flex-row items-start justify-between gap-12">
+        <div className="relative z-10 max-w-7xl mx-auto px-6 py-12">
+          <div className="flex flex-col lg:flex-row items-start justify-between gap-8">
             <div className="flex-1">
-              <div className="flex items-start gap-4 mb-6">
-                <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center flex-shrink-0">
-                  <CalendarDays className="w-10 h-10 text-white" />
+              <div className="flex items-start gap-4 mb-4">
+                <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center flex-shrink-0">
+                  <CalendarDays className="w-8 h-8 text-white" />
                 </div>
                 <div className="flex-1">
-                  <div className="flex flex-wrap items-center gap-3 mb-4">
+                  <div className="flex flex-wrap items-center gap-2 mb-3">
                     {event.category && (
-                      <span className="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-sm font-medium">
+                      <span className="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-xs font-medium">
                         {event.category}
                       </span>
                     )}
                     {event.isPaid ? (
-                      <span className="px-3 py-1 bg-yellow-500/80 backdrop-blur-sm rounded-full text-sm font-medium">
+                      <span className="px-3 py-1 bg-yellow-500/80 backdrop-blur-sm rounded-full text-xs font-medium">
                         ${event.price}
                       </span>
                     ) : (
-                      <span className="px-3 py-1 bg-green-500/80 backdrop-blur-sm rounded-full text-sm font-medium">
+                      <span className="px-3 py-1 bg-green-500/80 backdrop-blur-sm rounded-full text-xs font-medium">
                         Free
                       </span>
                     )}
                   </div>
-                  <h1 className="text-4xl lg:text-5xl font-bold mb-4 leading-tight">
+                  <h1 className="text-3xl lg:text-4xl font-bold mb-3 leading-tight">
                     {event.title}
                   </h1>
-                  <p className="text-xl opacity-90 leading-relaxed">
+                  <p className="text-lg opacity-90 leading-relaxed">
                     {event.description}
                   </p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
-                  <Calendar className="w-6 h-6 mb-2" />
-                  <div className="text-sm opacity-80 mb-1">Date</div>
-                  <div className="font-semibold">{formatDate(event.date)}</div>
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3">
+                  <Calendar className="w-5 h-5 mb-1" />
+                  <div className="text-xs opacity-80 mb-1">Date</div>
+                  <div className="font-semibold text-sm">{formatDate(event.date)}</div>
                 </div>
-                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
-                  <Clock className="w-6 h-6 mb-2" />
-                  <div className="text-sm opacity-80 mb-1">Time</div>
-                  <div className="font-semibold">
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3">
+                  <Clock className="w-5 h-5 mb-1" />
+                  <div className="text-xs opacity-80 mb-1">Time</div>
+                  <div className="font-semibold text-sm">
                     {formatTime(event.time)}
                     {event.endTime && ` - ${formatTime(event.endTime)}`}
                   </div>
                 </div>
-                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
-                  <MapPin className="w-6 h-6 mb-2" />
-                  <div className="text-sm opacity-80 mb-1">Location</div>
-                  <div className="font-semibold">{event.location}</div>
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3">
+                  <MapPin className="w-5 h-5 mb-1" />
+                  <div className="text-xs opacity-80 mb-1">Location</div>
+                  <div className="font-semibold text-sm">{event.location}</div>
                 </div>
-                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
-                  <Users className="w-6 h-6 mb-2" />
-                  <div className="text-sm opacity-80 mb-1">Capacity</div>
-                  <div className="font-semibold">
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3">
+                  <Users className="w-5 h-5 mb-1" />
+                  <div className="text-xs opacity-80 mb-1">Capacity</div>
+                  <div className="font-semibold text-sm">
                     {event.registeredCount || 0} /{" "}
                     {event.maxCapacity || "Unlimited"}
                   </div>
@@ -276,7 +289,7 @@ export default function EventPage({
               </div>
 
               {event.maxCapacity && (
-                <div className="mb-8">
+                <div className="mb-4">
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-sm font-medium">
                       Registration Progress
@@ -297,17 +310,19 @@ export default function EventPage({
 
             {/* Action Buttons */}
             <div className="flex-shrink-0 w-full lg:w-auto">
-              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 space-y-4">
-                <button
-                  onClick={handleRegister}
-                  className={`w-full px-6 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg ${
-                    isRegistered
-                      ? "bg-green-500 text-white hover:bg-green-600"
-                      : "bg-white text-orange-600 hover:bg-gray-50"
-                  }`}
-                >
-                  {isRegistered ? "Registered ✓" : "Register Now"}
-                </button>
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 space-y-3">
+                {/* Mobile App Registration Notice */}
+                <div className="bg-gradient-to-r from-orange-600 to-red-600 text-white rounded-xl p-4 text-center">
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M17 19H7V5h10m0-2H7c-1.11 0-2 .89-2 2v14c0 1.11.89 2 2 2h10c1.11 0 2-.89 2-2V5c0-1.11-.89-2-2-2z"/>
+                    </svg>
+                    <h3 className="text-sm font-bold">Register via Mobile App</h3>
+                  </div>
+                  <p className="text-xs opacity-90">
+                    Download ClubSync app to register for this event
+                  </p>
+                </div>
 
                 <div className="flex gap-3">
                   <button

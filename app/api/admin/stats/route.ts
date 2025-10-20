@@ -7,16 +7,18 @@ export async function GET() {
     const now = new Date();
     const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
 
-    // Fetch total clubs
+    // Fetch total ACTIVE clubs (isActive: true, isDeleted: false)
     const totalClubs = await prisma.club.count({
       where: {
+        isActive: true,
         isDeleted: false,
       },
     });
 
-    // Fetch clubs from last month for comparison
+    // Fetch active clubs from last month for comparison
     const clubsLastMonth = await prisma.club.count({
       where: {
+        isActive: true,
         isDeleted: false,
         createdAt: {
           lt: lastMonth,
@@ -81,6 +83,7 @@ export async function GET() {
     const twoMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 2, now.getDate());
     const clubsTwoMonthsAgo = await prisma.club.count({
       where: {
+        isActive: true,
         isDeleted: false,
         createdAt: {
           lt: twoMonthsAgo,

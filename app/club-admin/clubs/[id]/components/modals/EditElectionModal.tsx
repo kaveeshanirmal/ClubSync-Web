@@ -659,7 +659,7 @@ const EditElectionModal: React.FC<EditElectionModalProps> = ({
                 {loading ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
-                    <span>Saving...</span>
+                    <span>Saving</span>
                   </>
                 ) : (
                   <>

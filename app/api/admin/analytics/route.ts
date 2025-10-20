@@ -39,7 +39,8 @@ export async function GET() {
       eventsByCategory,
       
       // Monthly growth data
-      recentClubs
+      recentClubs,
+      recentEvents
     ] = await Promise.all([
       // Active users (logged in today)
       prisma.user.count({
@@ -183,6 +184,14 @@ export async function GET() {
         select: {
           createdAt: true
         }
+      }),
+      
+      // Recent event growth (last 6 months)
+      prisma.event.findMany({
+        where: { isDeleted: false },
+        select: {
+          createdAt: true
+        }
       })
     ]);
 
@@ -207,20 +216,38 @@ export async function GET() {
       ? ((attendanceThisMonth - attendanceLastMonth) / attendanceLastMonth) * 100
       : 0;
 
-    // Process monthly growth data
-    const monthlyData: { [key: string]: number } = {};
+    // Process monthly growth data for clubs
+    const monthlyClubData: { [key: string]: number } = {};
     recentClubs.forEach(club => {
-      const monthKey = new Date(club.createdAt).toLocaleString('en-US', { month: 'short' });
-      monthlyData[monthKey] = (monthlyData[monthKey] || 0) + 1;
+      const date = new Date(club.createdAt);
+      const year = date.getFullYear();
+      const month = date.getMonth();
+      const monthKey = `${year}-${month}`;
+      monthlyClubData[monthKey] = (monthlyClubData[monthKey] || 0) + 1;
+    });
+
+    // Process monthly growth data for events
+    const monthlyEventData: { [key: string]: number } = {};
+    recentEvents.forEach(event => {
+      const date = new Date(event.createdAt);
+      const year = date.getFullYear();
+      const month = date.getMonth();
+      const monthKey = `${year}-${month}`;
+      monthlyEventData[monthKey] = (monthlyEventData[monthKey] || 0) + 1;
     });
 
     const monthlyGrowth = [];
     for (let i = 5; i >= 0; i--) {
       const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
       const monthName = date.toLocaleString('en-US', { month: 'short' });
+      const year = date.getFullYear();
+      const month = date.getMonth();
+      const monthKey = `${year}-${month}`;
+      
       monthlyGrowth.push({
         month: monthName,
-        newClubs: monthlyData[monthName] || 0
+        newClubs: monthlyClubData[monthKey] || 0,
+        newEvents: monthlyEventData[monthKey] || 0
       });
     }
 

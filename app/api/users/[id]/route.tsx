@@ -25,6 +25,7 @@ export async function GET(
         image: true,
         email: true,
         phone: true,
+        role: true,
         createdAt: true,
         updatedAt: true,
         ...(includeCertificates && {

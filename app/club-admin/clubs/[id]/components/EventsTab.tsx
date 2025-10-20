@@ -5,6 +5,7 @@ import CreateEventModal from "./modals/CreateEventModal";
 import EditEventModal from "./modals/EditEventModal";
 import DeleteEventModal from "./modals/DeleteEventModal";
 import Toast from "@/components/Toast";
+import BeautifulLoader from "@/components/Loader";
 
 interface Event {
   id: string;
@@ -190,9 +191,13 @@ const EventsTab: React.FC = () => {
   };
 
   if (isLoading) {
-    return (
-      <div className="space-y-6">
-        <div className="flex items-center space-x-3 mb-6">
+    return <BeautifulLoader type="morphing" message="Loading Events" subMessage="Fetching club events data" />;
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-3">
           <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center">
             <Calendar className="w-4 h-4 text-white" />
           </div>
@@ -201,23 +206,13 @@ const EventsTab: React.FC = () => {
             <p className="text-sm text-gray-600">Manage club events and activities</p>
           </div>
         </div>
-        <div className="flex justify-center items-center py-12">
-          <div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center space-x-3 mb-6">
-        <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center">
-          <Calendar className="w-4 h-4 text-white" />
-        </div>
-        <div>
-          <h3 className="text-lg font-bold text-gray-900">Event Management</h3>
-          <p className="text-sm text-gray-600">Manage club events and activities</p>
-        </div>
+        <button 
+          onClick={() => setIsCreateModalOpen(true)}
+          className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl hover:from-orange-600 hover:to-red-600 transition-all shadow-lg font-medium text-sm"
+        >
+          <Plus className="w-4 h-4" />
+          <span>Add Event</span>
+        </button>
       </div>
 
       {error && (
@@ -225,16 +220,6 @@ const EventsTab: React.FC = () => {
           {error}
         </div>
       )}
-
-      <div className="flex justify-end mb-6">
-        <button 
-          onClick={() => setIsCreateModalOpen(true)}
-          className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl hover:from-orange-600 hover:to-red-600 transition-all duration-300 shadow-lg font-medium text-sm"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Add Event</span>
-        </button>
-      </div>
 
       {events.length === 0 ? (
         <div className="text-center py-12">

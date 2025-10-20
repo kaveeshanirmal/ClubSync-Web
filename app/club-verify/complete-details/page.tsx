@@ -215,7 +215,7 @@ function CompleteClubDetailsContent() {
           <div className="flex justify-center items-center min-h-[400px]">
             <div className="flex flex-col items-center space-y-4">
               <Loader2 className="w-8 h-8 animate-spin text-orange-600" />
-              <p className="text-gray-600">Loading club details...</p>
+              <p className="text-gray-600">Loading Club Details</p>
             </div>
           </div>
         )}
@@ -332,7 +332,7 @@ function CompleteClubDetailsContent() {
                     {submitting ? (
                       <>
                         <Loader2 className="w-5 h-5 mr-3 animate-spin" />
-                        Updating...
+                        Updating
                       </>
                     ) : (
                       <>
@@ -371,7 +371,7 @@ export default function CompleteClubDetails() {
         <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-orange-50/30 pt-20 flex items-center justify-center">
           <div className="flex flex-col items-center space-y-4">
             <Loader2 className="w-8 h-8 animate-spin text-orange-600" />
-            <p className="text-gray-600">Loading...</p>
+            <p className="text-gray-600">Loading</p>
           </div>
         </div>
       }

@@ -35,7 +35,7 @@ export default function TestPage() {
         disabled={loading}
         className="bg-blue-500 hover:bg-blue-700 disabled:bg-gray-400 text-white font-bold py-2 px-4 rounded mb-4"
       >
-        {loading ? "Testing..." : "Test Connection"}
+        {loading ? "Testing" : "Test Connection"}
       </button>
 
       <div className="p-4 border rounded bg-gray-50">
