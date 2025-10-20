@@ -411,7 +411,7 @@ export default function ClubDetailPage() {
   if (loading) {
     return (
       <BeautifulLoader
-        message="Fetching club details..."
+        message="Fetching Club Details"
         subMessage="Please wait a moment while we load the information."
         type="morphing"
       />

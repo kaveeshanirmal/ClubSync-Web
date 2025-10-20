@@ -156,7 +156,7 @@ export default function EventPage({
     return (
       <BeautifulLoader
         message="Loading Event Details"
-        subMessage="Getting the latest information..."
+        subMessage="Getting the latest information"
         type="morphing"
       />
     );

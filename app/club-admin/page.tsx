@@ -182,7 +182,7 @@ export default function ClubAdminDashboard() {
     return (
       <BeautifulLoader
         message="Preparing your Club Admin Dashboard"
-        subMessage="Fetching your clubs and data..."
+        subMessage="Fetching your clubs and data"
         type="morphing"
       />
     );
@@ -355,79 +355,87 @@ export default function ClubAdminDashboard() {
               </div>
 
               <div className="space-y-6">
-                {clubs.map((club, index) => (
-                  <div key={club.id} className="mb-10 last:mb-0">
-                    <Link href={getClubLink(club)}>
-                      <div className="group bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl p-6 hover:from-orange-50 hover:to-red-50 transition-all duration-300 cursor-pointer border border-gray-200 hover:border-orange-300 hover:shadow-lg">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-4">
-                            <div
-                              className={`w-16 h-16 bg-gradient-to-br ${
-                                club.status === "pending"
-                                  ? "from-yellow-500 to-orange-500"
-                                  : index % 3 === 0
-                                    ? "from-orange-500 to-red-500"
-                                    : index % 3 === 1
-                                      ? "from-blue-500 to-indigo-500"
-                                      : "from-purple-500 to-pink-500"
-                              } rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-lg group-hover:scale-110 transition-transform duration-300`}
-                            >
-                              {club.name.charAt(0)}
-                            </div>
-                            <div className="flex-1">
-                              <h3 className="text-lg font-semibold text-black group-hover:text-orange-700 transition-colors">
-                                {club.name}
-                                {club.type === "request" && (
-                                  <span className="ml-2 text-xs text-yellow-600 bg-yellow-100 px-2 py-1 rounded-full">
-                                    Request
-                                  </span>
-                                )}
-                              </h3>
-                              <p className="text-gray-600 text-sm mb-2">
-                                {club.description}
-                              </p>
-                              <div className="flex items-center space-x-4">
-                                {club.type !== "request" && (
-                                  <>
-                                    <span className="text-xs text-gray-500 flex items-center bg-white px-2 py-1 rounded-full">
-                                      <Users className="w-3 h-3 mr-1" />
-                                      {club.memberCount} members
-                                    </span>
-                                    <span className="text-xs text-gray-500 flex items-center bg-white px-2 py-1 rounded-full">
-                                      <Calendar className="w-3 h-3 mr-1" />
-                                      {club.upcomingEvents} events
-                                    </span>
-                                  </>
-                                )}
-                                {club.pendingRequests > 0 && (
-                                  <span className="text-xs text-yellow-600 flex items-center bg-yellow-50 px-2 py-1 rounded-full border border-yellow-200">
-                                    <AlertCircle className="w-3 h-3 mr-1" />
-                                    {club.pendingRequests} pending
-                                  </span>
-                                )}
-                              </div>
-                            </div>
+                {clubs.map((club, index) => {
+                  const isClickable = club.status !== "pending" && club.status !== "underReview" && club.status !== "needsMoreInfo";
+                  const clubContent = (
+                    <div className={`group bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl p-6 ${isClickable ? 'hover:from-orange-50 hover:to-red-50 cursor-pointer hover:border-orange-300 hover:shadow-lg' : 'opacity-70 cursor-not-allowed'} transition-all duration-300 border border-gray-200`}>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-4">
+                          <div
+                            className={`w-16 h-16 bg-gradient-to-br ${
+                              club.status === "pending"
+                                ? "from-yellow-500 to-orange-500"
+                                : index % 3 === 0
+                                  ? "from-orange-500 to-red-500"
+                                  : index % 3 === 1
+                                    ? "from-blue-500 to-indigo-500"
+                                    : "from-purple-500 to-pink-500"
+                            } rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-lg ${isClickable ? 'group-hover:scale-110' : ''} transition-transform duration-300`}
+                          >
+                            {club.name.charAt(0)}
                           </div>
-                          <div className="text-right">
-                            <span
-                              className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium shadow-sm ${getStatusColor(club.status)}`}
-                            >
-                              {getStatusIcon(club.status, club.type)}
-                              {club.status === "underReview"
-                                ? "Under Review"
-                                : club.status === "needsMoreInfo"
-                                  ? "Needs More Info"
-                                  : club.status}
-                            </span>
-                            <div className="mt-2">
-                              <TrendingUp className="w-4 h-4 text-green-500 group-hover:scale-110 transition-transform duration-300" />
+                          <div className="flex-1">
+                            <h3 className={`text-lg font-semibold text-black ${isClickable ? 'group-hover:text-orange-700' : ''} transition-colors`}>
+                              {club.name}
+                              {club.type === "request" && (
+                                <span className="ml-2 text-xs text-yellow-600 bg-yellow-100 px-2 py-1 rounded-full">
+                                  Request
+                                </span>
+                              )}
+                            </h3>
+                            <div className="flex items-center space-x-4 mt-2">
+                              {club.type !== "request" && (
+                                <>
+                                  <span className="text-xs text-gray-500 flex items-center bg-white px-2 py-1 rounded-full">
+                                    <Users className="w-3 h-3 mr-1" />
+                                    {club.memberCount} members
+                                  </span>
+                                  <span className="text-xs text-gray-500 flex items-center bg-white px-2 py-1 rounded-full">
+                                    <Calendar className="w-3 h-3 mr-1" />
+                                    {club.upcomingEvents} events
+                                  </span>
+                                </>
+                              )}
+                              {club.pendingRequests > 0 && (
+                                <span className="text-xs text-yellow-600 flex items-center bg-yellow-50 px-2 py-1 rounded-full border border-yellow-200">
+                                  <AlertCircle className="w-3 h-3 mr-1" />
+                                  {club.pendingRequests} pending
+                                </span>
+                              )}
                             </div>
                           </div>
                         </div>
+                        <div className="text-right">
+                          <span
+                            className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium shadow-sm ${getStatusColor(club.status)}`}
+                          >
+                            {getStatusIcon(club.status, club.type)}
+                            {club.status === "underReview"
+                              ? "Under Review"
+                              : club.status === "needsMoreInfo"
+                                ? "Needs More Info"
+                                : club.status}
+                          </span>
+                          <div className="mt-2">
+                            <TrendingUp className="w-4 h-4 text-green-500 group-hover:scale-110 transition-transform duration-300" />
+                          </div>
+                        </div>
                       </div>
-                    </Link>
-                  </div>
-                ))}
+                    </div>
+                  );
+
+                  return (
+                    <div key={club.id} className="mb-10 last:mb-0">
+                      {isClickable ? (
+                        <Link href={getClubLink(club)}>
+                          {clubContent}
+                        </Link>
+                      ) : (
+                        clubContent
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>

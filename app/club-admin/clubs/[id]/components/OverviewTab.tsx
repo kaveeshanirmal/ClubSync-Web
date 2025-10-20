@@ -1,5 +1,13 @@
-import { AlertCircle, Calendar, Users } from "lucide-react";
+import { AlertCircle, Calendar, Users, Clock, CheckCircle } from "lucide-react";
 import React, { useEffect, useState } from "react";
+
+interface Activity {
+  id: string;
+  type: 'member_join' | 'event_scheduled' | 'join_request' | 'certificate_issued';
+  title: string;
+  description: string;
+  timestamp: string;
+}
 
 const OverviewTab: React.FC<{
   club: {
@@ -15,6 +23,64 @@ const OverviewTab: React.FC<{
     pendingRequests: club.pendingRequests ?? 0,
   });
   const [loading, setLoading] = useState(false);
+  const [activities, setActivities] = useState<Activity[]>([]);
+
+  const getRelativeTime = (timestamp: string) => {
+    const now = new Date();
+    const past = new Date(timestamp);
+    const diffInSeconds = Math.floor((now.getTime() - past.getTime()) / 1000);
+
+    if (diffInSeconds < 60) return 'Just now';
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
+    if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)} days ago`;
+    return past.toLocaleDateString();
+  };
+
+  const getActivityColor = (type: string) => {
+    switch (type) {
+      case 'member_join':
+        return 'from-orange-50 to-red-50 border-orange-200';
+      case 'event_scheduled':
+        return 'from-amber-50 to-orange-50 border-amber-200';
+      case 'join_request':
+        return 'from-yellow-50 to-amber-50 border-yellow-200';
+      case 'certificate_issued':
+        return 'from-red-50 to-orange-50 border-red-200';
+      default:
+        return 'from-gray-50 to-gray-100 border-gray-200';
+    }
+  };
+
+  const getActivityIcon = (type: string) => {
+    switch (type) {
+      case 'member_join':
+        return <Users className="w-5 h-5 text-white" />;
+      case 'event_scheduled':
+        return <Calendar className="w-5 h-5 text-white" />;
+      case 'join_request':
+        return <AlertCircle className="w-5 h-5 text-white" />;
+      case 'certificate_issued':
+        return <CheckCircle className="w-5 h-5 text-white" />;
+      default:
+        return <Clock className="w-5 h-5 text-white" />;
+    }
+  };
+
+  const getActivityIconBg = (type: string) => {
+    switch (type) {
+      case 'member_join':
+        return 'from-orange-500 to-red-500';
+      case 'event_scheduled':
+        return 'from-amber-500 to-orange-500';
+      case 'join_request':
+        return 'from-yellow-500 to-amber-500';
+      case 'certificate_issued':
+        return 'from-red-500 to-orange-500';
+      default:
+        return 'from-gray-500 to-gray-600';
+    }
+  };
 
   useEffect(() => {
     if (!club?.id) return;
@@ -32,7 +98,10 @@ const OverviewTab: React.FC<{
           upcomingEvents: typeof data.upcomingEvents === "number" ? data.upcomingEvents : counts.upcomingEvents,
           pendingRequests: typeof data.pendingRequests === "number" ? data.pendingRequests : counts.pendingRequests,
         });
-      } catch (e) {
+        if (data.recentActivities && Array.isArray(data.recentActivities)) {
+          setActivities(data.recentActivities);
+        }
+      } catch {
         // keep existing counts on error
       } finally {
         if (!cancelled) setLoading(false);
@@ -108,40 +177,40 @@ const OverviewTab: React.FC<{
         </div>
       </div>
 
-      <div className="space-y-4">
-        <div className="flex items-center space-x-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200 hover:shadow-md transition-all duration-200">
-          <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full flex items-center justify-center">
-            <Users className="w-5 h-5 text-white" />
-          </div>
-          <div className="flex-1">
-            <span className="text-sm font-medium text-gray-900">New member joined - Alex Turner</span>
-            <p className="text-xs text-gray-600">Member count increased to {counts.memberCount}</p>
-          </div>
-          <span className="text-xs text-gray-500 bg-white px-2 py-1 rounded-full">2 hours ago</span>
+      {loading ? (
+        <div className="text-center py-8">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
+          <p className="text-sm text-gray-500 mt-2">Loading activities...</p>
         </div>
-        
-        <div className="flex items-center space-x-4 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200 hover:shadow-md transition-all duration-200">
-          <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center">
-            <Calendar className="w-5 h-5 text-white" />
-          </div>
-          <div className="flex-1">
-            <span className="text-sm font-medium text-gray-900">Event "Robotics Workshop" scheduled</span>
-            <p className="text-xs text-gray-600">Scheduled for next Friday at 2:00 PM</p>
-          </div>
-          <span className="text-xs text-gray-500 bg-white px-2 py-1 rounded-full">1 day ago</span>
+      ) : activities.length > 0 ? (
+        <div className="space-y-4">
+          {activities.map((activity) => (
+            <div 
+              key={activity.id}
+              className={`flex items-center space-x-4 p-4 bg-gradient-to-r ${getActivityColor(activity.type)} rounded-xl border hover:shadow-md transition-all duration-200`}
+            >
+              <div className={`w-10 h-10 bg-gradient-to-r ${getActivityIconBg(activity.type)} rounded-full flex items-center justify-center`}>
+                {getActivityIcon(activity.type)}
+              </div>
+              <div className="flex-1">
+                <span className="text-sm font-medium text-gray-900">{activity.title}</span>
+                <p className="text-xs text-gray-600">{activity.description}</p>
+              </div>
+              <span className="text-xs text-gray-500 bg-white px-2 py-1 rounded-full">
+                {getRelativeTime(activity.timestamp)}
+              </span>
+            </div>
+          ))}
         </div>
-        
-        <div className="flex items-center space-x-4 p-4 bg-gradient-to-r from-amber-50 to-yellow-50 rounded-xl border border-amber-200 hover:shadow-md transition-all duration-200">
-          <div className="w-10 h-10 bg-gradient-to-r from-amber-500 to-yellow-500 rounded-full flex items-center justify-center">
-            <AlertCircle className="w-5 h-5 text-white" />
+      ) : (
+        <div className="text-center py-8">
+          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+            <Clock className="w-8 h-8 text-gray-400" />
           </div>
-          <div className="flex-1">
-            <span className="text-sm font-medium text-gray-900">Service letter request from Sarah Johnson</span>
-            <p className="text-xs text-gray-600">Pending review and approval</p>
-          </div>
-          <span className="text-xs text-gray-500 bg-white px-2 py-1 rounded-full">2 days ago</span>
+          <p className="text-sm text-gray-500">No recent activities</p>
+          <p className="text-xs text-gray-400 mt-1">Activities will appear here as they happen</p>
         </div>
-      </div>
+      )}
     </div>
   </div>
 );

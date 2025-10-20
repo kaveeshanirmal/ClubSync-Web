@@ -194,7 +194,7 @@ export default function ClubsPage() {
     return (
       <BeautifulLoader 
         message="Discovering Amazing Clubs"
-        subMessage="Loading communities that inspire..."
+        subMessage="Loading communities that inspire"
         type="morphing"
       />
     );

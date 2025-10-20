@@ -177,7 +177,7 @@ export default function EventsPage() {
     return (
       <BeautifulLoader
         message="Discovering Amazing Events"
-        subMessage="Loading experiences that inspire..."
+        subMessage="Loading experiences that inspire"
         type="morphing"
       />
     );

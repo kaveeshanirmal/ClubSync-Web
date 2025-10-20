@@ -146,7 +146,7 @@ export default function ClubPage() {
     return (
       <BeautifulLoader 
         message="Loading Club Details"
-        subMessage="Getting the latest information..."
+        subMessage="Getting the latest information"
         type="morphing"
       />
     );
