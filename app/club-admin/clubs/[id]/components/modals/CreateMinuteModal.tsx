@@ -164,16 +164,14 @@ const CreateMinuteModal: React.FC<CreateMinuteModalProps> = ({
           <div className="relative flex justify-between items-center p-5">
             <div className="space-y-1">
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
-                  <FileText className="w-5 h-5 text-white" />
+                <div className="w-7 h-7 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center">
+                  <FileText className="w-4 h-4 text-white" />
                 </div>
                 <h2 className="text-xl font-bold text-gray-900">
                   Create Meeting Minute
                 </h2>
               </div>
-              <p className="text-gray-600 text-sm">
-                Add a new meeting minute for your club
-              </p>
+              
             </div>
             <button
               onClick={handleClose}

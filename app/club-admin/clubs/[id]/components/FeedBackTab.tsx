@@ -56,11 +56,11 @@ const FeedBackTab: React.FC<{ clubId: string }> = ({ clubId }) => {
   return (
     <div className="space-y-6">
       <div className="flex items-center space-x-3 mb-4">
-        <div className="w-8 h-8 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-xl flex items-center justify-center transform hover:rotate-12 transition-transform duration-300">
+        <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center transform hover:rotate-12 transition-transform duration-300">
           <Star className="w-4 h-4 text-white" />
         </div>
         <h3 className="text-lg font-bold text-gray-900">Volunteer Feedback</h3>
-        <div className="h-px bg-gradient-to-r from-yellow-500 to-orange-500 flex-1 opacity-30" />
+        <div className="h-px bg-gradient-to-r from-orange-500 to-red-500 flex-1 opacity-30" />
       </div>
 
       {loading ? (
@@ -77,7 +77,7 @@ const FeedBackTab: React.FC<{ clubId: string }> = ({ clubId }) => {
                 key={item.id}
                 className="relative overflow-hidden bg-white rounded-2xl border border-gray-100 p-6 hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1"
               >
-                <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-yellow-100 to-orange-100 rounded-full -mr-8 -mt-8 opacity-30" />
+                <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-orange-100 to-red-100 rounded-full -mr-8 -mt-8 opacity-30" />
 
                 <div className="flex items-start justify-between mb-4">
                   <div>
@@ -92,7 +92,7 @@ const FeedBackTab: React.FC<{ clubId: string }> = ({ clubId }) => {
           </div>
 
           <div className="relative overflow-hidden bg-white rounded-2xl border border-gray-100 p-6 mt-2">
-            <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-yellow-100 to-orange-100 rounded-full -mr-8 -mt-8 opacity-30" />
+            <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-orange-100 to-red-100 rounded-full -mr-8 -mt-8 opacity-30" />
             <div className="text-center">
               <p className="text-sm text-gray-600 mb-2">Overall Club Rating</p>
               <div className="flex items-center justify-center space-x-2 mb-2">

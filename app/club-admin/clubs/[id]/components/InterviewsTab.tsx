@@ -179,7 +179,7 @@ const InterviewsTab: React.FC<InterviewsTabProps> = ({ clubId }) => {
           <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center transform hover:rotate-12 transition-transform duration-300">
             <Calendar className="w-4 h-4 text-white" />
           </div>
-          <h3 className="text-lg font-bold text-gray-900">
+          <h3 className="text-2xl font-bold text-gray-900">
             Interview Management
           </h3>
           <div className="h-px bg-gradient-to-r from-orange-500 to-red-500 flex-1 opacity-30" />

@@ -502,13 +502,13 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
 
       <div className="relative bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[95vh] overflow-hidden border-2 border-gray-100 transform transition-all duration-300 animate-scale-in">
         <div className="relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-600" />
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-50/90 to-indigo-50/90 backdrop-blur-sm" />
+          <div className="absolute inset-0 bg-gradient-to-r from-orange-500 via-red-500 to-orange-600" />
+          <div className="absolute inset-0 bg-gradient-to-r from-orange-50/90 to-red-50/90 backdrop-blur-sm" />
 
           <div className="relative flex justify-between items-center p-5">
             <div className="space-y-1">
               <h2 className="text-xl font-bold text-gray-900 flex items-center space-x-3">
-                <div className="w-7 h-7 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full flex items-center justify-center">
+                <div className="w-7 h-7 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center">
                   <Calendar className="w-4 h-4 text-white" />
                 </div>
                 <span>Edit Event: {event.title}</span>
@@ -525,9 +525,6 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
               <X className="w-5 h-5 text-gray-700 group-hover:text-gray-900 transition-colors duration-300" />
             </button>
           </div>
-
-          <div className="absolute top-3 right-16 w-2 h-2 bg-blue-300 rounded-full animate-bounce" />
-          <div className="absolute bottom-3 left-16 w-2 h-2 bg-indigo-300 rounded-full animate-pulse" />
         </div>
 
         <form
@@ -545,7 +542,7 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
               <SectionIcon
                 icon={FileText}
                 title="Basic Details"
-                colorClass="from-blue-500 to-indigo-600"
+                colorClass="from-orange-500 to-red-500"
               />
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -558,7 +555,7 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
                       onChange={handleInputChange}
                       required
                       placeholder="Annual General Meeting"
-                      focusColor="ring-blue-500"
+                      focusColor="ring-orange-500"
                     />
                   </div>
                   <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl p-4 border border-gray-200 hover:shadow-lg transition-all duration-300">
@@ -568,7 +565,7 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
                       value={formData.subtitle}
                       onChange={handleInputChange}
                       placeholder="Celebrating 10 years of service"
-                      focusColor="ring-blue-500"
+                      focusColor="ring-orange-500"
                     />
                   </div>
                 </div>
@@ -583,7 +580,7 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
                       value={formData.category}
                       onChange={handleInputChange}
                       required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 bg-white text-gray-900 text-sm"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-300 bg-white text-gray-900 text-sm"
                     >
                       {eventCategories.map((category) => (
                         <option key={category.value} value={category.value}>
@@ -613,7 +610,7 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
                             200,
                           )
                         }
-                        className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 bg-white text-gray-900 placeholder-gray-500 text-sm"
+                        className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-300 bg-white text-gray-900 placeholder-gray-500 text-sm"
                         placeholder="Search for an organizer..."
                       />
 
@@ -621,7 +618,7 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
                         <div className="absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-xl shadow-lg max-h-48 overflow-y-auto animate-fade-in">
                           {isLoadingUsers ? (
                             <div className="p-3 text-center text-gray-500 text-xs">
-                              <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-1" />
+                              <div className="w-4 h-4 border-2 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-1" />
                               Loading users...
                             </div>
                           ) : filteredUsers.length > 0 ? (
@@ -661,7 +658,7 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
                   type="textarea"
                   rows={3}
                   placeholder="Describe the event's purpose, agenda highlights, and target audience..."
-                  focusColor="ring-blue-500"
+                  focusColor="ring-orange-500"
                 />
               </div>
             </div>
@@ -670,7 +667,7 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
               <SectionIcon
                 icon={Clock}
                 title="Schedule & Capacity"
-                colorClass="from-green-500 to-emerald-600"
+                colorClass="from-orange-500 to-red-500"
               />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div className="space-y-4">
@@ -683,7 +680,7 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
                       type="datetime-local"
                       required
                       min={getCurrentDateTime()}
-                      focusColor="ring-green-500"
+                      focusColor="ring-orange-500"
                     />
                   </div>
 
@@ -695,7 +692,7 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
                       onChange={handleInputChange}
                       type="datetime-local"
                       min={formData.startDateTime || getCurrentDateTime()}
-                      focusColor="ring-green-500"
+                      focusColor="ring-orange-500"
                     />
                   </div>
                 </div>
@@ -708,7 +705,7 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
                       value={formData.venue}
                       onChange={handleInputChange}
                       placeholder="Room A, Zoom Link, University Auditorium"
-                      focusColor="ring-green-500"
+                      focusColor="ring-orange-500"
                     />
                   </div>
 
@@ -721,7 +718,7 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
                       type="number"
                       min="1"
                       placeholder="e.g., 100 or leave blank for unlimited"
-                      focusColor="ring-green-500"
+                      focusColor="ring-orange-500"
                     />
                   </div>
                 </div>
@@ -732,7 +729,7 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
               <SectionIcon
                 icon={Users}
                 title="Additional Event Details"
-                colorClass="from-purple-500 to-indigo-600"
+                colorClass="from-orange-500 to-red-500"
               />
 
               <div className="space-y-4">
@@ -741,7 +738,7 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
                     onClick={() => setIsAddonsOpen(!isAddonsOpen)}
                     className="flex items-center space-x-2 cursor-pointer"
                   >
-                    <Tag className="w-4 h-4 text-purple-600" />
+                    <Tag className="w-4 h-4 text-orange-600" />
                     <span className="text-sm font-bold text-gray-800">
                       Event Addons ({addons.length})
                     </span>
@@ -769,12 +766,12 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
                     {addons.map((addon, index) => (
                       <div
                         key={addon.id}
-                        className="relative overflow-hidden bg-gradient-to-br from-purple-50 to-indigo-50 rounded-xl p-4 border border-purple-200 hover:shadow-md transition-all duration-300"
+                        className="relative overflow-hidden bg-gradient-to-br from-orange-50 to-red-50 rounded-xl p-4 border border-orange-200 hover:shadow-md transition-all duration-300"
                       >
-                        <div className="absolute top-2 right-2 w-2 h-2 bg-purple-200 rounded-full opacity-50" />
+                        <div className="absolute top-2 right-2 w-2 h-2 bg-orange-200 rounded-full opacity-50" />
                         <div className="flex justify-between items-center mb-2">
                           <span className="font-bold text-gray-800 text-sm flex items-center space-x-2">
-                            <span className="w-5 h-5 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                            <span className="w-5 h-5 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
                               {index + 1}
                             </span>
                             <span>Addon Details</span>
@@ -799,7 +796,7 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
                               )
                             }
                             placeholder="T-Shirt, Lunch, Certificate"
-                            focusColor="ring-purple-500"
+                            focusColor="ring-orange-500"
                             rows={1}
                             type="textarea"
                           />
@@ -814,7 +811,7 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
                               )
                             }
                             placeholder="Payment Proof, Student ID, Laptop"
-                            focusColor="ring-purple-500"
+                            focusColor="ring-orange-500"
                             rows={1}
                             type="textarea"
                           />
@@ -825,7 +822,7 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
                               updateAddon(addon.id, "tags", e.target.value)
                             }
                             placeholder="Tech, Free, Beginner"
-                            focusColor="ring-purple-500"
+                            focusColor="ring-orange-500"
                             rows={1}
                             type="textarea"
                           />
@@ -842,7 +839,7 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
                     onClick={() => setIsAgendaOpen(!isAgendaOpen)}
                     className="flex items-center space-x-2 cursor-pointer"
                   >
-                    <List className="w-4 h-4 text-purple-600" />
+                    <List className="w-4 h-4 text-orange-600" />
                     <span className="text-sm font-bold text-gray-800">
                       Event Agenda ({agenda.length})
                     </span>
@@ -870,12 +867,12 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
                     {agenda.map((item, index) => (
                       <div
                         key={item.id}
-                        className="relative overflow-hidden bg-gradient-to-br from-purple-50 to-indigo-50 rounded-xl p-4 border border-purple-200 hover:shadow-md transition-all duration-300"
+                        className="relative overflow-hidden bg-gradient-to-br from-orange-50 to-red-50 rounded-xl p-4 border border-orange-200 hover:shadow-md transition-all duration-300"
                       >
-                        <div className="absolute top-2 right-2 w-2 h-2 bg-purple-200 rounded-full opacity-50" />
+                        <div className="absolute top-2 right-2 w-2 h-2 bg-orange-200 rounded-full opacity-50" />
                         <div className="flex justify-between items-center mb-2">
                           <span className="font-bold text-gray-800 text-sm flex items-center space-x-2">
-                            <span className="w-5 h-5 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                            <span className="w-5 h-5 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
                               {index + 1}
                             </span>
                             <span>Agenda Item</span>
@@ -900,7 +897,7 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
                               )
                             }
                             placeholder="Keynote Speech"
-                            focusColor="ring-purple-500"
+                            focusColor="ring-orange-500"
                             required
                           />
                           <div className="grid grid-cols-2 gap-2">
@@ -915,7 +912,7 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
                                 )
                               }
                               type="datetime-local"
-                              focusColor="ring-purple-500"
+                              focusColor="ring-orange-500"
                               required
                             />
                             <InputField
@@ -929,7 +926,7 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
                                 )
                               }
                               type="datetime-local"
-                              focusColor="ring-purple-500"
+                              focusColor="ring-orange-500"
                               required
                             />
                           </div>
@@ -946,7 +943,7 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
                             type="textarea"
                             rows={2}
                             placeholder="Detailed description of the session."
-                            focusColor="ring-purple-500"
+                            focusColor="ring-orange-500"
                           />
                         </div>
                       </div>
@@ -963,7 +960,7 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
                     }
                     className="flex items-center space-x-2 cursor-pointer"
                   >
-                    <BookOpen className="w-4 h-4 text-purple-600" />
+                    <BookOpen className="w-4 h-4 text-orange-600" />
                     <span className="text-sm font-bold text-gray-800">
                       Resource Persons ({resourcePersons.length})
                     </span>
@@ -993,12 +990,12 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
                     {resourcePersons.map((person, index) => (
                       <div
                         key={person.id}
-                        className="relative overflow-hidden bg-gradient-to-br from-purple-50 to-indigo-50 rounded-xl p-4 border border-purple-200 hover:shadow-md transition-all duration-300"
+                        className="relative overflow-hidden bg-gradient-to-br from-orange-50 to-red-50 rounded-xl p-4 border border-orange-200 hover:shadow-md transition-all duration-300"
                       >
-                        <div className="absolute top-2 right-2 w-2 h-2 bg-purple-200 rounded-full opacity-50" />
+                        <div className="absolute top-2 right-2 w-2 h-2 bg-orange-200 rounded-full opacity-50" />
                         <div className="flex justify-between items-center mb-2">
                           <span className="font-bold text-gray-800 text-sm flex items-center space-x-2">
-                            <span className="w-5 h-5 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                            <span className="w-5 h-5 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
                               {index + 1}
                             </span>
                             <span>Resource Person</span>
@@ -1023,7 +1020,7 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
                               )
                             }
                             placeholder="Jane Doe"
-                            focusColor="ring-purple-500"
+                            focusColor="ring-orange-500"
                             required
                           />
                           <InputField
@@ -1037,7 +1034,7 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
                               )
                             }
                             placeholder="CEO, Professor of AI"
-                            focusColor="ring-purple-500"
+                            focusColor="ring-orange-500"
                           />
                           <InputField
                             label="About (Optional)"
@@ -1052,7 +1049,7 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
                             type="textarea"
                             rows={2}
                             placeholder="Brief biography."
-                            focusColor="ring-purple-500"
+                            focusColor="ring-orange-500"
                           />
                           <InputField
                             label="Profile Image URL (Optional)"
@@ -1066,7 +1063,7 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
                             }
                             type="url"
                             placeholder="https://example.com/profile.jpg"
-                            focusColor="ring-purple-500"
+                            focusColor="ring-orange-500"
                           />
                         </div>
                       </div>
@@ -1078,7 +1075,7 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
           </div>
 
           <div className="relative overflow-hidden border-t border-gray-200">
-            <div className="absolute inset-0 bg-gradient-to-r from-gray-50 to-blue-50/30" />
+            <div className="absolute inset-0 bg-gradient-to-r from-gray-50 to-orange-50/30" />
             <div className="relative flex justify-end p-5">
               <button
                 type="button"
@@ -1093,7 +1090,7 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
               <button
                 type="submit"
                 disabled={isLoading}
-                className="group flex items-center space-x-2 px-5 py-2 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-xl hover:from-blue-600 hover:to-indigo-600 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:scale-105 transform font-semibold text-sm"
+                className="group flex items-center space-x-2 px-5 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl hover:from-orange-600 hover:to-red-600 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:scale-105 transform font-semibold text-sm"
               >
                 {isLoading ? (
                   <>

@@ -53,7 +53,7 @@ interface Club {
   memberCount: number;
   upcomingEvents: number;
   pendingRequests: number;
-  status: string;
+  isActive?: boolean;
   createdAt?: string;
   [key: string]: unknown;
 }
@@ -273,12 +273,6 @@ export default function ClubDetailPage() {
       color: "text-green-600 hover:bg-green-50",
     },
     {
-      icon: Edit,
-      label: "Edit Club Info",
-      action: () => console.log("Edit club"),
-      color: "text-orange-600 hover:bg-orange-50",
-    },
-    {
       icon: Archive,
       label: "Archive Club",
       action: () => console.log("Archive club"),
@@ -306,28 +300,11 @@ export default function ClubDetailPage() {
     memberCount: 0,
     upcomingEvents: 0,
     pendingRequests: 0,
-    status: "inactive",
+    isActive: false,
     createdAt: "Unknown",
   };
 
   const clubData = club ?? fallbackClub;
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "active":
-      case "approved":
-      case "published":
-        return "bg-green-100 text-green-800";
-      case "pending":
-        return "bg-yellow-100 text-yellow-800";
-      case "draft":
-        return "bg-gray-100 text-gray-800";
-      case "completed":
-        return "bg-blue-100 text-blue-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
 
   const roleIcons = {
     member: Users,
@@ -765,14 +742,17 @@ export default function ClubDetailPage() {
               </div>
             </div>
             <div className="flex items-center space-x-3">
-              <span
-                className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(
-                  String(clubData.status),
-                )}`}
-              >
-                {String(clubData.status).charAt(0).toUpperCase() +
-                  String(clubData.status).slice(1)}
-              </span>
+              {clubData.isActive !== undefined && (
+                <span
+                  className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+                    clubData.isActive
+                      ? "bg-green-100 text-green-800"
+                      : "bg-gray-100 text-gray-800"
+                  }`}
+                >
+                  {clubData.isActive ? "Active" : "Inactive"}
+                </span>
+              )}
 
               {/* Complete Club Details Button */}
               <button
