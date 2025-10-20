@@ -10,14 +10,34 @@ export default function Navbar() {
   const [showSignOutModal, setShowSignOutModal] = useState(false);
   const [showProfileTooltip, setShowProfileTooltip] = useState(false);
   const [tooltipTimeout, setTooltipTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [profileImage, setProfileImage] = useState<string | null>(null);
 
   const { status, data: session } = useSession();
 
   // Generate consistent fallback avatar based on user email/name
   const getFallbackAvatar = () => {
     const seed = session?.user?.email || session?.user?.name || 'default';
-    return `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(seed)}`;
+    return `https://api.dicebear.com/7.x/pixel-art/png?seed=${encodeURIComponent(seed)}`;
   };
+
+  // Fetch user profile image from database
+  useEffect(() => {
+    const fetchProfileImage = async () => {
+      if (session?.user?.id) {
+        try {
+          const response = await fetch(`/api/users/${session.user.id}`);
+          if (response.ok) {
+            const userData = await response.json();
+            setProfileImage(userData.image || null);
+          }
+        } catch (error) {
+          console.error("Error fetching profile image:", error);
+        }
+      }
+    };
+
+    fetchProfileImage();
+  }, [session?.user?.id]);
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
@@ -101,7 +121,7 @@ export default function Navbar() {
                 onMouseLeave={handleMouseLeave}
               >
                 <img
-                  src={session.user?.image || getFallbackAvatar()}
+                  src={profileImage || getFallbackAvatar()}
                   alt={session.user?.name || "User"}
                   className="w-8 h-8 rounded-full object-cover border-2 border-gray-200 hover:border-orange-300 transition-colors duration-300"
                 />
@@ -119,7 +139,7 @@ export default function Navbar() {
                     <div className="flex items-center gap-4">
                       <div className="flex-shrink-0">
                         <img
-                          src={session.user?.image || getFallbackAvatar()}
+                          src={profileImage || getFallbackAvatar()}
                           alt={session.user?.name || "User"}
                           className="w-12 h-12 rounded-full object-cover border-2 border-orange-300"
                         />
